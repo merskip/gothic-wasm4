@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+#[cfg(not(test))]
 use core::panic::PanicInfo;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
