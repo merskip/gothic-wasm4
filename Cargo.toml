@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 wasm4 = { path = "wasm4" }
+buddy-alloc = "0.4"
