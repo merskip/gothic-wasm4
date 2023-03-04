@@ -12,6 +12,7 @@ use alloc::boxed::Box;
 use core::panic::PanicInfo;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
+use wasm4::geometry::Point;
 use wasm4::main_application;
 use crate::renderable::Renderable;
 use crate::ui::main_menu::MainMenu;
@@ -30,7 +31,7 @@ impl Application for GothicApplication {
     }
 
     fn update(&mut self) {
-        self.root_renderable.render(&self.framebuffer);
+        self.root_renderable.render(&self.framebuffer, Point::default());
     }
 }
 
