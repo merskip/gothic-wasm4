@@ -1,6 +1,6 @@
-use alloc::string::String;
-use wasm4::geometry::{Rect, Size};
-use wasm4::{get_char_size};
+use alloc::string::{String, ToString};
+use wasm4::geometry::{Point, Rect, Size};
+use wasm4::{get_char_size, trace};
 use wasm4::framebuffer::Framebuffer;
 use crate::renderable::{Renderable};
 
@@ -40,8 +40,8 @@ impl Renderable for Text {
     fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
         match self.alignment {
             TextAlignment::Start => self.render_aligned_start(framebuffer, frame),
-            TextAlignment::Center => unimplemented!(),
-            TextAlignment::End => unimplemented!(),
+            TextAlignment::Center => self.render_aligned_center(framebuffer, frame),
+            TextAlignment::End => self.render_aligned_end(framebuffer, frame),
         }
     }
 }
@@ -49,6 +49,18 @@ impl Renderable for Text {
 impl Text {
     fn render_aligned_start(&self, framebuffer: &Framebuffer, frame: Rect) {
         framebuffer.text(&*self.text, frame.origin);
+    }
+
+    fn render_aligned_center(&self, framebuffer: &Framebuffer, frame: Rect) {
+        let content_size = self.content_size();
+        let x = (frame.size.width - content_size.width) / 2;
+        framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));
+    }
+
+    fn render_aligned_end(&self, framebuffer: &Framebuffer, frame: Rect) {
+        let content_size = self.content_size();
+        let x = frame.size.width - content_size.width;
+        framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));
     }
 }
 
