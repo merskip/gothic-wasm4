@@ -1,2 +1,2 @@
-pub mod main_menu;
+pub mod simple_menu;
 pub mod text;

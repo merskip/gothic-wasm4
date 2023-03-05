@@ -8,7 +8,9 @@ mod allocator;
 pub mod renderable;
 pub mod updatable;
 
+use alloc::boxed::Box;
 use alloc::rc::Rc;
+use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::{RefCell};
@@ -17,11 +19,11 @@ use core::panic::PanicInfo;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
-use wasm4::main_application;
+use wasm4::{main_application, trace};
 use renderable::Renderable;
 use updatable::Updatable;
 use wasm4::inputs::Inputs;
-use crate::ui::main_menu::MainMenu;
+use crate::ui::simple_menu::SimpleMenu;
 
 struct GothicApplication {
     objects: Vec<Rc<RefCell<dyn Updatable>>>,
@@ -31,7 +33,18 @@ struct GothicApplication {
 impl Application for GothicApplication {
     fn start(inputs: &'static Inputs) -> Self {
         let main_menu = Rc::new(RefCell::new(
-            MainMenu::new(&inputs.gamepad1)
+            SimpleMenu::new(
+                Box::new([
+                    "New game",
+                    "Settings",
+                    "Authors"
+                ]),
+                &inputs.gamepad1,
+                Box::new(|item| {
+                    trace("Selected item");
+                    trace(&*item.to_string())
+                }),
+            )
         ));
         Self {
             objects: vec![main_menu.clone()],
