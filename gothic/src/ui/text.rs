@@ -1,8 +1,8 @@
-use alloc::string::{String, ToString};
+use alloc::string::{String};
 use wasm4::geometry::{Point, Rect, Size};
-use wasm4::{get_char_size, trace};
+use wasm4::{get_char_size};
 use wasm4::framebuffer::Framebuffer;
-use crate::renderable::{Renderable};
+use crate::renderable::Renderable;
 
 pub struct Text {
     pub text: String,
@@ -52,12 +52,14 @@ impl Text {
     }
 
     fn render_aligned_center(&self, framebuffer: &Framebuffer, frame: Rect) {
+        // TODO: Make works correctly with multilines
         let content_size = self.content_size();
         let x = (frame.size.width - content_size.width) / 2;
         framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));
     }
 
     fn render_aligned_end(&self, framebuffer: &Framebuffer, frame: Rect) {
+        // TODO: Make works correctly with multilines
         let content_size = self.content_size();
         let x = frame.size.width - content_size.width;
         framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));

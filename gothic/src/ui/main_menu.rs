@@ -5,19 +5,19 @@ use wasm4::framebuffer::Framebuffer;
 use wasm4::gamepad::Gamepad;
 use wasm4::gamepad::GamepadButton::{DPadDown, DPadLeft, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
-use crate::renderable::{Renderable};
+use crate::renderable::Renderable;
+use crate::updatable::Updatable;
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
-use crate::updatable::Updatable;
 
 pub struct MainMenu {
     pub items: [Text; 3],
     pub selected_index: usize,
-    gamepad: Rc<RefCell<Gamepad>>,
+    gamepad: &'static Gamepad,
 }
 
 impl MainMenu {
-    pub fn new(gamepad: Rc<RefCell<Gamepad>>) -> Self {
+    pub fn new(gamepad: &'static Gamepad) -> Self {
         Self {
             items: [
                 Self::make_menu_item("New game"),
@@ -38,15 +38,14 @@ impl MainMenu {
 
 impl Updatable for MainMenu {
     fn update(&mut self) {
-        let gamepad = self.gamepad.borrow();
         let mut selected_index = self.selected_index as isize;
-        if gamepad.is_pressed(DPadUp) {
+        if self.gamepad.is_pressed(DPadUp) {
             selected_index -= 1;
         }
-        else if gamepad.is_pressed(DPadDown) {
+        else if self.gamepad.is_pressed(DPadDown) {
             selected_index += 1;
         }
-        selected_index = selected_index.clamp(0, (self.items.len() as isize - 1));
+        selected_index = selected_index.clamp(0, self.items.len() as isize - 1);
         self.selected_index = selected_index as usize;
     }
 }
