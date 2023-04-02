@@ -23,6 +23,9 @@ use wasm4::{main_application, println};
 use renderable::Renderable;
 use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
+use crate::game::game_scene::GameScene;
+use crate::game::game_world::GameWorld;
+use crate::game::player::Player;
 use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
 
@@ -80,7 +83,7 @@ impl GothicApplication {
                     0 => {
                         navigator_1.clone().borrow_mut()
                             .push_view(Rc::new(RefCell::new(
-                                Self::make_new_game_menu(navigator.clone())
+                                Self::make_game_scene(navigator.clone())
                             )));
                     }
                     _ => {}
@@ -93,21 +96,10 @@ impl GothicApplication {
         )
     }
 
-    fn make_new_game_menu(navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
-        SimpleMenu::new(
-            Box::new([
-                "Continue",
-                "Start New Game",
-                "Load Game"
-            ]),
-            Rc::new(move |item| {
-                println!("[New Game menu] Selected item index: {}", item);
-            }),
-            Rc::new(move || {
-                navigator.borrow_mut()
-                    .pop_top_view();
-            }),
-        )
+    fn make_game_scene(_navigator: Rc<RefCell<Navigator>>) -> GameScene {
+        let player = Player::new(Point::new(50.0, 50.0));
+        let game_world = GameWorld::new(player);
+        GameScene::new(game_world)
     }
 }
 
