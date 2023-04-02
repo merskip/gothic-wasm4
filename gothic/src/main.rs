@@ -17,7 +17,7 @@ use core::panic::PanicInfo;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
-use wasm4::{main_application, trace};
+use wasm4::{main_application, println, trace};
 use renderable::Renderable;
 use wasm4::inputs::Inputs;
 use crate::ui::navigator::Navigator;
@@ -101,6 +101,9 @@ main_application! { GothicApplication }
 
 #[panic_handler]
 #[cfg(not(test))]
-fn panic_handler(_panic_info: &PanicInfo<'_>) -> ! {
+fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
+    println!();
+    println!("[PANIC!]");
+    println!("{}", panic_info);
     core::arch::wasm32::unreachable();
 }
