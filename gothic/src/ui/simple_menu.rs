@@ -1,11 +1,11 @@
 use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::string::{String, ToString};
+use core::cell::Cell;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::gamepad::Gamepad;
 use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
-use wasm4::println;
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
@@ -15,6 +15,7 @@ use crate::ui::text::TextAlignment::Center;
 pub struct SimpleMenu {
     texts: Box<[Text]>,
     selected_index: usize,
+    last_item_indicator_y: Cell<f32>,
     gamepad: &'static Gamepad,
     selection_handler: Rc<dyn Fn(usize)>,
     back_handler: Rc<dyn Fn()>,
@@ -32,6 +33,7 @@ impl SimpleMenu {
                 .map(|item| Self::make_menu_item(item.to_string()))
                 .collect(),
             selected_index: 0,
+            last_item_indicator_y: Cell::new(8.0),
             gamepad,
             selection_handler,
             back_handler,
@@ -92,7 +94,9 @@ impl SimpleMenu {
             let is_selected = index == self.selected_index;
             if is_selected {
                 framebuffer.set_color(3);
-                self.render_selected_item_indicator(framebuffer, frame, y - 2, item_size.height + 3);
+                let line_y = self.animate_item_indicator_y(y);
+                self.render_selected_item_indicator(framebuffer, frame, line_y - 2, item_size.height + 3);
+
             } else {
                 framebuffer.set_color(2);
             }
@@ -105,5 +109,17 @@ impl SimpleMenu {
     fn render_selected_item_indicator(&self, framebuffer: &Framebuffer, frame: Rect, y: i32, item_height: u32) {
         framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y), frame.size.width);
         framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y + item_height as i32), frame.size.width);
+    }
+}
+
+impl SimpleMenu {
+    fn animate_item_indicator_y(&self, item_y: i32) -> i32 {
+        let line_y = Self::linear_interpolate(self.last_item_indicator_y.take(), item_y as f32, 0.3);
+        self.last_item_indicator_y.replace(line_y);
+        line_y as i32
+    }
+
+    fn linear_interpolate(a: f32, b: f32, t: f32) -> f32 {
+        a * (1.0 - t) + b * t
     }
 }
