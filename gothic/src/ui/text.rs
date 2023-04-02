@@ -3,6 +3,7 @@ use wasm4::geometry::{Point, Rect, Size};
 use wasm4::{get_char_size};
 use wasm4::framebuffer::Framebuffer;
 use crate::renderable::Renderable;
+use crate::updatable::Updatable;
 
 pub struct Text {
     pub text: String,
@@ -34,6 +35,10 @@ impl Text {
             lines_count * char_size.height,
         )
     }
+}
+
+impl Updatable for Text {
+    fn update(&mut self) {}
 }
 
 impl Renderable for Text {

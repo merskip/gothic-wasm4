@@ -11,8 +11,6 @@ pub mod updatable;
 use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::string::ToString;
-use alloc::vec;
-use alloc::vec::Vec;
 use core::cell::{RefCell};
 #[cfg(not(test))]
 use core::panic::PanicInfo;
@@ -21,41 +19,72 @@ use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
 use wasm4::{main_application, trace};
 use renderable::Renderable;
-use updatable::Updatable;
 use wasm4::inputs::Inputs;
+use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
 
 struct GothicApplication {
-    objects: Vec<Rc<RefCell<dyn Updatable>>>,
-    root_renderable: Rc<RefCell<dyn Renderable>>
+    root_renderable: Rc<RefCell<dyn Renderable>>,
+}
+
+impl GothicApplication {
+    fn make_main_menu(inputs: &'static Inputs, navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
+        SimpleMenu::new(
+            Box::new([
+                "New game",
+                "Settings",
+                "Authors"
+            ]),
+            &inputs.gamepad1,
+            Box::new(move |item| {
+                trace("[Main menu] Selected item");
+                trace(&*item.to_string());
+
+                navigator.borrow_mut()
+                    .push_view(Rc::new(RefCell::new(
+                        Self::make_new_game_menu(inputs, navigator.clone())
+                    )));
+            }),
+        )
+    }
+
+    fn make_new_game_menu(inputs: &'static Inputs, navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
+        SimpleMenu::new(
+            Box::new([
+                "Continue",
+                "Start New Game",
+                "Load Game"
+            ]),
+            &inputs.gamepad1,
+            Box::new(move |item| {
+                trace("[New Game menu] Selected item");
+                trace(&*item.to_string());
+
+                navigator.borrow_mut()
+                    .pop_top_view();
+            }),
+        )
+    }
 }
 
 impl Application for GothicApplication {
     fn start(inputs: &'static Inputs) -> Self {
-        let main_menu = Rc::new(RefCell::new(
-            SimpleMenu::new(
-                Box::new([
-                    "New game",
-                    "Settings",
-                    "Authors"
-                ]),
-                &inputs.gamepad1,
-                Box::new(|item| {
-                    trace("Selected item");
-                    trace(&*item.to_string())
-                }),
-            )
+        let navigator = Rc::new(RefCell::new(
+            Navigator::new()
         ));
+        navigator.borrow_mut()
+            .push_view(Rc::new(RefCell::new(
+                Self::make_main_menu(inputs, navigator.clone())
+            )));
+
         Self {
-            objects: vec![main_menu.clone()],
-            root_renderable: main_menu.clone(),
+            root_renderable: navigator,
         }
     }
 
     fn update(&mut self) {
-        for object in &self.objects {
-            object.borrow_mut().update();
-        }
+        let mut root_renderable = self.root_renderable.borrow_mut();
+        root_renderable.update();
     }
 
     fn render(&self, framebuffer: &Framebuffer) {
@@ -63,7 +92,8 @@ impl Application for GothicApplication {
             Point::new(0, 0),
             framebuffer.get_size(),
         );
-        self.root_renderable.borrow().render(&framebuffer, frame);
+        let root_renderable = self.root_renderable.borrow();
+        root_renderable.render(&framebuffer, frame);
     }
 }
 
