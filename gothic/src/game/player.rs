@@ -1,5 +1,5 @@
 use wasm4::gamepad::GamepadButton::{DPadDown, DPadLeft, DPadRight, DPadUp};
-use wasm4::geometry::Point;
+use wasm4::geometry::{Point, Vector};
 use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
 use crate::updatable::Updatable;
@@ -18,17 +18,25 @@ const MOVE_SPEED: f32 = 1.0;
 
 impl Updatable for Player {
     fn update(&mut self, inputs: &Inputs, _dispatcher: &mut Dispatcher) {
+        self.position += self.get_movement(inputs);
+    }
+}
+
+impl Player {
+    fn get_movement(&self, inputs: &Inputs) -> Vector<f32> {
+        let mut movement = Vector::new(0.0, 0.0);
         if inputs.gamepad1.is_held(DPadLeft) {
-            self.position.x -= MOVE_SPEED;
+            movement.x -= MOVE_SPEED;
         }
         if inputs.gamepad1.is_held(DPadUp) {
-            self.position.y -= MOVE_SPEED;
+            movement.y -= MOVE_SPEED;
         }
         if inputs.gamepad1.is_held(DPadRight) {
-            self.position.x += MOVE_SPEED;
+            movement.x += MOVE_SPEED;
         }
         if inputs.gamepad1.is_held(DPadDown) {
-            self.position.y += MOVE_SPEED;
+            movement.y += MOVE_SPEED;
         }
+        return movement.normalized();
     }
 }
