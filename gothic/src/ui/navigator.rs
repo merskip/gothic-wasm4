@@ -1,9 +1,9 @@
-use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::Rect;
+use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
@@ -36,9 +36,9 @@ impl Navigator {
 }
 
 impl Updatable for Navigator {
-    fn update(&mut self, dispatcher: &mut Dispatcher) {
+    fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
         if let Some(view) = self.get_top_view() {
-            view.borrow_mut().update(dispatcher);
+            view.borrow_mut().update(inputs, dispatcher);
         }
     }
 }

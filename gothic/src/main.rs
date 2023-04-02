@@ -3,22 +3,23 @@
 
 extern crate alloc;
 
-mod ui;
 mod allocator;
+
+pub mod ui;
+pub mod game;
 pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
 
 use alloc::boxed::Box;
 use alloc::rc::Rc;
-use alloc::string::ToString;
 use core::cell::{RefCell};
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
-use wasm4::{main_application, println, trace};
+use wasm4::{main_application, println};
 use renderable::Renderable;
 use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
@@ -31,13 +32,13 @@ struct GothicApplication {
 }
 
 impl Application for GothicApplication {
-    fn start(inputs: &'static Inputs) -> Self {
+    fn start() -> Self {
         let navigator = Rc::new(RefCell::new(
             Navigator::new()
         ));
         navigator.borrow_mut()
             .push_view(Rc::new(RefCell::new(
-                Self::make_main_menu(inputs, navigator.clone())
+                Self::make_main_menu(navigator.clone())
             )));
 
         Self {
@@ -46,9 +47,9 @@ impl Application for GothicApplication {
         }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, inputs: &Inputs) {
         self.root_renderable.borrow_mut()
-            .update(&mut self.dispatcher);
+            .update(inputs, &mut self.dispatcher);
         self.dispatcher.execute();
     }
 
@@ -63,7 +64,7 @@ impl Application for GothicApplication {
 }
 
 impl GothicApplication {
-    fn make_main_menu(inputs: &'static Inputs, navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
+    fn make_main_menu(navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
         let navigator_1 = navigator.clone();
         let navigator_2 = navigator.clone();
         SimpleMenu::new(
@@ -72,7 +73,6 @@ impl GothicApplication {
                 "Settings",
                 "Authors"
             ]),
-            &inputs.gamepad1,
             Rc::new(move |item| {
                 println!("[Main menu] Selected item index: {}", item);
 
@@ -80,7 +80,7 @@ impl GothicApplication {
                     0 => {
                         navigator_1.clone().borrow_mut()
                             .push_view(Rc::new(RefCell::new(
-                                Self::make_new_game_menu(inputs, navigator.clone())
+                                Self::make_new_game_menu(navigator.clone())
                             )));
                     }
                     _ => {}
@@ -93,14 +93,13 @@ impl GothicApplication {
         )
     }
 
-    fn make_new_game_menu(inputs: &'static Inputs, navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
+    fn make_new_game_menu(navigator: Rc<RefCell<Navigator>>) -> SimpleMenu {
         SimpleMenu::new(
             Box::new([
                 "Continue",
                 "Start New Game",
                 "Load Game"
             ]),
-            &inputs.gamepad1,
             Rc::new(move |item| {
                 println!("[New Game menu] Selected item index: {}", item);
             }),

@@ -3,9 +3,9 @@ use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use core::cell::Cell;
 use wasm4::framebuffer::Framebuffer;
-use wasm4::gamepad::Gamepad;
 use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
+use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
@@ -16,7 +16,6 @@ pub struct SimpleMenu {
     texts: Box<[Text]>,
     selected_index: usize,
     last_item_indicator_y: Cell<f32>,
-    gamepad: &'static Gamepad,
     selection_handler: Rc<dyn Fn(usize)>,
     back_handler: Rc<dyn Fn()>,
 }
@@ -24,7 +23,6 @@ pub struct SimpleMenu {
 impl SimpleMenu {
     pub fn new<T: ToString>(
         items: Box<[T]>,
-        gamepad: &'static Gamepad,
         selection_handler: Rc<dyn Fn(usize)>,
         back_handler: Rc<dyn Fn()>,
     ) -> Self {
@@ -34,7 +32,6 @@ impl SimpleMenu {
                 .collect(),
             selected_index: 0,
             last_item_indicator_y: Cell::new(8.0),
-            gamepad,
             selection_handler,
             back_handler,
         }
@@ -48,17 +45,17 @@ impl SimpleMenu {
 }
 
 impl Updatable for SimpleMenu {
-    fn update(&mut self, dispatcher: &mut Dispatcher) {
+    fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
         let mut selected_index = self.selected_index as isize;
-        if self.gamepad.is_pressed(DPadUp) {
+        if inputs.gamepad1.is_pressed(DPadUp) {
             selected_index -= 1;
-        } else if self.gamepad.is_pressed(DPadDown) {
+        } else if inputs.gamepad1.is_pressed(DPadDown) {
             selected_index += 1;
         }
         selected_index = selected_index.clamp(0, self.texts.len() as isize - 1);
         self.selected_index = selected_index as usize;
 
-        if self.gamepad.is_pressed(ButtonX) {
+        if inputs.gamepad1.is_pressed(ButtonX) {
             let selected_index = self.selected_index;
             let selection_handler = self.selection_handler.clone();
 
@@ -67,7 +64,7 @@ impl Updatable for SimpleMenu {
             }));
         }
 
-        if self.gamepad.is_pressed(ButtonY) {
+        if inputs.gamepad1.is_pressed(ButtonY) {
             let back_handler = self.back_handler.clone();
             dispatcher.dispatch(Box::new(move || {
                 back_handler();
