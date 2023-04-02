@@ -1,9 +1,12 @@
 use alloc::boxed::Box;
+use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use wasm4::framebuffer::Framebuffer;
 use wasm4::gamepad::Gamepad;
-use wasm4::gamepad::GamepadButton::{ButtonX, DPadDown, DPadUp};
+use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
+use wasm4::println;
+use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 use crate::ui::text::Text;
@@ -13,14 +16,16 @@ pub struct SimpleMenu {
     texts: Box<[Text]>,
     selected_index: usize,
     gamepad: &'static Gamepad,
-    selection_handler: Box<dyn Fn(usize)>
+    selection_handler: Rc<dyn Fn(usize)>,
+    back_handler: Rc<dyn Fn()>,
 }
 
 impl SimpleMenu {
     pub fn new<T: ToString>(
         items: Box<[T]>,
         gamepad: &'static Gamepad,
-        selection_handler: Box<dyn Fn(usize)>,
+        selection_handler: Rc<dyn Fn(usize)>,
+        back_handler: Rc<dyn Fn()>,
     ) -> Self {
         Self {
             texts: items.iter()
@@ -29,6 +34,7 @@ impl SimpleMenu {
             selected_index: 0,
             gamepad,
             selection_handler,
+            back_handler,
         }
     }
 
@@ -40,7 +46,7 @@ impl SimpleMenu {
 }
 
 impl Updatable for SimpleMenu {
-    fn update(&mut self) {
+    fn update(&mut self, dispatcher: &mut Dispatcher) {
         let mut selected_index = self.selected_index as isize;
         if self.gamepad.is_pressed(DPadUp) {
             selected_index -= 1;
@@ -51,7 +57,19 @@ impl Updatable for SimpleMenu {
         self.selected_index = selected_index as usize;
 
         if self.gamepad.is_pressed(ButtonX) {
-            (self.selection_handler)(self.selected_index);
+            let selected_index = self.selected_index;
+            let selection_handler = self.selection_handler.clone();
+
+            dispatcher.dispatch(Box::new(move || {
+                (selection_handler)(selected_index);
+            }));
+        }
+
+        if self.gamepad.is_pressed(ButtonY) {
+            let back_handler = self.back_handler.clone();
+            dispatcher.dispatch(Box::new(move || {
+                back_handler();
+            }));
         }
     }
 }
