@@ -33,7 +33,7 @@ impl Renderable for GameScene {
 impl GameScene {
     fn render_player(&self, framebuffer: &Framebuffer, frame: Rect) {
         framebuffer.rectangle(
-            Point::new(
+            frame.origin + Point::new(
                 (self.game_world.player.position.x - PLAYER_SIZE.width as f32 / 2.0) as i32,
                 (self.game_world.player.position.y - PLAYER_SIZE.width as f32 / 2.0) as i32,
             ),
