@@ -11,6 +11,7 @@ use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
+use crate::music::{Clip, Music};
 
 pub struct SimpleMenu {
     texts: Box<[Text]>,
@@ -70,6 +71,7 @@ impl Updatable for SimpleMenu {
                 back_handler();
             }));
         }
+        Music::play_clip(Clip::MainTheme);
     }
 }
 

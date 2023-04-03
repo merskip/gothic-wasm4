@@ -10,6 +10,7 @@ pub mod game;
 pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
+pub mod music;
 
 use alloc::boxed::Box;
 use alloc::rc::Rc;
