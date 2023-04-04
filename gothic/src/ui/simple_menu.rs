@@ -2,7 +2,7 @@ use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use core::cell::Cell;
-use wasm4::framebuffer::Framebuffer;
+use wasm4::framebuffer::{DrawColorIndex, Framebuffer, PaletteIndex};
 use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::inputs::Inputs;
@@ -90,12 +90,12 @@ impl SimpleMenu {
             );
             let is_selected = index == self.selected_index;
             if is_selected {
-                framebuffer.set_color(3);
+                framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
                 let line_y = self.animate_item_indicator_y(y);
                 self.render_selected_item_indicator(framebuffer, frame, line_y - 2, item_size.height + 3);
 
             } else {
-                framebuffer.set_color(2);
+                framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
             }
             item.render(framebuffer, item_frame);
 
