@@ -97,6 +97,7 @@ impl Instrument {
 
 pub struct ClipInstrumentData {
     pub instrument: Instrument,
+    pub length: isize,
     pub sound_list: &'static [Sound],
 }
 
@@ -144,12 +145,12 @@ impl Music {
             return;
         }
         self.beat_counter = beat;
-
+        
         for instrument_data in &clip_data.instrument_data {
-            let sound_list_len = instrument_data.sound_list.len() as isize;
+            let loop_length = instrument_data.length;
             let sound = instrument_data.sound_list
                 .iter()
-                .find(|&sound| beat % sound_list_len == sound.beat);
+                .find(|&sound| beat % loop_length == sound.beat);
 
             if let Some(sound) = sound {
                 self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
