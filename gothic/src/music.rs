@@ -1,6 +1,6 @@
 use core::convert::TryInto;
-use wasm4::sound;
-use wasm4::sound::{ADSRDuration, Audio, Duration, Flags, Frequency, Pan, Volume};
+use wasm4::audio;
+use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
 use crate::music::DutyCycle::{TONE_MODE1, TONE_MODE2, TONE_MODE3, TONE_MODE4};
 use crate::music::NoteLength::{HALF, QUARTER};
 
@@ -84,22 +84,6 @@ struct Sound {
     volume: u32,
 }
 
-#[repr(u32)]
-enum Channel {
-    PULSE1 = 0,
-    PULSE2 = 1,
-    TRIANGLE = 2,
-    NOISE = 3,
-}
-
-#[repr(u32)]
-enum DutyCycle {
-    TONE_MODE1 = 0,
-    TONE_MODE2 = 1,
-    TONE_MODE3 = 2,
-    TONE_MODE4 = 3,
-}
-
 struct Instrument {
     channel: Channel,
     duty_cycle: DutyCycle,
@@ -108,8 +92,8 @@ struct Instrument {
 }
 
 impl Instrument {
-    pub const TRUMPET: Self = Self { channel: Channel::PULSE1, duty_cycle: TONE_MODE4, attack: 2, release: 150 };
-    pub const DRUM: Self = Self { channel: Channel::NOISE, duty_cycle: TONE_MODE3, attack: 0, release: 15 };
+    pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: TONE_MODE4, attack: 2, release: 150 };
+    pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: TONE_MODE3, attack: 0, release: 15 };
 }
 
 struct ClipInstrumentData {
@@ -311,12 +295,14 @@ pub enum Clip {
 }
 
 pub struct Music {
+    audio: Audio,
     current_clip: Clip,
     beat_counter: isize,
     frame_counter: isize,
 }
 
 static mut MUSIC: Music = Music {
+    audio: Audio::shared(),
     current_clip: Clip::MainTheme,
     beat_counter: -1,
     frame_counter: -1,
@@ -337,59 +323,36 @@ impl Music {
 
         self.frame_counter += 1;
 
-        let clipData: ClipData = ClipData::data_for_clip(clip);
-        let beat: isize = self.frame_counter / clipData.bpm as isize;
+        let clip_data: ClipData = ClipData::data_for_clip(clip);
+        let beat: isize = self.frame_counter / clip_data.bpm as isize;
 
         if beat != self.beat_counter {
-            for instrument_data in clipData.instrument_data {
+            for instrument_data in clip_data.instrument_data {
                 let sound = instrument_data.sound_list.iter().find(|&x| x.beat == beat);
                 if let Some(sound) = sound {
-                    // wasm4::tone((sound_unwrapped.octave.as_f32() * sound_unwrapped.note.base_frequency_factor) as u32,
-                    //             ((instrument_data.instrument.attack as u32) << 24) | sound_unwrapped.note.length.for_bpm(clipData.bpm) | ((instrument_data.instrument.release as u32) << 8),
-                    //             sound_unwrapped.volume,
-                    //             instrument_data.instrument.channel as u32 | (instrument_data.instrument.duty_cycle as u32) << 2);
-
-                    Audio::shared().tone(
-                        Frequency::constant((sound.octave.as_f32() * sound.note.base_frequency_factor) as u16),
-                        ADSRDuration::new(
-                            Duration::from_frames(instrument_data.instrument.attack),
-                            Duration::from_frames(0),
-                            Duration::from_frames(sound.note.length.for_bpm(clipData.bpm) as u8),
-                            Duration::from_frames(instrument_data.instrument.release),
-                        ),
-                        Volume::constant(sound.volume as u8),
-                        Flags::new(
-                            instrument_data.instrument.channel.into(),
-                            instrument_data.instrument.duty_cycle.into(),
-                            Pan::default(),
-                        ),
-                    )
+                    self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
                 }
             }
 
             self.beat_counter = beat;
         }
     }
-}
 
-impl Into<sound::Channel> for Channel {
-    fn into(self) -> sound::Channel {
-        match self {
-            Channel::PULSE1 => sound::Channel::Pulse1,
-            Channel::PULSE2 => sound::Channel::Pulse2,
-            Channel::TRIANGLE => sound::Channel::Triangle,
-            Channel::NOISE => sound::Channel::Noise,
-        }
-    }
-}
-
-impl Into<sound::DutyCycle> for DutyCycle {
-    fn into(self) -> sound::DutyCycle {
-        match self {
-            TONE_MODE1 => sound::DutyCycle::OneEighth,
-            TONE_MODE2 => sound::DutyCycle::OneQuarter,
-            TONE_MODE3 => sound::DutyCycle::OneHalf,
-            TONE_MODE4 => sound::DutyCycle::ThreeQuarters,
-        }
+    fn play_sound(&self, bpm: Bpm, instrument: &Instrument, sound: &Sound) {
+        self.audio.tone(
+            Frequency::constant((sound.octave.as_f32() * sound.note.base_frequency_factor) as u16),
+            ADSRDuration::new(
+                Duration::from_frames(instrument.attack),
+                Duration::from_frames(0),
+                Duration::from_frames(sound.note.length.for_bpm(bpm) as u8),
+                Duration::from_frames(instrument.release),
+            ),
+            Volume::constant(sound.volume as u8),
+            Flags::new(
+                instrument.channel.into(),
+                instrument.duty_cycle.into(),
+                Pan::default(),
+            ),
+        )
     }
 }
