@@ -1,7 +1,10 @@
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
+use wasm4::inputs::Inputs;
+use crate::dispatcher::Dispatcher;
+use crate::updatable::Updatable;
 
 #[derive(Copy, Clone)]
-enum Bpm {
+pub enum Bpm {
     Bpm1800 = 1,
     Bpm900 = 2,
     Bpm600 = 3,
@@ -19,7 +22,7 @@ enum Bpm {
     Bpm120 = 15,
 }
 
-struct Octave(f32);
+pub struct Octave(f32);
 
 impl Octave {
     pub const OCT_0: Self = Self(21.83);
@@ -38,7 +41,7 @@ impl Octave {
 }
 
 #[derive(Copy, Clone, Debug)]
-enum NoteLength {
+pub enum NoteLength {
     EIGHT = 8000,
     QUARTER = 4000,
     HALF = 2000,
@@ -53,7 +56,7 @@ impl NoteLength {
     }
 }
 
-struct Note {
+pub struct Note {
     base_frequency_factor: f32,
     length: NoteLength,
 }
@@ -73,14 +76,14 @@ impl Note {
     pub const fn b(length: NoteLength) -> Self { Self { base_frequency_factor: 1.414197, length } }
 }
 
-struct Sound {
-    beat: isize,
-    octave: Octave,
-    note: Note,
-    volume: u32,
+pub struct Sound {
+    pub beat: isize,
+    pub octave: Octave,
+    pub note: Note,
+    pub volume: u32,
 }
 
-struct Instrument {
+pub struct Instrument {
     channel: Channel,
     duty_cycle: DutyCycle,
     attack: u8,
@@ -92,109 +95,55 @@ impl Instrument {
     pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: DutyCycle::OneHalf, attack: 0, release: 15 };
 }
 
-struct ClipInstrumentData {
-    instrument: Instrument,
-    sound_list: &'static [Sound],
+pub struct ClipInstrumentData {
+    pub instrument: Instrument,
+    pub sound_list: &'static [Sound],
 }
 
-struct ClipData {
-    bpm: Bpm,
-    length: isize,
-    instrument_data: [ClipInstrumentData; 2],
-}
-
-impl ClipData {
-    pub fn data_for_clip(clip: Clip) -> ClipData {
-        return ClipData::MAIN_THEME_DATA;
-    }
-    const MAIN_THEME_DATA: ClipData = ClipData {
-        bpm: Bpm::Bpm164,
-        length: 160,
-        instrument_data: [
-            ClipInstrumentData {
-                instrument: Instrument::TRUMPET,
-                sound_list: &[
-                    Sound { beat: 0, octave: Octave::OCT_3, note: Note::c(NoteLength::DOUBLE), volume: 100 },
-                    Sound { beat: 8, octave: Octave::OCT_3, note: Note::g(NoteLength::DOUBLE), volume: 100 },
-                    Sound { beat: 14, octave: Octave::OCT_3, note: Note::f(NoteLength::QUARTER), volume: 100 },
-                    Sound { beat: 15, octave: Octave::OCT_3, note: Note::g(NoteLength::QUARTER), volume: 100 },
-                    Sound { beat: 16, octave: Octave::OCT_3, note: Note::g_s(NoteLength::QUAD), volume: 100 },
-                    Sound { beat: 28, octave: Octave::OCT_3, note: Note::g(NoteLength::HALF), volume: 100 },
-                    Sound { beat: 30, octave: Octave::OCT_3, note: Note::f(NoteLength::HALF), volume: 100 },
-                    Sound { beat: 32, octave: Octave::OCT_3, note: Note::g(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 36, octave: Octave::OCT_3, note: Note::c(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 40, octave: Octave::OCT_3, note: Note::g(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 44, octave: Octave::OCT_3, note: Note::a(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 48, octave: Octave::OCT_3, note: Note::a_s(NoteLength::QUAD), volume: 100 },
-                    Sound { beat: 64, octave: Octave::OCT_4, note: Note::c(NoteLength::DOUBLE), volume: 100 },
-                    Sound { beat: 72, octave: Octave::OCT_3, note: Note::a_s(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 76, octave: Octave::OCT_3, note: Note::g_s(NoteLength::WHOLE), volume: 100 },
-                    Sound { beat: 80, octave: Octave::OCT_3, note: Note::a_s(NoteLength::DOUBLE), volume: 100 },
-                    Sound { beat: 88, octave: Octave::OCT_3, note: Note::d_s(NoteLength::DOUBLE), volume: 100 },
-                    Sound { beat: 94, octave: Octave::OCT_3, note: Note::f(NoteLength::QUARTER), volume: 100 },
-                    Sound { beat: 95, octave: Octave::OCT_3, note: Note::d_s(NoteLength::QUARTER), volume: 100 },
-                    Sound { beat: 96, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 100 },
-                ],
-            },
-            ClipInstrumentData {
-                instrument: Instrument::DRUM,
-                sound_list: &[
-                    Sound { beat: 0,  octave: Octave::OCT_3, note: Note::c(NoteLength::EIGHT), volume: 100 },
-                    Sound { beat: 2,  octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 3,  octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 4,  octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 6,  octave: Octave::OCT_2, note: Note::d_s(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 8,  octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 9,  octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 10, octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 12, octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
-                    Sound { beat: 14, octave: Octave::OCT_3, note: Note::c(NoteLength::EIGHT), volume: 100 },
-                ],
-            },
-        ],
-    };
-}
-
-#[derive(PartialEq)]
-pub enum Clip {
-    MainTheme,
-    TestTheme,
+pub struct ClipData {
+    pub bpm: Bpm,
+    pub length: isize,
+    pub instrument_data: [ClipInstrumentData; 2],
 }
 
 pub struct Music {
     audio: Audio,
-    current_clip: Clip,
+    current_clip: Option<&'static ClipData>,
     beat_counter: isize,
     frame_counter: isize,
 }
 
 static mut MUSIC: Music = Music {
     audio: Audio::shared(),
-    current_clip: Clip::MainTheme,
+    current_clip: None,
     beat_counter: -1,
     frame_counter: -1,
 };
 
-impl Music {
-    pub fn play_clip(clip: Clip) {
-        unsafe {
-            MUSIC.play(clip);
+impl Updatable for Music {
+    fn update(&mut self, _inputs: &Inputs, _dispatcher: &mut Dispatcher) {
+        if let Some(clip_data) = self.current_clip {
+            self.update_play_clip(clip_data)
         }
     }
+}
 
-    fn play(&mut self, clip: Clip) {
-        if self.current_clip != clip {
-            self.beat_counter = -1;
-            self.frame_counter = -1;
-        }
+impl Music {
+    pub fn shared() -> &'static mut Self {
+        unsafe { &mut MUSIC }
+    }
 
+    pub fn play_clip(&mut self, clip: &'static ClipData) {
+        self.current_clip = Some(clip);
+    }
+
+    fn update_play_clip(&mut self, clip_data: &ClipData) {
         self.frame_counter += 1;
 
-        let clip_data = ClipData::data_for_clip(clip);
         let beat = self.frame_counter / clip_data.bpm as isize;
 
         if beat != self.beat_counter {
-            for instrument_data in clip_data.instrument_data {
+            for instrument_data in &clip_data.instrument_data {
                 let sound = instrument_data.sound_list
                     .iter()
                     .find(|&sound| sound.beat == beat);
