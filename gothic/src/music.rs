@@ -1,8 +1,7 @@
 use core::convert::TryInto;
 use wasm4::audio;
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
-use crate::music::DutyCycle::{TONE_MODE1, TONE_MODE2, TONE_MODE3, TONE_MODE4};
-use crate::music::NoteLength::{HALF, QUARTER};
+use crate::music::NoteLength::QUARTER;
 
 #[derive(Copy, Clone)]
 enum Bpm {
@@ -92,8 +91,8 @@ struct Instrument {
 }
 
 impl Instrument {
-    pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: TONE_MODE4, attack: 2, release: 150 };
-    pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: TONE_MODE3, attack: 0, release: 15 };
+    pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: DutyCycle::ThreeQuarters, attack: 2, release: 150 };
+    pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: DutyCycle::OneHalf, attack: 0, release: 15 };
 }
 
 struct ClipInstrumentData {
