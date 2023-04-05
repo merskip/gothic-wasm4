@@ -139,22 +139,21 @@ impl Music {
 
     fn update_play_clip(&mut self, clip_data: &ClipData) {
         self.frame_counter += 1;
-
         let beat = self.frame_counter / clip_data.bpm as isize;
+        if self.beat_counter == beat {
+            return;
+        }
+        self.beat_counter = beat;
 
-        if beat != self.beat_counter {
-            for instrument_data in &clip_data.instrument_data {
-                let sound_list_len = instrument_data.sound_list.len() as isize;
-                let sound = instrument_data.sound_list
-                    .iter()
-                    .find(|&sound| beat % sound_list_len == sound.beat);
+        for instrument_data in &clip_data.instrument_data {
+            let sound_list_len = instrument_data.sound_list.len() as isize;
+            let sound = instrument_data.sound_list
+                .iter()
+                .find(|&sound| beat % sound_list_len == sound.beat);
 
-                if let Some(sound) = sound {
-                    self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
-                }
+            if let Some(sound) = sound {
+                self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
             }
-
-            self.beat_counter = beat;
         }
     }
 
