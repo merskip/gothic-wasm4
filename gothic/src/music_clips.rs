@@ -31,6 +31,22 @@ pub static MAIN_THEME: ClipData = ClipData {
             ],
         },
         ClipInstrumentData {
+            instrument: Instrument::TRUMPET2,
+            length: 160,
+            sound_list: &[
+                Sound { beat: 0, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 16, octave: Octave::OCT_2, note: Note::g_s(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 32, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 48, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 64, octave: Octave::OCT_3, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 80, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 96, octave: Octave::OCT_2, note: Note::f(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 112, octave: Octave::OCT_2, note: Note::d_s(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 128, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 144, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+            ],
+        },
+        ClipInstrumentData {
             instrument: Instrument::DRUM,
             length: 16,
             sound_list: &[

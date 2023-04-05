@@ -92,6 +92,7 @@ pub struct Instrument {
 
 impl Instrument {
     pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: DutyCycle::ThreeQuarters, attack: 2, release: 150 };
+    pub const TRUMPET2: Self = Self { channel: Channel::Pulse2, duty_cycle: DutyCycle::OneHalf, attack: 2, release: 150 };
     pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: DutyCycle::OneHalf, attack: 0, release: 15 };
 }
 
@@ -104,7 +105,7 @@ pub struct ClipInstrumentData {
 pub struct ClipData {
     pub bpm: Bpm,
     pub length: isize,
-    pub instrument_data: [ClipInstrumentData; 2],
+    pub instrument_data: [ClipInstrumentData; 3],
 }
 
 pub struct Music {
@@ -145,7 +146,7 @@ impl Music {
             return;
         }
         self.beat_counter = beat;
-        
+
         for instrument_data in &clip_data.instrument_data {
             let loop_length = instrument_data.length;
             let sound = instrument_data.sound_list
