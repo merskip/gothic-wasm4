@@ -1,7 +1,4 @@
-use core::convert::TryInto;
-use wasm4::audio;
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
-use crate::music::NoteLength::QUARTER;
 
 #[derive(Copy, Clone)]
 enum Bpm {
@@ -52,7 +49,7 @@ enum NoteLength {
 
 impl NoteLength {
     pub fn for_bpm(&self, bpm: Bpm) -> u32 {
-        return QUARTER as u32 * bpm as u32 / *self as u32;
+        return NoteLength::QUARTER as u32 * bpm as u32 / *self as u32;
     }
 }
 
@@ -97,8 +94,7 @@ impl Instrument {
 
 struct ClipInstrumentData {
     instrument: Instrument,
-
-    sound_list: [Sound; 80],
+    sound_list: &'static [Sound],
 }
 
 struct ClipData {
@@ -115,7 +111,7 @@ impl ClipData {
         instrument_data: [
             ClipInstrumentData {
                 instrument: Instrument::TRUMPET,
-                sound_list: [
+                sound_list: &[
                     Sound { beat: 2, octave: Octave::OCT_3, note: Note::c(NoteLength::DOUBLE), volume: 100 },
                     Sound { beat: 10, octave: Octave::OCT_3, note: Note::g(NoteLength::DOUBLE), volume: 100 },
                     Sound { beat: 16, octave: Octave::OCT_3, note: Note::f(NoteLength::QUARTER), volume: 100 },
@@ -136,71 +132,11 @@ impl ClipData {
                     Sound { beat: 96, octave: Octave::OCT_3, note: Note::f(NoteLength::QUARTER), volume: 100 },
                     Sound { beat: 97, octave: Octave::OCT_3, note: Note::d_s(NoteLength::QUARTER), volume: 100 },
                     Sound { beat: 98, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 100 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
-                    Sound { beat: 999, octave: Octave::OCT_3, note: Note::f(NoteLength::QUAD), volume: 1 },
                 ],
             },
             ClipInstrumentData {
                 instrument: Instrument::DRUM,
-                sound_list: [
+                sound_list: &[
                     Sound { beat: 0 + 0, octave: Octave::OCT_3, note: Note::c(NoteLength::EIGHT), volume: 100 },
                     Sound { beat: 2 + 0, octave: Octave::OCT_3, note: Note::c(NoteLength::EIGHT), volume: 100 },
                     Sound { beat: 4 + 0, octave: Octave::OCT_2, note: Note::c(NoteLength::EIGHT), volume: 50 },
