@@ -1,3 +1,4 @@
+use core::ops::Rem;
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
 
 #[derive(Copy, Clone)]
@@ -99,6 +100,7 @@ struct ClipInstrumentData {
 
 struct ClipData {
     bpm: Bpm,
+    length: isize,
     instrument_data: [ClipInstrumentData; 2],
 }
 
@@ -108,6 +110,7 @@ impl ClipData {
     }
     const MAIN_THEME_DATA: ClipData = ClipData {
         bpm: Bpm::Bpm164,
+        length: 160,
         instrument_data: [
             ClipInstrumentData {
                 instrument: Instrument::TRUMPET,
@@ -188,12 +191,15 @@ impl Music {
 
         self.frame_counter += 1;
 
-        let clip_data: ClipData = ClipData::data_for_clip(clip);
-        let beat: isize = self.frame_counter / clip_data.bpm as isize;
+        let clip_data = ClipData::data_for_clip(clip);
+        let beat = self.frame_counter / clip_data.bpm as isize;
 
         if beat != self.beat_counter {
             for instrument_data in clip_data.instrument_data {
-                let sound = instrument_data.sound_list.iter().find(|&x| x.beat == beat);
+                let sound = instrument_data.sound_list
+                    .iter()
+                    .find(|&sound| sound.beat == beat);
+
                 if let Some(sound) = sound {
                     self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
                 }
