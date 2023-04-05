@@ -43,7 +43,9 @@ pub static MAIN_THEME: ClipData = ClipData {
                 Sound { beat: 96, octave: Octave::OCT_2, note: Note::f(NoteLength::QUAD), volume: 30 },
                 Sound { beat: 112, octave: Octave::OCT_2, note: Note::d_s(NoteLength::QUAD), volume: 30 },
                 Sound { beat: 128, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 143, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 30 },
                 Sound { beat: 144, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
+                Sound { beat: 159, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 30 },
             ],
         },
         ClipInstrumentData {
