@@ -6,12 +6,12 @@ use wasm4::framebuffer::{DrawColorIndex, Framebuffer, PaletteIndex};
 use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::inputs::Inputs;
+use crate::audio::music::{Clip, Music};
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
-use crate::music::{Clip, Music};
 
 pub struct SimpleMenu {
     texts: Box<[Text]>,

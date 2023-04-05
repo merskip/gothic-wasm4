@@ -1,4 +1,3 @@
-use core::ops::Rem;
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
 
 #[derive(Copy, Clone)]
