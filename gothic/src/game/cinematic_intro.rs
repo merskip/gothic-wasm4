@@ -1,8 +1,8 @@
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
-use wasm4::framebuffer::PaletteIndex::{Palette3, Transparent};
+use wasm4::framebuffer::PaletteIndex::{Palette1, Palette2, Palette3, Palette4, Transparent};
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::sprite::Sprite;
-use crate::sprites::KING__RHOBAR_2_SPRITE;
+use crate::sprites::{CROSSBONES_SPRITE, KING__RHOBAR_2_SPRITE, ORC_SPRITE};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
 
@@ -41,7 +41,7 @@ pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
             miala poniesc\n\
             niewielka grupa\n\
             skazancow.",
-            draw_nothing,
+            draw_orc_scene,
         ),
         CinematicScreen::new(
             "Krol potrzebowal\n\
@@ -130,4 +130,57 @@ fn draw_king_rhobar_2_scene(framebuffer: &Framebuffer, frame: Rect) {
         KING__RHOBAR_2_SPRITE,
         frame.centered(KING__RHOBAR_2_SPRITE.size()).origin
     );
+}
+
+fn draw_orc_scene(framebuffer: &Framebuffer, frame: Rect) {
+    framebuffer.set_draw_colors([
+        Palette2,
+        Palette3,
+        Transparent,
+        Palette4,
+    ]);
+    let orc_positions  = [
+        Point::new(10, 10),
+
+        Point::new(20, 20),
+
+        Point::new(10, 30),
+        Point::new(30, 30),
+
+        Point::new(20, 40),
+        Point::new(40, 40),
+
+        Point::new(10, 50),
+        Point::new(30, 50),
+
+        Point::new(20, 60),
+
+        Point::new(10, 70),
+    ];
+    for origin in orc_positions {
+        framebuffer.sprite(
+            ORC_SPRITE,
+            origin,
+        );
+    }
+
+    framebuffer.set_draw_colors([
+        Transparent,
+        Palette3,
+        Transparent,
+        Transparent,
+    ]);
+    let crossbones_positions = [
+        Point::new(80, 10),
+        Point::new(100, 40),
+        Point::new(140, 30),
+        Point::new(90, 70),
+        Point::new(120, 100),
+    ];
+    for origin in crossbones_positions {
+        framebuffer.sprite(
+            CROSSBONES_SPRITE,
+            origin,
+        );
+    }
 }

@@ -4,6 +4,8 @@ fn main() {
     png2src("src/sprites.rs", &[
         "resources/Player.png",
         "resources/King Rhobar 2.png",
+        "resources/Orc.png",
+        "resources/Crossbones.png",
     ]);
 }
 
