@@ -4,7 +4,7 @@ use wasm4::sprite::Flags::*;
 {{#sprites}}
 
 /// {{name}}
-pub const {{rustName}}_SPRITE: Sprite = Sprite::new(
+pub const {{rustName}}_SPRITE: &Sprite = &Sprite::new(
     Size::new({{width}}, {{height}}),
     {{flagsHumanReadable}},
     &[{{bytes}}],

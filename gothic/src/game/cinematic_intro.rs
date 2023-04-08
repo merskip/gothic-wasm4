@@ -1,4 +1,8 @@
+use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
+use wasm4::framebuffer::PaletteIndex::{Palette3, Transparent};
+use wasm4::geometry::{Point, Rect, Size};
 use wasm4::sprite::Sprite;
+use crate::sprites::KING__RHOBAR_2_SPRITE;
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
 
@@ -17,36 +21,113 @@ Aż do dziś, na skraj urwiska sprowadzono kolejnego więźnia. Nie wiedział, c
 pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     &[
         CinematicScreen::new(
-            Sprite::empty(),
-            "Krolestwo Myrthany\nzjednoczone pod\nberlem krola\nRhobara II.\nPodczas dlugich lat\nswego panowania\nRhobar zdolal\npokonac wszystkich\nwrogow krolestwa\noprocz jednego...",
+            "Krolestwo Myrthany\n\
+            zjednoczone pod\n\
+            berlem krola\n\
+            Rhobara II.\n\
+            Podczas dlugich lat\n\
+            swego panowania\n\
+            Rhobar zdolal\n\
+            pokonac wszystkich\n\
+            wrogow krolestwa\n\
+            oprocz jednego...",
+            draw_king_rhobar_2_scene,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Wojna z Orkami\nbyla niezwykle\nkosztowna,\na cene za nia\nmiala poniesc\nniewielka grupa\nskazancow.",
+            "Wojna z Orkami\n\
+            byla niezwykle\n\
+            kosztowna,\n\
+            a cene za nia\n\
+            miala poniesc\n\
+            niewielka grupa\n\
+            skazancow.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Krol potrzebowal\nmieczy i tarcz\ndla swego wojska,\ntotez kazdy\nprzestepca,\nniezaleznie\nod wystepku,\njaki popelnil,\nbyl zmuszany\ndo prac w\nkopalniach rudy\nw Khorinis.",
+            "Krol potrzebowal\n\
+            mieczy i tarcz\n\
+            dla swego wojska,\n\
+            totez kazdy\n\
+            przestepca,\n\
+            niezaleznie\n\
+            od wystepku,\n\
+            jaki popelnil,\n\
+            byl zmuszany\n\
+            do prac w\n\
+            kopalniach rudy\n\
+            w Khorinis.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Aby uniemozliwic\nim ucieczke\nkrol wyslal swych\nnajpotezniejszych\nmagow, aby ci\notoczyli cala\ndoline magiczna\nbariera,\na ja bylem\njednym z nich.",
+            "Aby uniemozliwic\n\
+            im ucieczke\n\
+            krol wyslal swych\n\
+            najpotezniejszych\n\
+            magow, aby ci\n\
+            otoczyli cala\n\
+            doline magiczna\n\
+            bariera,\n\
+            a ja bylem\n\
+            jednym z nich.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Niespodziewanie cos\nzaklocilo delikatna\nstrukture zaklecia\ni zostalismy\nuwiezieni przez\nnasze wlasne dzielo.\nWiezniowie\nblyskawicznie\nwykorzystali\nmoment konsternacji.",
+            "Niespodziewanie cos\n\
+            zaklocilo delikatna\n\
+            strukture zaklecia\n\
+            i zostalismy\n\
+            uwiezieni przez\n\
+            nasze wlasne dzielo.\n\
+            Wiezniowie\n\
+            blyskawicznie\n\
+            wykorzystali\n\
+            moment konsternacji.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Khorinis wraz ze\nwszystkimi swoimi\nkopalniami\nznajdowala sie\nw rekach wiezniow.\nKrol nie mial\nwyboru,\nmusial negocjowac,\npotrzebowal rudy.",
+            "Khorinis wraz ze\n\
+            wszystkimi swoimi\n\
+            kopalniami\n\
+            znajdowala sie\n\
+            w rekach wiezniow.\n\
+            Krol nie mial\n\
+            wyboru,\n\
+            musial negocjowac,\n\
+            potrzebowal rudy.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Miesiac po miesiacu\nkrol dostarczal\nwiezniom wszystkiego,\nczego potrzebowali.\nMiesiac po miesiacu\notrzymywal od nich\nladunek cennej rudy.",
+            "Miesiac po miesiacu\n\
+            krol dostarczal\n\
+            wiezniom wszystkiego,\n\
+            czego potrzebowali.\n\
+            Miesiac po miesiacu\n\
+            otrzymywal od nich\n\
+            ladunek cennej rudy.",
+            draw_nothing,
         ),
         CinematicScreen::new(
-            Sprite::empty(),
-            "Az do dzis,\nna skraj urwiska\nsprowadzono kolejnego\nwieznia.\nNie wiedzial,\nco go czeka,\na to wlasnie\non mial wszystko\nodmienic.",
+            "Az do dzis,\n\
+            na skraj urwiska\n\
+            sprowadzono kolejnego\n\
+            wieznia.\n\
+            Nie wiedzial,\n\
+            co go czeka,\n\
+            a to wlasnie\n\
+            on mial wszystko\n\
+            odmienic.",
+            draw_nothing,
         ),
     ]
 );
+
+fn draw_nothing(_framebuffer: &Framebuffer, _frame: Rect) {}
+
+fn draw_king_rhobar_2_scene(framebuffer: &Framebuffer, frame: Rect) {
+    framebuffer.set_draw_color(DrawColorIndex::Index1, Transparent);
+    framebuffer.set_draw_color(DrawColorIndex::Index2, Palette3);
+    framebuffer.sprite(
+        KING__RHOBAR_2_SPRITE,
+        frame.centered(KING__RHOBAR_2_SPRITE.size()).origin
+    );
+}

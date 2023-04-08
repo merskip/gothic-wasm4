@@ -4,7 +4,7 @@ use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
 use crate::game::game_world::GameWorld;
 use crate::renderable::Renderable;
-use crate::sprites::CHARACTER_SPRITE;
+use crate::sprites::PLAYER_SPRITE;
 use crate::updatable::Updatable;
 
 pub struct GameScene {
@@ -44,9 +44,9 @@ impl GameScene {
             PaletteIndex::Palette4,
             PaletteIndex::Transparent,
         ]);
-        framebuffer.sprite(&CHARACTER_SPRITE, frame.origin + Point::new(
-            (self.game_world.player.position.x - CHARACTER_SPRITE.size().width as f32 / 2.0) as i32,
-            (self.game_world.player.position.y - CHARACTER_SPRITE.size().height as f32 / 2.0) as i32,
+        framebuffer.sprite(PLAYER_SPRITE, frame.origin + Point::new(
+            (self.game_world.player.position.x - PLAYER_SPRITE.size().width as f32 / 2.0) as i32,
+            (self.game_world.player.position.y - PLAYER_SPRITE.size().height as f32 / 2.0) as i32,
         ), );
     }
 }

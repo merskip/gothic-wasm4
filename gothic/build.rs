@@ -2,8 +2,8 @@ use std::process::Command;
 
 fn main() {
     png2src("src/sprites.rs", &[
-        "resources/character.png",
-        "resources/cinematic_intro/king_rhobar_2.png",
+        "resources/Player.png",
+        "resources/King Rhobar 2.png",
     ]);
 }
 
@@ -15,5 +15,13 @@ fn png2src(output: &str, images: &[&str]) {
         .args(&["--template", "resources/sprite.mustache"])
         .arg("--output").arg(output)
         .args(images);
-    command.status().unwrap();
+
+    let output = command.output().unwrap();
+    if !output.status.success() || !output.stderr.is_empty() {
+        panic!("Failed generate sprites: {}", String::from_utf8(output.stderr).unwrap());
+    }
+
+    for image in images {
+        println!("cargo:rerun-if-changed={}", image);
+    }
 }

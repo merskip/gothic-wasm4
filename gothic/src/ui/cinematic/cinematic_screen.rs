@@ -12,13 +12,13 @@ use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 
 pub struct CinematicScreen {
-    picture: Sprite,
     text: &'static str,
+    draw_art: fn(&Framebuffer, Rect),
 }
 
 impl CinematicScreen {
-    pub const fn new(picture: Sprite, title: &'static str) -> Self {
-        Self { picture, text: title }
+    pub const fn new(title: &'static str, draw: fn(&Framebuffer, Rect)) -> Self {
+        Self { text: title, draw_art: draw }
     }
 }
 
@@ -61,16 +61,20 @@ impl Updatable for CinematicScreenView {
 
 impl Renderable for CinematicScreenView {
     fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
-        framebuffer.sprite(&self.screen.picture, frame.origin);
-
         let panel_size = Size::new(
             frame.size.width,
-            get_char_size().height * Self::TEXT_LINES_COUNT as u32 + 4
+            get_char_size().height * Self::TEXT_LINES_COUNT as u32 + 4,
         );
         let panel_frame = Rect::new(
-            Point::new(0, frame.origin.y + frame.size.height as i32 - panel_size.height as i32),
+            Point::new(frame.origin.x, frame.origin.y + frame.size.height as i32 - panel_size.height as i32),
             panel_size,
         );
+
+        let art_frame = Rect::new(
+            Point::new(frame.origin.x, frame.origin.y),
+            Size::new(frame.size.width, frame.size.height - panel_size.height),
+        );
+        (self.screen.draw_art)(framebuffer, art_frame);
 
         framebuffer.set_draw_color(DrawColorIndex::Index1, Transparent);
         framebuffer.set_draw_color(DrawColorIndex::Index2, Palette4);
@@ -111,6 +115,6 @@ impl<'a> StringLinesUtilities<'a> for &'a str {
             Some(&self[from_index..to_index])
         } else {
             Some(&self[from_index..])
-        }
+        };
     }
 }
