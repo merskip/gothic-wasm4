@@ -47,15 +47,15 @@ impl SimpleMenu {
 impl Updatable for SimpleMenu {
     fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
         let mut selected_index = self.selected_index as isize;
-        if inputs.gamepad1.is_pressed(DPadUp) {
+        if inputs.gamepad1.is_released(DPadUp) {
             selected_index -= 1;
-        } else if inputs.gamepad1.is_pressed(DPadDown) {
+        } else if inputs.gamepad1.is_released(DPadDown) {
             selected_index += 1;
         }
         selected_index = selected_index.clamp(0, self.texts.len() as isize - 1);
         self.selected_index = selected_index as usize;
 
-        if inputs.gamepad1.is_pressed(ButtonX) {
+        if inputs.gamepad1.is_released(ButtonX) {
             let selected_index = self.selected_index;
             let selection_handler = self.selection_handler.clone();
 
@@ -64,7 +64,7 @@ impl Updatable for SimpleMenu {
             }));
         }
 
-        if inputs.gamepad1.is_pressed(ButtonY) {
+        if inputs.gamepad1.is_released(ButtonY) {
             let back_handler = self.back_handler.clone();
             dispatcher.dispatch(Box::new(move || {
                 back_handler();

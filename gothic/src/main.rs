@@ -10,6 +10,7 @@ pub mod game;
 pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
+pub mod sprites;
 
 use alloc::boxed::Box;
 use alloc::rc::Rc;
@@ -23,9 +24,11 @@ use wasm4::{main_application, println};
 use renderable::Renderable;
 use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
+use crate::game::cinematic_intro::CINEMATIC_INTRO;
 use crate::game::game_scene::GameScene;
 use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
+use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
 
@@ -81,9 +84,10 @@ impl GothicApplication {
 
                 match item {
                     0 => {
-                        navigator_1.clone().borrow_mut()
+                        let navigator = navigator_1.clone();
+                        navigator.borrow_mut()
                             .push_view(Rc::new(RefCell::new(
-                                Self::make_game_scene(navigator.clone())
+                                Self::make_cinematic_intro(navigator.clone())
                             )));
                     }
                     _ => {}
@@ -94,6 +98,15 @@ impl GothicApplication {
                     .pop_top_view();
             }),
         )
+    }
+
+    fn make_cinematic_intro(navigator: Rc<RefCell<Navigator>>) -> CinematicPlayer {
+        CinematicPlayer::new(&CINEMATIC_INTRO, Rc::new(move || {
+            let navigator = navigator.clone();
+            navigator.borrow_mut().push_view(Rc::new(RefCell::new(
+                Self::make_game_scene(navigator.clone()))
+            ));
+        }))
     }
 
     fn make_game_scene(_navigator: Rc<RefCell<Navigator>>) -> GameScene {
