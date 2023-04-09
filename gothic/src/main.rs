@@ -11,10 +11,12 @@ pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
 pub mod sprites;
+pub mod audio;
+pub mod music_clips;
 
 use alloc::boxed::Box;
 use alloc::rc::Rc;
-use core::cell::{RefCell};
+use core::cell::RefCell;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 use wasm4::application::Application;
@@ -23,6 +25,7 @@ use wasm4::geometry::{Point, Rect};
 use wasm4::{main_application, println};
 use renderable::Renderable;
 use wasm4::inputs::Inputs;
+use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
 use crate::game::cinematic_intro::CINEMATIC_INTRO;
 use crate::game::game_scene::GameScene;
@@ -31,6 +34,7 @@ use crate::game::player::Player;
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
+use crate::updatable::Updatable;
 
 struct GothicApplication {
     dispatcher: Dispatcher,
@@ -47,6 +51,8 @@ impl Application for GothicApplication {
                 Self::make_main_menu(navigator.clone())
             )));
 
+        Music::shared().play_clip(&music_clips::MAIN_THEME);
+
         Self {
             dispatcher: Dispatcher::new(),
             root_renderable: navigator,
@@ -56,6 +62,7 @@ impl Application for GothicApplication {
     fn update(&mut self, inputs: &Inputs) {
         self.root_renderable.borrow_mut()
             .update(inputs, &mut self.dispatcher);
+        Music::shared().update(inputs, &mut self.dispatcher);
         self.dispatcher.execute();
     }
 
