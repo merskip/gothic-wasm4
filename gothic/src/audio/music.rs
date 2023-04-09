@@ -139,6 +139,25 @@ impl Music {
         self.current_clip = Some(clip);
     }
 
+    pub fn stop(&mut self) {
+        self.current_clip = None;
+
+        let channels = [
+            Channel::Pulse1,
+            Channel::Pulse2,
+            Channel::Triangle,
+            Channel::Noise
+        ];
+        for channel in channels {
+            self.audio.tone(
+                Frequency::constant(0),
+                ADSRDuration::constant(Duration::from_frames(0)),
+                Volume::constant(0),
+                Flags::new(channel, DutyCycle::OneEighth, Pan::default()),
+            )
+        }
+    }
+
     fn update_play_clip(&mut self, clip_data: &ClipData) {
         self.frame_counter += 1;
         let beat = self.frame_counter / clip_data.bpm as isize;

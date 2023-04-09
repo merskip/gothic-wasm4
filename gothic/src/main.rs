@@ -24,6 +24,7 @@ use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
 use wasm4::{main_application, println};
 use renderable::Renderable;
+use wasm4::audio::Audio;
 use wasm4::inputs::Inputs;
 use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
@@ -91,6 +92,8 @@ impl GothicApplication {
 
                 match item {
                     0 => {
+                        Music::shared().stop();
+
                         let navigator = navigator_1.clone();
                         navigator.borrow_mut()
                             .push_view(Rc::new(RefCell::new(
