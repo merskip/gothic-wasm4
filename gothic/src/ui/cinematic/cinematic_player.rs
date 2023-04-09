@@ -1,14 +1,13 @@
 use alloc::boxed::Box;
 use alloc::rc::Rc;
-use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
-use wasm4::framebuffer::PaletteIndex::Palette4;
+use wasm4::framebuffer::{Framebuffer};
 use wasm4::gamepad::GamepadButton::ButtonX;
-use wasm4::geometry::{Point, Rect};
+use wasm4::geometry::{Rect};
 use wasm4::inputs::Inputs;
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::ui::cinematic::cinematic::Cinematic;
-use crate::ui::cinematic::cinematic_screen::{CinematicScreen, CinematicScreenView};
+use crate::ui::cinematic::cinematic_screen::{CinematicScreenView};
 use crate::updatable::Updatable;
 
 pub struct CinematicPlayer {

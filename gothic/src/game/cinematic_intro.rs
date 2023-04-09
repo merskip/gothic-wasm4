@@ -1,7 +1,6 @@
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
-use wasm4::framebuffer::PaletteIndex::{Palette1, Palette2, Palette3, Palette4, Transparent};
-use wasm4::geometry::{Point, Rect, Size};
-use wasm4::sprite::Sprite;
+use wasm4::framebuffer::PaletteIndex::{Palette2, Palette3, Palette4, Transparent};
+use wasm4::geometry::{Point, Rect};
 use crate::sprites::{CROSSBONES_SPRITE, KING__RHOBAR_2_SPRITE, ORC_SPRITE};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
@@ -160,7 +159,7 @@ fn draw_orc_scene(framebuffer: &Framebuffer, frame: Rect) {
     for origin in orc_positions {
         framebuffer.sprite(
             ORC_SPRITE,
-            origin,
+            frame.origin + origin,
         );
     }
 
@@ -180,7 +179,7 @@ fn draw_orc_scene(framebuffer: &Framebuffer, frame: Rect) {
     for origin in crossbones_positions {
         framebuffer.sprite(
             CROSSBONES_SPRITE,
-            origin,
+            frame.origin + origin,
         );
     }
 }

@@ -6,7 +6,6 @@ use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::get_char_size;
 use wasm4::inputs::Inputs;
-use wasm4::sprite::Sprite;
 use crate::dispatcher::Dispatcher;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
