@@ -1,4 +1,4 @@
-use alloc::rc::Rc;
+use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use wasm4::framebuffer::Framebuffer;
@@ -9,7 +9,7 @@ use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 
 pub struct Navigator {
-    views: Vec<Rc<RefCell<dyn Renderable>>>,
+    views: Vec<Box<RefCell<dyn Renderable>>>,
 }
 
 impl Navigator {
@@ -19,8 +19,8 @@ impl Navigator {
         }
     }
 
-    pub fn push_view(&mut self, view: Rc<RefCell<dyn Renderable>>) {
-        self.views.push(view.clone());
+    pub fn push_view(&mut self, view: impl Renderable + 'static) {
+        self.views.push(Box::new(RefCell::new(view)));
     }
 
     pub fn pop_top_view(&mut self) {
@@ -29,9 +29,8 @@ impl Navigator {
         }
     }
 
-    pub fn get_top_view(&self) -> Option<Rc<RefCell<dyn Renderable>>> {
-        self.views.last()
-            .map(|top_view| top_view.clone())
+    pub fn get_top_view(&self) -> Option<&Box<RefCell<dyn Renderable>>> {
+        self.views.last()?.into()
     }
 }
 

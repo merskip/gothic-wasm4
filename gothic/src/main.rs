@@ -48,9 +48,7 @@ impl Application for GothicApplication {
             Navigator::new()
         ));
         navigator.borrow_mut()
-            .push_view(Rc::new(RefCell::new(
-                Self::make_main_menu(navigator.clone())
-            )));
+            .push_view(Self::make_main_menu(navigator.clone()));
 
         Music::shared().play_clip(&music_clips::MAIN_THEME);
 
@@ -96,9 +94,7 @@ impl GothicApplication {
 
                         let navigator = navigator_1.clone();
                         navigator.borrow_mut()
-                            .push_view(Rc::new(RefCell::new(
-                                Self::make_cinematic_intro(navigator.clone())
-                            )));
+                            .push_view(Self::make_cinematic_intro(navigator.clone()));
                     }
                     _ => {}
                 }
@@ -113,9 +109,7 @@ impl GothicApplication {
     fn make_cinematic_intro(navigator: Rc<RefCell<Navigator>>) -> CinematicPlayer {
         CinematicPlayer::new(&CINEMATIC_INTRO, Rc::new(move || {
             let navigator = navigator.clone();
-            navigator.borrow_mut().push_view(Rc::new(RefCell::new(
-                Self::make_game_scene(navigator.clone()))
-            ));
+            navigator.borrow_mut().push_view(Self::make_game_scene(navigator.clone()));
         }))
     }
 
