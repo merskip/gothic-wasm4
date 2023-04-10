@@ -1,8 +1,5 @@
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
 
-use crate::context::UpdateContext;
-use crate::updatable::Updatable;
-
 #[derive(Copy, Clone)]
 pub enum Bpm {
     Bpm1800 = 1,

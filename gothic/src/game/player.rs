@@ -2,8 +2,7 @@ use wasm4::gamepad::GamepadButton::{DPadDown, DPadLeft, DPadRight, DPadUp};
 use wasm4::geometry::{Point, Vector};
 use wasm4::inputs::Inputs;
 
-use crate::context::UpdateContext;
-use crate::updatable::Updatable;
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct Player {
     pub position: Point<f32>,

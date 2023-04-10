@@ -7,11 +7,10 @@ use wasm4::framebuffer::{DrawColorIndex, Framebuffer, PaletteIndex};
 use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
 use wasm4::geometry::{Point, Rect, Size};
 
-use crate::context::UpdateContext;
-use crate::renderable::Renderable;
+use crate::renderable::{Renderable, RenderContext};
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
-use crate::updatable::Updatable;
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct SimpleMenu {
     texts: Box<[Text]>,
@@ -71,29 +70,29 @@ impl Updatable for SimpleMenu {
 }
 
 impl Renderable for SimpleMenu {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
-        self.render_menu_items(framebuffer, frame)
+    fn render(&self, context: &mut RenderContext) {
+        self.render_menu_items(context)
     }
 }
 
 impl SimpleMenu {
-    fn render_menu_items(&self, framebuffer: &Framebuffer, frame: Rect) {
+    fn render_menu_items(&self, context: &mut RenderContext) {
         let mut y = 8;
         for (index, item) in self.texts.iter().enumerate() {
             let item_size = item.content_size();
             let item_frame = Rect::new(
-                Point::new(frame.origin.x, frame.origin.y + y),
-                Size::new(frame.size.width, item_size.height),
+                Point::new(context.frame.origin.x, context.frame.origin.y + y),
+                Size::new(context.frame.size.width, item_size.height),
             );
             let is_selected = index == self.selected_index;
             if is_selected {
-                framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
+                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
                 let line_y = self.animate_item_indicator_y(y);
-                self.render_selected_item_indicator(framebuffer, frame, line_y - 2, item_size.height + 3);
+                self.render_selected_item_indicator(context.framebuffer, context.frame, line_y - 2, item_size.height + 3);
             } else {
-                framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
+                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
             }
-            item.render(framebuffer, item_frame);
+            item.render(&mut context.with_frame(item_frame));
 
             y += item_size.height as i32 + 6;
         }

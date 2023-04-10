@@ -1,8 +1,7 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::cell::RefCell;
-
-use crate::context::UpdateContext;
+use crate::updatable::UpdateContext;
 
 pub struct Dispatcher {
     executes: RefCell<Vec<Box<dyn FnOnce(&mut UpdateContext)>>>,

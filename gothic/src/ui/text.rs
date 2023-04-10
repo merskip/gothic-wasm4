@@ -1,12 +1,10 @@
 use alloc::string::String;
 
-use wasm4::framebuffer::Framebuffer;
-use wasm4::geometry::{Point, Rect, Size};
+use wasm4::geometry::{Point, Size};
 use wasm4::get_char_size;
 
-use crate::context::UpdateContext;
-use crate::renderable::Renderable;
-use crate::updatable::Updatable;
+use crate::renderable::{Renderable, RenderContext};
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct Text {
     pub text: String,
@@ -45,32 +43,32 @@ impl Updatable for Text {
 }
 
 impl Renderable for Text {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
+    fn render(&self, context: &mut RenderContext) {
         match self.alignment {
-            TextAlignment::Start => self.render_aligned_start(framebuffer, frame),
-            TextAlignment::Center => self.render_aligned_center(framebuffer, frame),
-            TextAlignment::End => self.render_aligned_end(framebuffer, frame),
+            TextAlignment::Start => self.render_aligned_start(context),
+            TextAlignment::Center => self.render_aligned_center(context),
+            TextAlignment::End => self.render_aligned_end(context),
         }
     }
 }
 
 impl Text {
-    fn render_aligned_start(&self, framebuffer: &Framebuffer, frame: Rect) {
-        framebuffer.text(&*self.text, frame.origin);
+    fn render_aligned_start(&self, context: &mut RenderContext) {
+        context.framebuffer.text(&*self.text, context.frame.origin);
     }
 
-    fn render_aligned_center(&self, framebuffer: &Framebuffer, frame: Rect) {
+    fn render_aligned_center(&self, context: &mut RenderContext) {
         // TODO: Make works correctly with multilines
         let content_size = self.content_size();
-        let x = (frame.size.width - content_size.width) / 2;
-        framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));
+        let x = (context.frame.size.width - content_size.width) / 2;
+        context.framebuffer.text(&*self.text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 
-    fn render_aligned_end(&self, framebuffer: &Framebuffer, frame: Rect) {
+    fn render_aligned_end(&self, context: &mut RenderContext) {
         // TODO: Make works correctly with multilines
         let content_size = self.content_size();
-        let x = frame.size.width - content_size.width;
-        framebuffer.text(&*self.text, Point::new(frame.origin.x + x as i32, frame.origin.y));
+        let x = context.frame.size.width - content_size.width;
+        context.framebuffer.text(&*self.text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 }
 

@@ -1,11 +1,10 @@
-use wasm4::framebuffer::{Framebuffer, PaletteIndex};
-use wasm4::geometry::{Point, Rect};
+use wasm4::framebuffer::PaletteIndex;
+use wasm4::geometry::Point;
 
-use crate::context::UpdateContext;
 use crate::game::game_world::GameWorld;
-use crate::renderable::Renderable;
+use crate::renderable::{Renderable, RenderContext};
 use crate::sprites::PLAYER_SPRITE;
-use crate::updatable::Updatable;
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct GameScene {
     game_world: GameWorld,
@@ -24,27 +23,27 @@ impl Updatable for GameScene {
 }
 
 impl Renderable for GameScene {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
-        framebuffer.set_draw_colors([
+    fn render(&self, context: &mut RenderContext) {
+        context.framebuffer.set_draw_colors([
             PaletteIndex::Palette2,
             PaletteIndex::Transparent,
             PaletteIndex::Transparent,
             PaletteIndex::Transparent,
         ]);
-        framebuffer.text("Gothic", Point::new(0, 0));
-        self.render_player(framebuffer, frame);
+        context.framebuffer.text("Gothic", Point::new(0, 0));
+        self.render_player(context);
     }
 }
 
 impl GameScene {
-    fn render_player(&self, framebuffer: &Framebuffer, frame: Rect) {
-        framebuffer.set_draw_colors([
+    fn render_player(&self, context: &mut RenderContext) {
+        context.framebuffer.set_draw_colors([
             PaletteIndex::Palette2,
             PaletteIndex::Palette3,
             PaletteIndex::Palette4,
             PaletteIndex::Transparent,
         ]);
-        framebuffer.sprite(PLAYER_SPRITE, frame.origin + Point::new(
+        context.framebuffer.sprite(PLAYER_SPRITE, context.frame.origin + Point::new(
             (self.game_world.player.position.x - PLAYER_SPRITE.size().width as f32 / 2.0) as i32,
             (self.game_world.player.position.y - PLAYER_SPRITE.size().height as f32 / 2.0) as i32,
         ), );

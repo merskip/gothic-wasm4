@@ -16,15 +16,16 @@ use wasm4::geometry::{Point, Rect};
 use wasm4::inputs::Inputs;
 
 use crate::audio::music::Music;
-use crate::context::UpdateContext;
 use crate::dispatcher::Dispatcher;
 use crate::game::cinematic_intro::CINEMATIC_INTRO;
 use crate::game::game_scene::GameScene;
 use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
+use crate::renderable::RenderContext;
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
+use crate::updatable::UpdateContext;
 
 mod allocator;
 
@@ -36,7 +37,6 @@ pub mod dispatcher;
 pub mod sprites;
 pub mod audio;
 pub mod music_clips;
-mod context;
 
 struct GothicApplication {
     dispatcher: Dispatcher,
@@ -81,7 +81,8 @@ impl Application for GothicApplication {
             framebuffer.get_size(),
         );
         if let Some(top_view) = self.navigator.top_view() {
-            top_view.render(&framebuffer, frame);
+            let mut context = RenderContext::new(framebuffer, frame);
+            top_view.render(&mut context);
         }
     }
 }

@@ -1,14 +1,11 @@
 use alloc::rc::Rc;
 
-use wasm4::framebuffer::Framebuffer;
 use wasm4::gamepad::GamepadButton::ButtonX;
-use wasm4::geometry::Rect;
 
-use crate::context::UpdateContext;
-use crate::renderable::Renderable;
+use crate::renderable::{Renderable, RenderContext};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreenView;
-use crate::updatable::Updatable;
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct CinematicPlayer {
     cinematic: &'static Cinematic,
@@ -57,7 +54,7 @@ impl Updatable for CinematicPlayer {
 }
 
 impl Renderable for CinematicPlayer {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
-        self.current_screen.render(framebuffer, frame);
+    fn render(&self, context: &mut RenderContext) {
+        self.current_screen.render(context);
     }
 }

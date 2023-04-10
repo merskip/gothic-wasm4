@@ -7,9 +7,8 @@ use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::get_char_size;
 
-use crate::context::UpdateContext;
-use crate::renderable::Renderable;
-use crate::updatable::Updatable;
+use crate::renderable::{Renderable, RenderContext};
+use crate::updatable::{Updatable, UpdateContext};
 
 pub struct CinematicScreen {
     text: &'static str,
@@ -60,37 +59,37 @@ impl Updatable for CinematicScreenView {
 }
 
 impl Renderable for CinematicScreenView {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
+    fn render(&self, context: &mut RenderContext) {
         let panel_size = Size::new(
-            frame.size.width,
+            context.frame.size.width,
             get_char_size().height * Self::TEXT_LINES_COUNT as u32 + 4,
         );
         let panel_frame = Rect::new(
-            Point::new(frame.origin.x, frame.origin.y + frame.size.height as i32 - panel_size.height as i32),
+            Point::new(context.frame.origin.x, context.frame.origin.y + context.frame.size.height as i32 - panel_size.height as i32),
             panel_size,
         );
 
         let art_frame = Rect::new(
-            Point::new(frame.origin.x, frame.origin.y),
-            Size::new(frame.size.width, frame.size.height - panel_size.height),
+            Point::new(context.frame.origin.x, context.frame.origin.y),
+            Size::new(context.frame.size.width, context.frame.size.height - panel_size.height),
         );
-        (self.screen.draw_art)(framebuffer, art_frame);
+        (self.screen.draw_art)(context.framebuffer, art_frame);
 
-        framebuffer.set_draw_color(DrawColorIndex::Index1, Transparent);
-        framebuffer.set_draw_color(DrawColorIndex::Index2, Palette4);
-        framebuffer.rectangle(panel_frame.origin, panel_size);
+        context.framebuffer.set_draw_color(DrawColorIndex::Index1, Transparent);
+        context.framebuffer.set_draw_color(DrawColorIndex::Index2, Palette4);
+        context.framebuffer.rectangle(panel_frame.origin, panel_size);
 
-        framebuffer.set_draw_color(DrawColorIndex::Index1, Palette3);
-        framebuffer.set_draw_color(DrawColorIndex::Index2, Transparent);
-        framebuffer.text(self.current_text, panel_frame.origin + Point::new(2, 2));
+        context.framebuffer.set_draw_color(DrawColorIndex::Index1, Palette3);
+        context.framebuffer.set_draw_color(DrawColorIndex::Index2, Transparent);
+        context.framebuffer.text(self.current_text, panel_frame.origin + Point::new(2, 2));
 
         let hint_text = unsafe { String::from_utf8_unchecked(vec![0x80]) + " kontynuuj" };
         let hint_size = Size::new(
             hint_text.len() as u32 * get_char_size().width,
             get_char_size().height,
         );
-        let hint_origin = panel_frame.origin + Point::new((frame.size.width - hint_size.width) as i32, -(hint_size.height as i32));
-        framebuffer.text(hint_text.as_str(), hint_origin);
+        let hint_origin = panel_frame.origin + Point::new((context.frame.size.width - hint_size.width) as i32, -(hint_size.height as i32));
+        context.framebuffer.text(hint_text.as_str(), hint_origin);
     }
 }
 
