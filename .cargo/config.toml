@@ -6,6 +6,7 @@ cart-run = "run --profile cartridge"
 inherits = "release"
 opt-level = "z"
 lto = true
+strip = true
 
 [build]
 target = "wasm32-unknown-unknown"
