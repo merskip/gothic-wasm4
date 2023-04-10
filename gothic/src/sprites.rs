@@ -1,6 +1,6 @@
-use wasm4::sprite::Sprite;
 use wasm4::geometry::Size;
 use wasm4::sprite::Flags::*;
+use wasm4::sprite::Sprite;
 
 /// Player
 pub const PLAYER_SPRITE: &Sprite = &Sprite::new(

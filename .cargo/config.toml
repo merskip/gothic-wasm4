@@ -1,18 +1,21 @@
 [alias]
-cart-build = "build --profile cartridge"
-cart-run = "run --profile cartridge"
+cart-build = "build --profile cartridge-release"
+cart-run = "run --profile cartridge-debug"
 
-[profile.cartridge]
+[profile.cartridge-release]
 inherits = "release"
 opt-level = "z"
 lto = true
 strip = true
 
+[profile.cartridge-debug]
+inherits = "dev"
+
 [build]
 target = "wasm32-unknown-unknown"
 
 [target.wasm32-unknown-unknown]
-runner = "w4 run-native"
+runner = "w4 run"
 rustflags = [
     # Import memory from WASM-4
     "-C", "link-arg=--import-memory",
