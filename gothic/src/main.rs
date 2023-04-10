@@ -4,6 +4,8 @@
 extern crate alloc;
 
 use alloc::rc::Rc;
+use alloc::string::{String, ToString};
+use core::fmt::{Display, Formatter, Write};
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 
@@ -87,36 +89,61 @@ impl Application for GothicApplication {
 }
 
 impl GothicApplication {
-    fn make_main_menu() -> SimpleMenu {
+    fn make_main_menu() -> SimpleMenu<MainMenuItem> {
         SimpleMenu::new(
             &[
-                "New game",
-                "Settings",
-                "Authors"
+                MainMenuItem::NewGame,
+                MainMenuItem::Settings,
+                MainMenuItem::Authors,
             ],
             |item, context| {
-                println!("[Main menu] Selected item index: {}", item);
+                println!("[Main menu] Selected item: {}", item);
                 match item {
-                    0 => {
+                    MainMenuItem::NewGame => {
                         context.music.stop();
                         context.navigator.push_view(Self::make_cinematic_intro());
                     }
-                    _ => {}
+                    MainMenuItem::Settings => {
+                        println!("Settings not implemented yet");
+                    }
+                    MainMenuItem::Authors => {
+                        println!("Authors not implemented yet");
+                    }
                 }
             },
         )
     }
 
     fn make_cinematic_intro() -> CinematicPlayer {
-        CinematicPlayer::new(&CINEMATIC_INTRO, Rc::new(move |context| {
-            context.navigator.push_view(Self::make_game_scene());
-        }))
+        CinematicPlayer::new(
+            &CINEMATIC_INTRO,
+            Rc::new(move |context| {
+                context.navigator.push_view(Self::make_game_scene());
+            }),
+        )
     }
 
     fn make_game_scene() -> GameScene {
         let player = Player::new(Point::new(50.0, 50.0));
         let game_world = GameWorld::new(player);
         GameScene::new(game_world)
+    }
+}
+
+#[derive(Clone, Eq, PartialEq)]
+enum MainMenuItem {
+    NewGame,
+    Settings,
+    Authors,
+}
+
+impl Display for MainMenuItem {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        match self {
+            MainMenuItem::NewGame => f.write_str("Nowa gra"),
+            MainMenuItem::Settings => f.write_str("Ustawienia"),
+            MainMenuItem::Authors => f.write_str("Autorzy"),
+        }
     }
 }
 

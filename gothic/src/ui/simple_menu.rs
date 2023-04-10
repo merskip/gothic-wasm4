@@ -1,6 +1,6 @@
-use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 use core::cell::Cell;
 
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer, PaletteIndex};
@@ -12,19 +12,21 @@ use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
 use crate::updatable::{Updatable, UpdateContext};
 
-pub struct SimpleMenu {
-    texts: Box<[Text]>,
+pub struct SimpleMenu<Item> where Item: ToString + Clone {
+    items: Vec<Item>,
+    texts: Vec<Text>,
     selected_index: usize,
     last_item_indicator_y: Cell<f32>,
-    selection_handler: Rc<dyn Fn(usize, &mut UpdateContext)>,
+    selection_handler: Rc<dyn Fn(Item, &mut UpdateContext)>,
 }
 
-impl SimpleMenu {
-    pub fn new<Item, SelectionHandler>(
+impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
+    pub fn new<SelectionHandler>(
         items: &[Item],
         selection_handler: SelectionHandler,
-    ) -> Self where Item: ToString, SelectionHandler: Fn(usize, &mut UpdateContext) + 'static {
+    ) -> Self where SelectionHandler: Fn(Item, &mut UpdateContext) + 'static {
         Self {
+            items: items.to_vec(),
             texts: items.iter()
                 .map(|item| Self::make_menu_item(item.to_string()))
                 .collect(),
@@ -41,7 +43,7 @@ impl SimpleMenu {
     }
 }
 
-impl Updatable for SimpleMenu {
+impl<Item> Updatable for SimpleMenu<Item> where Item: ToString + Clone + 'static {
     fn update(&mut self, context: &mut UpdateContext) {
         let mut selected_index = self.selected_index as isize;
         if context.inputs.gamepad1.is_released(DPadUp) {
@@ -54,8 +56,9 @@ impl Updatable for SimpleMenu {
 
         if context.inputs.gamepad1.is_released(ButtonX) {
             let selection_handler = self.selection_handler.clone();
+            let selected_item = self.items[selected_index as usize].clone();
             context.dispatcher.dispatch(move |context| {
-                (selection_handler)(selected_index as usize, context);
+                (selection_handler)(selected_item, context);
             });
         }
 
@@ -67,13 +70,13 @@ impl Updatable for SimpleMenu {
     }
 }
 
-impl Renderable for SimpleMenu {
+impl<Item> Renderable for SimpleMenu<Item> where Item: ToString + Clone + 'static {
     fn render(&self, context: &mut RenderContext) {
         self.render_menu_items(context)
     }
 }
 
-impl SimpleMenu {
+impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
     fn render_menu_items(&self, context: &mut RenderContext) {
         let mut y = 8;
         for (index, item) in self.texts.iter().enumerate() {
@@ -100,9 +103,7 @@ impl SimpleMenu {
         framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y), frame.size.width);
         framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y + item_height as i32), frame.size.width);
     }
-}
 
-impl SimpleMenu {
     fn animate_item_indicator_y(&self, item_y: i32) -> i32 {
         let line_y = Self::linear_interpolate(self.last_item_indicator_y.take(), item_y as f32, 0.3);
         self.last_item_indicator_y.replace(line_y);
