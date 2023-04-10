@@ -15,12 +15,15 @@ pub struct CinematicPlayer {
 }
 
 impl CinematicPlayer {
-    pub fn new(cinematic: &'static Cinematic, finish_handler: Rc<dyn Fn(&mut UpdateContext)>) -> Self {
+    pub fn new<FinishHandler>(
+        cinematic: &'static Cinematic,
+        finish_handler: FinishHandler,
+    ) -> Self where FinishHandler: Fn(&mut UpdateContext) + 'static {
         Self {
             cinematic,
             current_screen: CinematicScreenView::new(&cinematic.screens[0]),
             current_screen_index: 0,
-            finish_handler,
+            finish_handler: Rc::new(finish_handler),
         }
     }
 

@@ -3,9 +3,7 @@
 
 extern crate alloc;
 
-use alloc::rc::Rc;
-use alloc::string::{String, ToString};
-use core::fmt::{Display, Formatter, Write};
+use core::fmt::{Display, Formatter};
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 
@@ -117,9 +115,9 @@ impl GothicApplication {
     fn make_cinematic_intro() -> CinematicPlayer {
         CinematicPlayer::new(
             &CINEMATIC_INTRO,
-            Rc::new(move |context| {
+            |context| {
                 context.navigator.push_view(Self::make_game_scene());
-            }),
+            },
         )
     }
 
