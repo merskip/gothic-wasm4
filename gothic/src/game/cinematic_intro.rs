@@ -1,10 +1,21 @@
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
 use wasm4::framebuffer::PaletteIndex::{Palette2, Palette3, Palette4, Transparent};
 use wasm4::geometry::{Point, Rect};
+use crate::game::game_scene::make_game_scene;
 
 use crate::sprites::{CROSSBONES_SPRITE, KING__RHOBAR_2_SPRITE, ORC_SPRITE};
 use crate::ui::cinematic::cinematic::Cinematic;
+use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
+
+pub fn make_cinematic_intro() -> CinematicPlayer {
+    CinematicPlayer::new(
+        &CINEMATIC_INTRO,
+        |context| {
+            context.navigator.push_view(make_game_scene());
+        },
+    )
+}
 
 /*
 Królestwo Myrthany zjednoczone pod berłem króla Rhobara II.

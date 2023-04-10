@@ -2,9 +2,16 @@ use wasm4::framebuffer::PaletteIndex;
 use wasm4::geometry::Point;
 
 use crate::game::game_world::GameWorld;
+use crate::game::player::Player;
 use crate::renderable::{Renderable, RenderContext};
 use crate::sprites::PLAYER_SPRITE;
 use crate::updatable::{Updatable, UpdateContext};
+
+pub fn make_game_scene() -> GameScene {
+    let player = Player::new(Point::new(50.0, 50.0));
+    let game_world = GameWorld::new(player);
+    GameScene::new(game_world)
+}
 
 pub struct GameScene {
     game_world: GameWorld,
