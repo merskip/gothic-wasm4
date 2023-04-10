@@ -10,6 +10,7 @@ use core::panic::PanicInfo;
 
 use wasm4::{main_application, println};
 use wasm4::application::Application;
+use wasm4::audio::Audio;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
 use wasm4::inputs::Inputs;
@@ -24,7 +25,6 @@ use crate::game::player::Player;
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::navigator::Navigator;
 use crate::ui::simple_menu::SimpleMenu;
-use crate::updatable::Updatable;
 
 mod allocator;
 
@@ -39,8 +39,9 @@ pub mod music_clips;
 mod context;
 
 struct GothicApplication {
-    navigator: Navigator,
     dispatcher: Dispatcher,
+    navigator: Navigator,
+    music: Music,
 }
 
 impl Application for GothicApplication {
@@ -48,23 +49,29 @@ impl Application for GothicApplication {
         let mut navigator = Navigator::new();
         navigator.push_view(Self::make_main_menu());
 
-        Music::shared().play_clip(&music_clips::MAIN_THEME);
+        let mut music = Music::new(Audio::shared());
+        music.play_clip(&music_clips::MAIN_THEME);
 
         Self {
-            navigator,
             dispatcher: Dispatcher::new(),
+            navigator,
+            music,
         }
     }
 
     fn update(&mut self, inputs: &Inputs) {
-        let mut context = UpdateContext::new(&mut self.dispatcher, inputs, &mut self.navigator);
+        let mut context = UpdateContext::new(
+            &mut self.dispatcher,
+            &mut self.navigator,
+            inputs,
+            &mut self.music,
+        );
 
         if let Some(mut top_view) = context.navigator.top_view_mut() {
             top_view.update(&mut context);
             context.navigator.push_view_box(top_view);
         }
-        Music::shared().update(&mut context);
-
+        context.music.update();
         context.dispatcher.execute(&mut context);
     }
 
@@ -92,8 +99,7 @@ impl GothicApplication {
 
                 match item {
                     0 => {
-                        Music::shared().stop();
-
+                        context.music.stop();
                         context.navigator.push_view(Self::make_cinematic_intro());
                     }
                     _ => {}

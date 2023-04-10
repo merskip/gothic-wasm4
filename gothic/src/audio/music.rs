@@ -115,24 +115,15 @@ pub struct Music {
     frame_counter: isize,
 }
 
-static mut MUSIC: Music = Music {
-    audio: Audio::shared(),
-    current_clip: None,
-    beat_counter: -1,
-    frame_counter: -1,
-};
-
-impl Updatable for Music {
-    fn update(&mut self, _context: &mut UpdateContext) {
-        if let Some(clip_data) = self.current_clip {
-            self.update_play_clip(clip_data)
-        }
-    }
-}
-
 impl Music {
-    pub fn shared() -> &'static mut Self {
-        unsafe { &mut MUSIC }
+
+    pub fn new(audio: Audio) -> Self {
+        Self {
+            audio,
+            current_clip: None,
+            beat_counter: -1,
+            frame_counter: -1,
+        }
     }
 
     pub fn play_clip(&mut self, clip: &'static ClipData) {
@@ -194,5 +185,11 @@ impl Music {
                 Pan::default(),
             ),
         )
+    }
+
+    pub fn update(&mut self) {
+        if let Some(clip_data) = self.current_clip {
+            self.update_play_clip(clip_data)
+        }
     }
 }
