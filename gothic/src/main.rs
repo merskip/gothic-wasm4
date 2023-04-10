@@ -84,17 +84,12 @@ main_application! { GothicApplication }
 
 #[panic_handler]
 #[cfg(not(test))]
-#[cfg(debug_assertions)]
+#[allow(unused_variables)]
 fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
-    use wasm4::println;
-    println!("[PANIC!]");
-    println!("{}", panic_info);
-    core::arch::wasm32::unreachable();
-}
-
-#[panic_handler]
-#[cfg(not(test))]
-#[cfg(not(debug_assertions))]
-fn panic_handler(_panic_info: &PanicInfo<'_>) -> ! {
+    if cfg!(debug_assertions) {
+        use wasm4::println;
+        println!("PANIC at:");
+        println!("{}", panic_info.location().unwrap());
+    }
     core::arch::wasm32::unreachable();
 }

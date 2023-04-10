@@ -142,7 +142,7 @@ impl Music {
                 ADSRDuration::constant(Duration::from_frames(0)),
                 Volume::constant(0),
                 Flags::new(channel, DutyCycle::OneEighth, Pan::default()),
-            )
+            );
         }
     }
 

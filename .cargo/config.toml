@@ -4,12 +4,14 @@ cart-run = "run --profile cartridge-debug"
 
 [profile.cartridge-release]
 inherits = "release"
+panic = "abort"
 opt-level = "z"
 lto = true
 strip = true
 
 [profile.cartridge-debug]
 inherits = "dev"
+panic = "abort"
 
 [build]
 target = "wasm32-unknown-unknown"
