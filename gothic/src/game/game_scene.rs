@@ -1,7 +1,7 @@
 use wasm4::framebuffer::{Framebuffer, PaletteIndex};
 use wasm4::geometry::{Point, Rect};
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+
+use crate::context::UpdateContext;
 use crate::game::game_world::GameWorld;
 use crate::renderable::Renderable;
 use crate::sprites::PLAYER_SPRITE;
@@ -18,8 +18,8 @@ impl GameScene {
 }
 
 impl Updatable for GameScene {
-    fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
-        self.game_world.player.update(inputs, dispatcher);
+    fn update(&mut self, context: &mut UpdateContext) {
+        self.game_world.player.update(context);
     }
 }
 

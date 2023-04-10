@@ -1,12 +1,13 @@
 use alloc::string::String;
 use alloc::vec;
+
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
 use wasm4::framebuffer::PaletteIndex::*;
 use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::{Point, Rect, Size};
 use wasm4::get_char_size;
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+
+use crate::context::UpdateContext;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 
@@ -51,8 +52,8 @@ impl CinematicScreenView {
 }
 
 impl Updatable for CinematicScreenView {
-    fn update(&mut self, inputs: &Inputs, _dispatcher: &mut Dispatcher) {
-        if inputs.gamepad1.is_released(ButtonX) {
+    fn update(&mut self, context: &mut UpdateContext) {
+        if context.inputs.gamepad1.is_released(ButtonX) {
             self.scroll_to_next_lines();
         }
     }

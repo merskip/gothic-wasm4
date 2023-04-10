@@ -1,6 +1,6 @@
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+
+use crate::context::UpdateContext;
 use crate::updatable::Updatable;
 
 #[derive(Copy, Clone)]
@@ -123,7 +123,7 @@ static mut MUSIC: Music = Music {
 };
 
 impl Updatable for Music {
-    fn update(&mut self, _inputs: &Inputs, _dispatcher: &mut Dispatcher) {
+    fn update(&mut self, _context: &mut UpdateContext) {
         if let Some(clip_data) = self.current_clip {
             self.update_play_clip(clip_data)
         }

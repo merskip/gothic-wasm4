@@ -1,9 +1,10 @@
-use alloc::string::{String};
-use wasm4::geometry::{Point, Rect, Size};
-use wasm4::{get_char_size};
+use alloc::string::String;
+
 use wasm4::framebuffer::Framebuffer;
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+use wasm4::geometry::{Point, Rect, Size};
+use wasm4::get_char_size;
+
+use crate::context::UpdateContext;
 use crate::renderable::Renderable;
 use crate::updatable::Updatable;
 
@@ -40,7 +41,7 @@ impl Text {
 }
 
 impl Updatable for Text {
-    fn update(&mut self, _inputs: &Inputs, _dispatcher: &mut Dispatcher) {}
+    fn update(&mut self, _context: &mut UpdateContext) {}
 }
 
 impl Renderable for Text {

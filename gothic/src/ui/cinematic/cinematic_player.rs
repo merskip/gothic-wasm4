@@ -1,24 +1,24 @@
-use alloc::boxed::Box;
 use alloc::rc::Rc;
-use wasm4::framebuffer::{Framebuffer};
+
+use wasm4::framebuffer::Framebuffer;
 use wasm4::gamepad::GamepadButton::ButtonX;
-use wasm4::geometry::{Rect};
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+use wasm4::geometry::Rect;
+
+use crate::context::UpdateContext;
 use crate::renderable::Renderable;
 use crate::ui::cinematic::cinematic::Cinematic;
-use crate::ui::cinematic::cinematic_screen::{CinematicScreenView};
+use crate::ui::cinematic::cinematic_screen::CinematicScreenView;
 use crate::updatable::Updatable;
 
 pub struct CinematicPlayer {
     cinematic: &'static Cinematic,
     current_screen_index: usize,
     current_screen: CinematicScreenView,
-    finish_handler: Rc<dyn Fn()>,
+    finish_handler: Rc<dyn Fn(&mut UpdateContext)>,
 }
 
 impl CinematicPlayer {
-    pub fn new(cinematic: &'static Cinematic, finish_handler: Rc<dyn Fn()>) -> Self {
+    pub fn new(cinematic: &'static Cinematic, finish_handler: Rc<dyn Fn(&mut UpdateContext)>) -> Self {
         Self {
             cinematic,
             current_screen: CinematicScreenView::new(&cinematic.screens[0]),
@@ -39,16 +39,16 @@ impl CinematicPlayer {
 }
 
 impl Updatable for CinematicPlayer {
-    fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
-        self.current_screen.update(inputs, dispatcher);
+    fn update(&mut self, context: &mut UpdateContext) {
+        self.current_screen.update(context);
 
         if self.current_screen.is_finished()
-            && inputs.gamepad1.is_released(ButtonX) {
+            && context.inputs.gamepad1.is_released(ButtonX) {
             if self.is_last_screen() {
                 let finish_handler = self.finish_handler.clone();
-                dispatcher.dispatch(Box::new(move ||
-                    finish_handler()
-                ));
+                context.dispatcher.dispatch(move |context|
+                    finish_handler(context)
+                );
             } else {
                 self.show_next_screen();
             }

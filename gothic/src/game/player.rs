@@ -1,7 +1,8 @@
 use wasm4::gamepad::GamepadButton::{DPadDown, DPadLeft, DPadRight, DPadUp};
 use wasm4::geometry::{Point, Vector};
 use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+
+use crate::context::UpdateContext;
 use crate::updatable::Updatable;
 
 pub struct Player {
@@ -17,8 +18,8 @@ impl Player {
 const MOVE_SPEED: f32 = 1.0;
 
 impl Updatable for Player {
-    fn update(&mut self, inputs: &Inputs, _dispatcher: &mut Dispatcher) {
-        self.position += self.get_movement(inputs);
+    fn update(&mut self, context: &mut UpdateContext) {
+        self.position += self.get_movement(context.inputs);
     }
 }
 

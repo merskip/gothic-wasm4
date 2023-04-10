@@ -1,26 +1,26 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
-use core::cell::RefCell;
-use wasm4::framebuffer::Framebuffer;
-use wasm4::geometry::Rect;
-use wasm4::inputs::Inputs;
-use crate::dispatcher::Dispatcher;
+
 use crate::renderable::Renderable;
-use crate::updatable::Updatable;
 
 pub struct Navigator {
-    views: Vec<Box<RefCell<dyn Renderable>>>,
+    views: Vec<Box<dyn Renderable>>,
 }
 
 impl Navigator {
     pub fn new() -> Self {
         Self {
-            views: Vec::new()
+            views: Vec::new(),
         }
     }
 
-    pub fn push_view(&mut self, view: impl Renderable + 'static) {
-        self.views.push(Box::new(RefCell::new(view)));
+    pub fn push_view<T>(&mut self, view: T)
+        where T: Renderable + 'static {
+        self.views.push(Box::new(view));
+    }
+
+    pub fn push_view_box(&mut self, view: Box<dyn Renderable>) {
+        self.views.push(view);
     }
 
     pub fn pop_top_view(&mut self) {
@@ -29,23 +29,11 @@ impl Navigator {
         }
     }
 
-    pub fn get_top_view(&self) -> Option<&Box<RefCell<dyn Renderable>>> {
-        self.views.last()?.into()
+    pub fn top_view(&self) -> Option<&Box<dyn Renderable>> {
+        self.views.last()
     }
-}
 
-impl Updatable for Navigator {
-    fn update(&mut self, inputs: &Inputs, dispatcher: &mut Dispatcher) {
-        if let Some(view) = self.get_top_view() {
-            view.borrow_mut().update(inputs, dispatcher);
-        }
-    }
-}
-
-impl Renderable for Navigator {
-    fn render(&self, framebuffer: &Framebuffer, frame: Rect) {
-        if let Some(view) = self.get_top_view() {
-            view.borrow().render(framebuffer, frame)
-        }
+    pub fn top_view_mut(&mut self) -> Option<Box<dyn Renderable>> {
+        self.views.pop()
     }
 }

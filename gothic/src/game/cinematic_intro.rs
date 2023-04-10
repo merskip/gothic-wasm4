@@ -1,6 +1,7 @@
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
 use wasm4::framebuffer::PaletteIndex::{Palette2, Palette3, Palette4, Transparent};
 use wasm4::geometry::{Point, Rect};
+
 use crate::sprites::{CROSSBONES_SPRITE, KING__RHOBAR_2_SPRITE, ORC_SPRITE};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
@@ -127,7 +128,7 @@ fn draw_king_rhobar_2_scene(framebuffer: &Framebuffer, frame: Rect) {
     framebuffer.set_draw_color(DrawColorIndex::Index2, Palette3);
     framebuffer.sprite(
         KING__RHOBAR_2_SPRITE,
-        frame.centered(KING__RHOBAR_2_SPRITE.size()).origin
+        frame.centered(KING__RHOBAR_2_SPRITE.size()).origin,
     );
 }
 
@@ -138,22 +139,16 @@ fn draw_orc_scene(framebuffer: &Framebuffer, frame: Rect) {
         Transparent,
         Palette4,
     ]);
-    let orc_positions  = [
+    let orc_positions = [
         Point::new(10, 10),
-
         Point::new(20, 20),
-
         Point::new(10, 30),
         Point::new(30, 30),
-
         Point::new(20, 40),
         Point::new(40, 40),
-
         Point::new(10, 50),
         Point::new(30, 50),
-
         Point::new(20, 60),
-
         Point::new(10, 70),
     ];
     for origin in orc_positions {
