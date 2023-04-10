@@ -20,17 +20,17 @@ pub struct SimpleMenu {
 }
 
 impl SimpleMenu {
-    pub fn new<T: ToString>(
-        items: Box<[T]>,
-        selection_handler: Rc<dyn Fn(usize, &mut UpdateContext)>,
-    ) -> Self {
+    pub fn new<Item, SelectionHandler>(
+        items: &[Item],
+        selection_handler: SelectionHandler,
+    ) -> Self where Item: ToString, SelectionHandler: Fn(usize, &mut UpdateContext) + 'static {
         Self {
             texts: items.iter()
                 .map(|item| Self::make_menu_item(item.to_string()))
                 .collect(),
             selected_index: 0,
             last_item_indicator_y: Cell::new(8.0),
-            selection_handler,
+            selection_handler: Rc::new(selection_handler),
         }
     }
 
@@ -53,11 +53,9 @@ impl Updatable for SimpleMenu {
         self.selected_index = selected_index as usize;
 
         if context.inputs.gamepad1.is_released(ButtonX) {
-            let selected_index = self.selected_index;
             let selection_handler = self.selection_handler.clone();
-
             context.dispatcher.dispatch(move |context| {
-                (selection_handler)(selected_index, context);
+                (selection_handler)(selected_index as usize, context);
             });
         }
 

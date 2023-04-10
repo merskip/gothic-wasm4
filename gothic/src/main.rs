@@ -3,7 +3,6 @@
 
 extern crate alloc;
 
-use alloc::boxed::Box;
 use alloc::rc::Rc;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
@@ -90,14 +89,13 @@ impl Application for GothicApplication {
 impl GothicApplication {
     fn make_main_menu() -> SimpleMenu {
         SimpleMenu::new(
-            Box::new([
+            &[
                 "New game",
                 "Settings",
                 "Authors"
-            ]),
-            Rc::new(move |item, context| {
+            ],
+            |item, context| {
                 println!("[Main menu] Selected item index: {}", item);
-
                 match item {
                     0 => {
                         context.music.stop();
@@ -105,7 +103,7 @@ impl GothicApplication {
                     }
                     _ => {}
                 }
-            }),
+            },
         )
     }
 
