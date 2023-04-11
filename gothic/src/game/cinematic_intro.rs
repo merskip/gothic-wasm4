@@ -33,8 +33,8 @@ Aż do dziś, na skraj urwiska sprowadzono kolejnego więźnia. Nie wiedział, c
 Sędzia: W imieniu jego wysokości, króla Rhobara II, pana Varantu, skazuje tego więźnia na...
 Mag ognia: Stać! Skazańcze, mam dla Ciebie propozycję... Ten list musi dotrzeć do arcymistrza kręgu magów ognia.
 Bezimienny: Marnujesz czas
-Mag ognia: Sam będziesz mógł wybrać sobie nagrodę. Magowie dadzą Ci wszystko czego zażądasz.
-Bezimienny: Niech będzie, zaniosę wasz cenny list. Pod jednym warunkiem. Oszczędźcie mi reszty tej paplaniny.
+Mag ognia: Sam będziesz mógł wybrać sobie nagrodę. Magowie dadzą Ci wszystko czego zażądasz.
+Bezimienny: Niech będzie, zaniosę wasz cenny list. Pod jednym warunkiem. Oszczędźcie mi reszty tej paplaniny.
 Sędzia: JAK ŚMIE...
 Mag ognia: Milcz!
 Mag ognia: Dobra, zrzucajcie go.
@@ -44,7 +44,7 @@ Bullit: Witamy w kolonii!
 <jeb>
 Diego: Dość tego! Zostawcie go! A teraz precz!
 Diego: No już, wstawaj.
- /*
+ */
 
 pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     &[
