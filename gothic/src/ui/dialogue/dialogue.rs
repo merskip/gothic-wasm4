@@ -3,6 +3,16 @@ pub struct Dialogue {
 }
 
 pub struct Sentence {
-    pub message: &'static str,
     pub actor: Option<&'static str>,
+    pub message: &'static str,
+}
+
+#[macro_export]
+macro_rules! sentence {
+    ($actor:ident: $message:literal) => {
+        Sentence {
+            actor: $actor,
+            message: $message,
+        }
+    };
 }
