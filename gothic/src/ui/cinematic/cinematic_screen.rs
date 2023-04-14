@@ -1,11 +1,11 @@
-use alloc::string::String;
-use alloc::vec;
+use alloc::string::{String, ToString};
+use alloc::{format, vec};
 
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
 use wasm4::framebuffer::PaletteIndex::*;
 use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::{Point, Rect, Size};
-use wasm4::get_char_size;
+use wasm4::{char_x_button, get_char_size};
 
 use crate::renderable::{Renderable, RenderContext};
 use crate::updatable::{Updatable, UpdateContext};
@@ -83,7 +83,7 @@ impl Renderable for CinematicScreenView {
         context.framebuffer.set_draw_color(DrawColorIndex::Index2, Transparent);
         context.framebuffer.text(self.current_text, panel_frame.origin + Point::new(2, 2));
 
-        let hint_text = unsafe { String::from_utf8_unchecked(vec![0x80]) + " kontynuuj" };
+        let hint_text = format!("{} kontynuuj", char_x_button());
         let hint_size = Size::new(
             hint_text.len() as u32 * get_char_size().width,
             get_char_size().height,

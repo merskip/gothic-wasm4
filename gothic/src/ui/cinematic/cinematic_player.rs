@@ -1,6 +1,8 @@
+use alloc::format;
 use alloc::rc::Rc;
+use wasm4::char_y_button;
 
-use wasm4::gamepad::GamepadButton::ButtonX;
+use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY};
 
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::cinematic::cinematic::Cinematic;
@@ -36,19 +38,26 @@ impl CinematicPlayer {
     fn is_last_screen(&self) -> bool {
         self.current_screen_index == self.cinematic.screens.len() - 1
     }
+
+    fn finish(&self, context: &mut UpdateContext) {
+        let finish_handler = self.finish_handler.clone();
+        context.dispatcher.dispatch(move |context|
+            finish_handler(context)
+        );
+    }
 }
 
 impl Updatable for CinematicPlayer {
     fn update(&mut self, context: &mut UpdateContext) {
         self.current_screen.update(context);
 
-        if self.current_screen.is_finished()
+        if context.inputs.gamepad1.is_released(ButtonY) {
+            self.finish(context);
+        }
+        else if self.current_screen.is_finished()
             && context.inputs.gamepad1.is_released(ButtonX) {
             if self.is_last_screen() {
-                let finish_handler = self.finish_handler.clone();
-                context.dispatcher.dispatch(move |context|
-                    finish_handler(context)
-                );
+                self.finish(context);
             } else {
                 self.show_next_screen();
             }
@@ -58,6 +67,7 @@ impl Updatable for CinematicPlayer {
 
 impl Renderable for CinematicPlayer {
     fn render(&self, context: &mut RenderContext) {
+        context.framebuffer.text(format!("{} pomin", char_y_button()).as_str(), context.frame.origin);
         self.current_screen.render(context);
     }
 }
