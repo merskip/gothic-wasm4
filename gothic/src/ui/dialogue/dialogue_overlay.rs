@@ -47,7 +47,7 @@ struct DialogueSentenceView {
 impl DialogueSentenceView {
     pub fn new(sentence: &'static Sentence) -> Self {
         let mut message_text = Text::new(sentence.message.to_string());
-        message_text.wrapping = TextWrapping::Character;
+        message_text.wrapping = TextWrapping::Words;
         Self { sentence, message_text }
     }
 }
