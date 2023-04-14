@@ -1,4 +1,7 @@
+use alloc::format;
 use alloc::string::ToString;
+use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
+use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::Point;
 use wasm4::get_char_size;
 
@@ -11,6 +14,7 @@ pub struct DialogueOverlay {
     dialogue: &'static Dialogue,
     sentence_view: DialogueSentenceView,
     current_sentence_index: usize,
+    finished: bool
 }
 
 impl DialogueOverlay {
@@ -19,17 +23,31 @@ impl DialogueOverlay {
             dialogue,
             sentence_view: DialogueSentenceView::new(&dialogue.sentences[0]),
             current_sentence_index: 0,
+            finished: false,
         }
     }
 
-    fn current_sentence(&self) -> &'static Sentence {
-        &self.dialogue.sentences[self.current_sentence_index]
+    fn show_next_sentence(&mut self) {
+        if self.current_sentence_index + 1 < self.dialogue.sentences.len() {
+            self.current_sentence_index += 1;
+            self.sentence_view = DialogueSentenceView::new(&self.dialogue.sentences[self.current_sentence_index]);
+        } else {
+            self.finished = true;
+        }
+    }
+
+    pub fn finished(&self) -> bool {
+        self.finished
     }
 }
 
 impl Updatable for DialogueOverlay {
     fn update(&mut self, context: &mut UpdateContext) {
         self.sentence_view.update(context);
+
+        if context.inputs.gamepad1.is_released(ButtonX) {
+            self.show_next_sentence();
+        }
     }
 }
 
@@ -59,10 +77,15 @@ impl Updatable for DialogueSentenceView {
 impl Renderable for DialogueSentenceView {
     fn render(&self, context: &mut RenderContext) {
         if let Some(actor) = self.sentence.actor {
-            context.framebuffer.text(actor, context.frame.origin);
+            context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
+            context.framebuffer.set_draw_color(DrawColorIndex::Index2, PaletteIndex::Palette2);
+            context.framebuffer.text(format!("{}:", actor).as_str(), context.frame.origin);
         }
 
-        self.message_text.render(context);
+        context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
+        context.framebuffer.set_draw_color(DrawColorIndex::Index2, PaletteIndex::Palette1);
+        let mut message_frame = context.with_frame(context.frame + Point::new(0, get_char_size().height as i32));
+        self.message_text.render(&mut message_frame);
     }
 }
 

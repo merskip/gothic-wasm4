@@ -1,8 +1,5 @@
-use alloc::borrow::Cow;
 use alloc::string::{String, ToString};
-use alloc::vec;
 use alloc::vec::Vec;
-use core::cmp::max;
 
 use wasm4::geometry::{Point, Size};
 use wasm4::get_char_size;

@@ -6,12 +6,11 @@ use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
 use crate::renderable::{Renderable, RenderContext};
 use crate::sprites::PLAYER_SPRITE;
-use crate::ui::dialogue::dialogue::Dialogue;
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub fn make_game_scene() -> GameScene {
-    let player = Player::new(Point::new(50.0, 50.0));
+    let player = Player::new(Point::new(100.0, 100.0));
     let game_world = GameWorld::new(player);
     GameScene::new(game_world)
 }
@@ -32,7 +31,14 @@ impl GameScene {
 
 impl Updatable for GameScene {
     fn update(&mut self, context: &mut UpdateContext) {
-        self.game_world.player.update(context);
+        if let Some(dialogue_overlay) = &mut self.dialogue_overlay {
+            dialogue_overlay.update(context);
+            if dialogue_overlay.finished() {
+                self.dialogue_overlay = None;
+            }
+        } else {
+            self.game_world.player.update(context);
+        }
     }
 }
 
@@ -44,7 +50,6 @@ impl Renderable for GameScene {
             PaletteIndex::Transparent,
             PaletteIndex::Transparent,
         ]);
-        context.framebuffer.text("Gothic", Point::new(0, 0));
         self.render_player(context);
     }
 }

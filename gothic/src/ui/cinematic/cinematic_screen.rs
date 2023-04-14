@@ -1,5 +1,4 @@
-use alloc::string::{String, ToString};
-use alloc::{format, vec};
+use alloc::format;
 
 use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
 use wasm4::framebuffer::PaletteIndex::*;
