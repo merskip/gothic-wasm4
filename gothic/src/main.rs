@@ -1,8 +1,10 @@
 #![no_std]
 #![no_main]
+#![feature(panic_info_message)]
 
 extern crate alloc;
 
+use alloc::string::ToString;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 
@@ -11,7 +13,7 @@ use wasm4::audio::Audio;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
 use wasm4::inputs::Inputs;
-use wasm4::main_application;
+use wasm4::{main_application, trace};
 
 use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
@@ -88,8 +90,8 @@ main_application! { GothicApplication }
 fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
     if cfg!(debug_assertions) {
         use wasm4::println;
-        println!("PANIC at:");
-        println!("{}", panic_info.location().unwrap());
+        println!("[FATAL ERROR]");
+        println!("{}", panic_info);
     }
     core::arch::wasm32::unreachable();
 }

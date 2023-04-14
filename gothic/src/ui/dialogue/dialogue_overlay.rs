@@ -1,8 +1,10 @@
+use alloc::string::ToString;
 use wasm4::geometry::Point;
 use wasm4::get_char_size;
 
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::dialogue::dialogue::{Dialogue, Sentence};
+use crate::ui::text::{Text, TextWrapping};
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct DialogueOverlay {
@@ -39,11 +41,14 @@ impl Renderable for DialogueOverlay {
 
 struct DialogueSentenceView {
     sentence: &'static Sentence,
+    message_text: Text,
 }
 
 impl DialogueSentenceView {
     pub fn new(sentence: &'static Sentence) -> Self {
-        Self { sentence }
+        let mut message_text = Text::new(sentence.message.to_string());
+        message_text.wrapping = TextWrapping::Character;
+        Self { sentence, message_text }
     }
 }
 
@@ -57,10 +62,7 @@ impl Renderable for DialogueSentenceView {
             context.framebuffer.text(actor, context.frame.origin);
         }
 
-        context.framebuffer.text(
-            self.sentence.message,
-            context.frame.origin + Point::new(0, get_char_size().height as i32),
-        );
+        self.message_text.render(context);
     }
 }
 
