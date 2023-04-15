@@ -109,11 +109,8 @@ static PLAYER_CHOICE: DialogueItem = DialogueItem::PlayerChoice {
         unsafe { &about_area::CHOICE_A },
         unsafe { &about_area::CHOICE_B },
         unsafe { &about_area::CHOICE_C },
-        &PlayerChoice {
-            choice: "Dlaczego mi pomogles?",
-            enabled: true,
-            next_item: None,  // TODO
-        },
+        unsafe { &why_help::CHOICE_A },
+        unsafe { &why_help::CHOICE_B },
         &PlayerChoice {
             choice: "Mam list do przywodcy Magow Ognia",
             enabled: true,
@@ -215,6 +212,85 @@ mod about_area {
     static COMPLETE: DialogueItem = DialogueItem::Script(Script {
         update: |_context| unsafe {
             CHOICE_C.enabled = false;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+}
+
+mod why_help {
+    use crate::dialogue::{DialogueItem, PlayerChoice, Script};
+    use crate::game::dialogue::{DIEGO_ACTOR, PLAYER_ACTOR};
+    use crate::sentence;
+
+    use super::PLAYER_CHOICE;
+
+    pub static mut CHOICE_A: PlayerChoice = PlayerChoice {
+        choice: "Dlaczego mi pomogles?",
+        enabled: true,
+        next_item: Some(&CHOICE_A_SENTENCE_1),
+    };
+    static CHOICE_A_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Dlaczego mi pomogles?"
+        next: CHOICE_A_SENTENCE_2
+    );
+    static CHOICE_A_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Bo potrzebowales pomocy. Gdyby nie ja, Bullit i jego chlopcy mogliby cie wykonczyc."
+        next: CHOICE_A_SENTENCE_3
+    );
+    static CHOICE_A_SENTENCE_3: DialogueItem = sentence!(
+        DIEGO_ACTOR: "A ja jestem zbyt mily, zeby sie temu spokojnie przygladac. W koncu przebylem cala te droge po to, by zlozyc propozycje."
+        next: CHOICE_A_SENTENCE_4
+    );
+    static CHOICE_A_SENTENCE_4: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Propozycje...?"
+        next: CHOICE_A_SENTENCE_5
+    );
+    static CHOICE_A_SENTENCE_5: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Tak. Po tym zajsciu z Bullitiem i jego ludzmi powinienes sie domyslic, ze przyda ci sie ochrona."
+        next: CHOICE_A_SENTENCE_6
+    );
+    static CHOICE_A_SENTENCE_6: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Kazdy, kto tu trafia ma wybor. W kolonii sa trzy obozy i w koncu bedziesz musial do ktoregos dolaczyc."
+        next: CHOICE_A_SENTENCE_7
+    );
+    static CHOICE_A_SENTENCE_7: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Jestem tu, by udowodnic wszystkim nowym, ze najlepszym miejscem dla nich bedzie Stary Oboz."
+        next: ENABLE_CHOICE_B
+    );
+
+    static ENABLE_CHOICE_B: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_A.enabled = false;
+            CHOICE_B.enabled = true;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+
+    pub static mut CHOICE_B: PlayerChoice = PlayerChoice {
+        choice: "A gdzie jest ten Bullit?",
+        enabled: false,
+        next_item: Some(&CHOICE_B_SENTENCE_1),
+    };
+    static CHOICE_B_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "A gdzie jest ten Bullit?"
+        next: CHOICE_B_SENTENCE_2
+    );
+    static CHOICE_B_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "On i pozostali przenosza towary z zewnatrz do Obozny. Tam go znajdziesz."
+        next: CHOICE_B_SENTENCE_3
+    );
+    static CHOICE_B_SENTENCE_3: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Ale jesli chcesz z nim walczyc, radze ci uwazac. To doswiadczony wojownik."
+        next: COMPLETE
+    );
+
+    static COMPLETE: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_B.enabled = false;
             true
         },
         render: |_context| {},
