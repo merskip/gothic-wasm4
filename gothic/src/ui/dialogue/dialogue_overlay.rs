@@ -1,5 +1,6 @@
 use alloc::format;
 use alloc::string::ToString;
+
 use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
 use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::Point;
@@ -14,7 +15,7 @@ pub struct DialogueOverlay {
     dialogue: &'static Dialogue,
     sentence_view: DialogueSentenceView,
     current_sentence_index: usize,
-    finished: bool
+    finished: bool,
 }
 
 impl DialogueOverlay {
@@ -38,6 +39,10 @@ impl DialogueOverlay {
 
     pub fn finished(&self) -> bool {
         self.finished
+    }
+
+    pub fn dialogue(&self) -> &'static Dialogue {
+        self.dialogue
     }
 }
 

@@ -1,3 +1,4 @@
+use crate::game::dialogue::*;
 use crate::sentence;
 use crate::ui::dialogue::dialogue::{Dialogue, Sentence};
 
@@ -18,13 +19,7 @@ Diego: Dość tego! Zostawcie go! A teraz precz!
 Diego: No już, wstawaj.
  */
 
-const PLAYER_ACTOR: Option<&str> = None;
-const JUDGE_ACTOR: Option<&str> = Some("Sedzia");
-const FIRE_MAGE_ACTOR: Option<&str> = Some("Mag ognia");
-const BULLIT_ACTOR: Option<&str> = Some("Bullit");
-const DIEGO_ACTOR: Option<&str> = Some("Diego");
-
-pub const DIALOGUE_INTRO: Dialogue = Dialogue {
+pub const DIALOGUE_INTRO: &Dialogue = &Dialogue {
     sentences: &[
         sentence!(JUDGE_ACTOR: "W imieniu jego wysokosci, krola Rhobara II, pana Varantu, skazuje tego wieznia na..."),
         sentence!(FIRE_MAGE_ACTOR: "Stac! Skazancze, mam dla Ciebie propozycje... Ten list musi dotrzec do arcymistrza kregu magow ognia."),
