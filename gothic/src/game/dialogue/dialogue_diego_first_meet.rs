@@ -83,7 +83,7 @@ $ kończy rozmowe
 $ początek rozdziału: Rozdział 1. Witamy w Kolonii!
  */
 
-pub const DIALOGUE_DIEGO_FIRST_MEET: Dialogue = Dialogue {
+pub static DIALOGUE_DIEGO_FIRST_MEET: Dialogue = Dialogue {
     start_item: &SENTENCE_1,
 };
 
@@ -101,14 +101,14 @@ sentence!(SENTENCE_3
 );
 sentence!(SENTENCE_4
     DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"
-    next: PLAYER_CHOICE_1
+    next: CHOICE_1
 );
 
-const PLAYER_CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
+static CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
     choices: &[
         PlayerChoice {
             choice: "Dobra, co powinienem wiedziec o tym miejscu?",
-            next_item: None, // TODO
+            next_item: Some(&CHOICE_1_SENTENCE_1),
         },
         PlayerChoice {
             choice: "Dlaczego mi pomogles?",
@@ -124,3 +124,23 @@ const PLAYER_CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
         }
     ]
 };
+
+sentence!(CHOICE_1_SENTENCE_1
+    PLAYER_ACTOR: "Dobra, co powinienem wiedziec o tym miejscu?"
+    next: CHOICE_1_SENTENCE_2
+);
+
+sentence!(CHOICE_1_SENTENCE_2
+    DIEGO_ACTOR: "Nazywamy je kolonia. Wiesz juz, ze wydobywamy rude dla krola."
+    next: CHOICE_1_SENTENCE_3
+);
+
+sentence!(CHOICE_1_SENTENCE_3
+    DIEGO_ACTOR: "Coz, w kazdym razie tak robia ludzie ze Starego Obozu."
+    next: CHOICE_1_SENTENCE_4
+);
+
+sentence!(CHOICE_1_SENTENCE_4
+    DIEGO_ACTOR: "Wewnatrz Bariery powstaly trzy obozy. Najwiekszy i najstarszy jest tak zwany Stary Oboz."
+    next: CHOICE_1
+);

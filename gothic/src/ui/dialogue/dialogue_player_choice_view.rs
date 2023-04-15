@@ -2,7 +2,6 @@ use alloc::string::ToString;
 use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
 use wasm4::gamepad::GamepadButton;
 use wasm4::geometry::Point;
-use wasm4::get_char_size;
 use crate::dialogue::{DialogueItem, PlayerChoice};
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;

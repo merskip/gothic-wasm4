@@ -19,7 +19,7 @@ Diego: Dość tego! Zostawcie go! A teraz precz!
 Diego: No już, wstawaj.
  */
 
-pub const DIALOGUE_INTRO: Dialogue = Dialogue {
+pub static DIALOGUE_INTRO: Dialogue = Dialogue {
     start_item: &SENTENCE_1,
 };
 
