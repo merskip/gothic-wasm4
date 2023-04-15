@@ -1,6 +1,6 @@
 use crate::game::dialogue::*;
 use crate::sentence;
-use crate::ui::dialogue::dialogue::{Dialogue, Sentence};
+use crate::ui::dialogue::dialogue::{Dialogue, DialogueItem, Sentence};
 
 /*
 Sędzia: W imieniu jego wysokości, króla Rhobara II, pana Varantu, skazuje tego więźnia na...
@@ -20,7 +20,7 @@ Diego: No już, wstawaj.
  */
 
 pub const DIALOGUE_INTRO: &Dialogue = &Dialogue {
-    sentences: &[
+    items: &[
         sentence!(JUDGE_ACTOR: "W imieniu jego wysokosci, krola Rhobara II, pana Varantu, skazuje tego wieznia na..."),
         sentence!(FIRE_MAGE_ACTOR: "Stac! Skazancze, mam dla Ciebie propozycje... Ten list musi dotrzec do arcymistrza kregu magow ognia."),
         sentence!(PLAYER_ACTOR: "Marnujesz czas."),

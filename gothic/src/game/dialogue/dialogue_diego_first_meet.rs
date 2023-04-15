@@ -1,6 +1,6 @@
 use crate::game::dialogue::*;
 use crate::sentence;
-use crate::ui::dialogue::dialogue::{Dialogue, Sentence};
+use crate::ui::dialogue::dialogue::{Dialogue, DialogueItem, Sentence};
 
 /*
 Diego: Nazywam się Diego.
@@ -10,7 +10,7 @@ Diego: Jeśli chcesz jeszcze trochę pożyć, słuchaj się mnie, ale oczywiści
 
 A) Bezimienny:
 
-Dobra, co powinienem wiedzieć o tym miejscu?
+1. Dobra, co powinienem wiedzieć o tym miejscu?
 1a. Jak dostanę się do Starego Obozu?
 1b. Gdzie mogę znaleźć oręż?
 Dlaczego mi pomogłeś?
@@ -18,7 +18,8 @@ Dlaczego mi pomogłeś?
 Mam list do przywódcy Magów Ognia
 4a. Kim jest Gomez?
 4b. Założmy, że chciałbym dołączyć do jego ludzi. Co powinienem zrobić?
-KONIEC
+5. KONIEC
+
 A.1
 Bezimienny: Dobra, co powinienem wiedzieć o tym miejscu?
 Diego: Nazywamy je kolonią. Wiesz już, że wydobywamy rudę dla króla.
@@ -84,7 +85,7 @@ $ początek rozdziału: Rozdział 1. Witamy w Kolonii!
 
 
 pub const DIALOGUE_DIEGO_FIRST_MEET: &Dialogue = &Dialogue {
-    sentences: &[
+    items: &[
         sentence!(DIEGO_ACTOR: "Nazywam sie Diego."),
         sentence!(PLAYER_ACTOR: "Jestem..."),
         sentence!(DIEGO_ACTOR: "Nie interesuje mnie kim jestes. Jestes tu nowy - a do mnie nalezy dbanie o nowych. Na razie to tyle..."),

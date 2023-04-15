@@ -1,5 +1,12 @@
 pub struct Dialogue {
-    pub sentences: &'static [Sentence]
+    pub items: &'static [DialogueItem],
+}
+
+pub enum DialogueItem {
+    Sentence(Sentence),
+    PlayerChoice {
+        choices: &'static [PlayerChoice],
+    },
 }
 
 pub struct Sentence {
@@ -7,12 +14,17 @@ pub struct Sentence {
     pub message: &'static str,
 }
 
+pub struct PlayerChoice {
+    pub choice: &'static str,
+    pub next_item: &'static DialogueItem,
+}
+
 #[macro_export]
 macro_rules! sentence {
     ($actor:ident: $message:literal) => {
-        Sentence {
+        DialogueItem::Sentence(Sentence {
             actor: $actor,
             message: $message,
-        }
+        })
     };
 }
