@@ -114,11 +114,7 @@ static PLAYER_CHOICE: DialogueItem = DialogueItem::PlayerChoice {
         unsafe { &letter_to_fire_mages::CHOICE_A },
         unsafe { &letter_to_fire_mages::CHOICE_B },
         unsafe { &letter_to_fire_mages::CHOICE_C },
-        &PlayerChoice {
-            choice: "KONIEC",
-            enabled: true,
-            next_item: None, // finishes dialogue
-        }
+        unsafe { &end::CHOICE_A },
     ]
 };
 
@@ -394,5 +390,34 @@ mod letter_to_fire_mages {
         },
         render: |_context| {},
         next_item: Some(&PLAYER_CHOICE),
+    });
+}
+
+mod end {
+    use crate::dialogue::{DialogueItem, PlayerChoice, Script};
+    use crate::game::dialogue::{DIEGO_ACTOR, PLAYER_ACTOR};
+    use crate::sentence;
+
+    pub static mut CHOICE_A: PlayerChoice = PlayerChoice {
+        choice: "KONIEC",
+        enabled: true,
+        next_item: Some(&CHOICE_A_SENTENCE_1),
+    };
+    static CHOICE_A_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Dzieki za pomoc"
+        next: CHOICE_A_SENTENCE_2
+    );
+    static CHOICE_A_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Spotkamy sie w Starym Obozie."
+        next: START_CHAPTER_1
+    );
+
+    static START_CHAPTER_1: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| {
+            // TODO: Show "Rodział 1. Witamy w Kolonii!"
+            true
+        },
+        render: |_context| {},
+        next_item: None, // Finishes dialogue
     });
 }
