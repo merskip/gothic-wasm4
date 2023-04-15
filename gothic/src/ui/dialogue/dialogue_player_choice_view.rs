@@ -1,7 +1,10 @@
 use alloc::string::ToString;
+
 use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
 use wasm4::gamepad::GamepadButton;
+use wasm4::gamepad::GamepadButton::ButtonX;
 use wasm4::geometry::Point;
+
 use crate::dialogue::{DialogueItem, PlayerChoice};
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;
@@ -11,11 +14,12 @@ use crate::updatable::{Updatable, UpdateContext};
 pub struct DialoguePlayerChoiceView {
     choices: &'static [PlayerChoice],
     selected_index: usize,
+    finished: bool,
 }
 
 impl DialoguePlayerChoiceView {
     pub fn new(choices: &'static [PlayerChoice]) -> Self {
-        Self { choices, selected_index: 0 }
+        Self { choices, selected_index: 0, finished: false }
     }
 }
 
@@ -29,10 +33,18 @@ impl Updatable for DialoguePlayerChoiceView {
             selected_index += 1;
         }
         self.selected_index = selected_index.clamp(0, (self.choices.len() - 1) as isize) as usize;
+
+        if context.inputs.gamepad1.is_released(ButtonX) {
+            self.finished = true;
+        }
     }
 }
 
 impl DialogueItemView for DialoguePlayerChoiceView {
+    fn finished(&self) -> bool {
+        self.finished
+    }
+
     fn next_item(&self) -> Option<&'static DialogueItem> {
         let item = &self.choices[self.selected_index];
         item.next_item

@@ -1,7 +1,5 @@
 use alloc::boxed::Box;
 
-use wasm4::gamepad::GamepadButton::ButtonX;
-
 use crate::dialogue::{Dialogue, DialogueItem};
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_player_choice_view::DialoguePlayerChoiceView;
@@ -16,6 +14,8 @@ pub struct DialogueOverlay {
 }
 
 pub trait DialogueItemView: Renderable {
+    fn finished(&self) -> bool;
+
     fn next_item(&self) -> Option<&'static DialogueItem>;
 }
 
@@ -60,8 +60,7 @@ impl DialogueOverlay {
 impl Updatable for DialogueOverlay {
     fn update(&mut self, context: &mut UpdateContext) {
         self.item_view.update(context);
-
-        if context.inputs.gamepad1.is_released(ButtonX) {
+        if self.item_view.finished() {
             self.next_dialogue_item();
         }
     }
