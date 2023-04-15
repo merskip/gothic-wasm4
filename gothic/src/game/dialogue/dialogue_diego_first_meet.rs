@@ -111,11 +111,9 @@ static PLAYER_CHOICE: DialogueItem = DialogueItem::PlayerChoice {
         unsafe { &about_area::CHOICE_C },
         unsafe { &why_help::CHOICE_A },
         unsafe { &why_help::CHOICE_B },
-        &PlayerChoice {
-            choice: "Mam list do przywodcy Magow Ognia",
-            enabled: true,
-            next_item: None,  // TODO
-        },
+        unsafe { &letter_to_fire_mages::CHOICE_A },
+        unsafe { &letter_to_fire_mages::CHOICE_B },
+        unsafe { &letter_to_fire_mages::CHOICE_C },
         &PlayerChoice {
             choice: "KONIEC",
             enabled: true,
@@ -291,6 +289,107 @@ mod why_help {
     static COMPLETE: DialogueItem = DialogueItem::Script(Script {
         update: |_context| unsafe {
             CHOICE_B.enabled = false;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+}
+
+mod letter_to_fire_mages {
+    use crate::dialogue::{DialogueItem, PlayerChoice, Script};
+    use crate::game::dialogue::{DIEGO_ACTOR, PLAYER_ACTOR};
+    use crate::sentence;
+
+    use super::PLAYER_CHOICE;
+
+    pub static mut CHOICE_A: PlayerChoice = PlayerChoice {
+        choice: "Mam list do przywodcy Magow Ognia.",
+        enabled: true,
+        next_item: Some(&CHOICE_A_SENTENCE_1),
+    };
+    static CHOICE_A_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Mam list do przywodcy Magow Ognia."
+        next: CHOICE_A_SENTENCE_2
+    );
+    static CHOICE_A_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Czyzby...?"
+        next: CHOICE_A_SENTENCE_3
+    );
+    static CHOICE_A_SENTENCE_3: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Jakis mag dal mi go zanim mnie tu wrzucono."
+        next: CHOICE_A_SENTENCE_4
+    );
+    static CHOICE_A_SENTENCE_4: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Twoje szczescie, ze nie moge sie wiecej pokazywac u magow. Ktos inny moglby ci poderznac gardlo za taki list."
+        next: CHOICE_A_SENTENCE_5
+    );
+    static CHOICE_A_SENTENCE_5: DialogueItem = sentence!(
+        DIEGO_ACTOR: "A to dlatego, ze magowie hojnie oplacaja swoich kurierow, a wiekszosc z tutejszych ludzi nic nie posiada."
+        next: CHOICE_A_SENTENCE_6
+    );
+    static CHOICE_A_SENTENCE_6: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Na twoim miejscu trzymalbym jezyk za zebami az do chwili, gdy spotkasz ktoregos z magow. Chociaz watpie, zeby ci sie udalo."
+        next: CHOICE_A_SENTENCE_7
+    );
+    static CHOICE_A_SENTENCE_7: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Dlaczego?"
+        next: CHOICE_A_SENTENCE_8
+    );
+    static CHOICE_A_SENTENCE_8: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Magowie mieszkaja w zamku, w Starym Obozie. Tylko ludzie Gomeza maja tam wstep."
+        next: ENABLE_CHOICE_B_C
+    );
+
+    static ENABLE_CHOICE_B_C: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_A.enabled = false;
+            CHOICE_B.enabled = true;
+            CHOICE_C.enabled = true;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+
+    pub static mut CHOICE_B: PlayerChoice = PlayerChoice {
+        choice: "Kim jest Gomez?",
+        enabled: false,
+        next_item: Some(&CHOICE_B_SENTENCE_1),
+    };
+    static CHOICE_B_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Kim jest Gomez?"
+        next: CHOICE_B_SENTENCE_2
+    );
+    static CHOICE_B_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Gomez jest najpotezniejszym z Magnatow kierujacych handlem ruda. To on rzadzi w Starym Obozie i ma najwiecej do powiedzenia w calej kolonii."
+        next: DISABLE_CHOICE_B
+    );
+    static DISABLE_CHOICE_B: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_B.enabled = false;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+
+    pub static mut CHOICE_C: PlayerChoice = PlayerChoice {
+        choice: "Zalozmy, ze chcialbym dolaczyc do jego ludzi. Co powinienem zrobic?",
+        enabled: false,
+        next_item: Some(&CHOICE_C_SENTENCE_1),
+    };
+    static CHOICE_C_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Zalozmy, ze chcialbym dolaczyc do jego ludzi. Co powinienem zrobic?"
+        next: CHOICE_C_SENTENCE_2
+    );
+    static CHOICE_C_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Przy bramie do zamku znajdziesz czlowieka imieniem Thorus. Powiedz mu, ze Diego cie przyslal."
+        next: DISABLE_CHOICE_C
+    );
+    static DISABLE_CHOICE_C: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_C.enabled = false;
             true
         },
         render: |_context| {},
