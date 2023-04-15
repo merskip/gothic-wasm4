@@ -4,9 +4,9 @@ use alloc::string::ToString;
 use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
 use wasm4::geometry::Point;
 use wasm4::get_char_size;
+use crate::dialogue::{DialogueItem, Sentence};
 
 use crate::renderable::{Renderable, RenderContext};
-use crate::ui::dialogue::dialogue::{DialogueItem, Sentence};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;
 use crate::ui::text::{Text, TextWrapping};
 use crate::updatable::{Updatable, UpdateContext};

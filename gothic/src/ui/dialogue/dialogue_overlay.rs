@@ -1,9 +1,9 @@
 use alloc::boxed::Box;
 
 use wasm4::gamepad::GamepadButton::ButtonX;
+use crate::dialogue::{Dialogue, DialogueItem};
 
 use crate::renderable::{Renderable, RenderContext};
-use crate::ui::dialogue::dialogue::{Dialogue, DialogueItem};
 use crate::ui::dialogue::dialogue_sentence_view::DialogueSentenceView;
 use crate::updatable::{Updatable, UpdateContext};
 

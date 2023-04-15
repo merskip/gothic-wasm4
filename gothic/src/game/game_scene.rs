@@ -1,5 +1,6 @@
 use wasm4::framebuffer::PaletteIndex;
 use wasm4::geometry::Point;
+use crate::dialogue::Dialogue;
 use crate::game::dialogue::dialogue_diego_first_meet::DIALOGUE_DIEGO_FIRST_MEET;
 use crate::game::dialogue::dialogue_intro::DIALOGUE_INTRO;
 
@@ -7,7 +8,6 @@ use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
 use crate::renderable::{Renderable, RenderContext};
 use crate::sprites::PLAYER_SPRITE;
-use crate::ui::dialogue::dialogue::Dialogue;
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
 use crate::updatable::{Updatable, UpdateContext};
 
@@ -26,7 +26,7 @@ impl GameScene {
     pub fn new(game_world: GameWorld) -> Self {
         Self {
             game_world,
-            dialogue_overlay: Some(DialogueOverlay::new(DIALOGUE_INTRO)),
+            dialogue_overlay: Some(DialogueOverlay::new(&DIALOGUE_INTRO)),
         }
     }
 }
@@ -37,8 +37,8 @@ impl Updatable for GameScene {
             dialogue_overlay.update(context);
 
             if dialogue_overlay.finished() {
-                if dialogue_overlay.dialogue() as *const Dialogue == DIALOGUE_INTRO as *const Dialogue {
-                    self.dialogue_overlay = Some(DialogueOverlay::new(DIALOGUE_DIEGO_FIRST_MEET));
+                if dialogue_overlay.dialogue() as *const Dialogue == &DIALOGUE_INTRO as *const Dialogue {
+                    self.dialogue_overlay = Some(DialogueOverlay::new(&DIALOGUE_DIEGO_FIRST_MEET));
                 } else {
                     self.dialogue_overlay = None;
                 }

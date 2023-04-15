@@ -30,6 +30,7 @@ pub mod dispatcher;
 pub mod sprites;
 pub mod audio;
 pub mod music_clips;
+pub mod dialogue;
 
 struct GothicApplication {
     dispatcher: Dispatcher,
