@@ -1,4 +1,4 @@
-use crate::dialogue::Dialogue;
+use crate::dialogue::{Dialogue, DialogueItem};
 use crate::game::dialogue::*;
 use crate::sentence;
 
@@ -23,57 +23,57 @@ pub static DIALOGUE_INTRO: Dialogue = Dialogue {
     start_item: &SENTENCE_1,
 };
 
-sentence!(SENTENCE_1
+static SENTENCE_1: DialogueItem = sentence!(
     JUDGE_ACTOR: "W imieniu jego wysokosci, krola Rhobara II, pana Varantu, skazuje tego wieznia na..."
     next: SENTENCE_2
 );
-sentence!(SENTENCE_2
+static SENTENCE_2: DialogueItem = sentence!(
     FIRE_MAGE_ACTOR: "Stac! Skazancze, mam dla Ciebie propozycje... Ten list musi dotrzec do arcymistrza kregu magow ognia."
     next: SENTENCE_3
 );
-sentence!(SENTENCE_3
+static SENTENCE_3: DialogueItem = sentence!(
     PLAYER_ACTOR: "Marnujesz czas."
     next: SENTENCE_4
 );
-sentence!(SENTENCE_4
+static SENTENCE_4: DialogueItem = sentence!(
     FIRE_MAGE_ACTOR: "Sam bedziesz mogl wybrac sobie nagrode. Magowie dadza Ci wszystko czego zazadasz."
     next: SENTENCE_5
 );
-sentence!(SENTENCE_5
+static SENTENCE_5: DialogueItem = sentence!(
     PLAYER_ACTOR: "Niech bedzie, zaniose wasz cenny list. Pod jednym warunkiem."
     next: SENTENCE_6
 );
-sentence!(SENTENCE_6
+static SENTENCE_6: DialogueItem = sentence!(
     PLAYER_ACTOR: "Oszczedzcie mi reszty tej paplaniny."
     next: SENTENCE_7
 );
-sentence!(SENTENCE_7
+static SENTENCE_7: DialogueItem = sentence!(
     JUDGE_ACTOR: "JAK SMIE..."
     next: SENTENCE_8
 );
-sentence!(SENTENCE_8
+static SENTENCE_8: DialogueItem = sentence!(
     FIRE_MAGE_ACTOR: "Milcz!"
     next: SENTENCE_9
 );
-sentence!(SENTENCE_9
+static SENTENCE_9: DialogueItem = sentence!(
     FIRE_MAGE_ACTOR: "Dobra, zrzucajcie go."
     next: SENTENCE_10
 );
-sentence!(SENTENCE_10
+static SENTENCE_10: DialogueItem = sentence!(
     PLAYER_ACTOR: "Aaaaa!"
     next: SENTENCE_11
 );
 // <plusk>
-sentence!(SENTENCE_11
+static SENTENCE_11: DialogueItem = sentence!(
     BULLIT_ACTOR: "Witamy w kolonii!"
     next: SENTENCE_12
 );
 // <jeb>
-sentence!(SENTENCE_12
+static SENTENCE_12: DialogueItem = sentence!(
     DIEGO_ACTOR: "Dosc tego! Zostawcie go! A teraz precz!"
     next: SENTENCE_13
 );
-sentence!(SENTENCE_13
+static SENTENCE_13: DialogueItem = sentence!(
     DIEGO_ACTOR: "No juz, wstawaj."
     finishes dialogue
 );

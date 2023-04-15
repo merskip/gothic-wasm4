@@ -87,19 +87,19 @@ pub static DIALOGUE_DIEGO_FIRST_MEET: Dialogue = Dialogue {
     start_item: &SENTENCE_1,
 };
 
-sentence!(SENTENCE_1
+static SENTENCE_1: DialogueItem = sentence!(
     DIEGO_ACTOR: "Nazywam sie Diego."
     next: SENTENCE_2
 );
-sentence!(SENTENCE_2
+static SENTENCE_2: DialogueItem = sentence!(
     PLAYER_ACTOR: "Jestem..."
     next: SENTENCE_3
 );
-sentence!(SENTENCE_3
+static SENTENCE_3: DialogueItem = sentence!(
     DIEGO_ACTOR: "Nie interesuje mnie kim jestes. Jestes tu nowy - a do mnie nalezy dbanie o nowych. Na razie to tyle..."
     next: SENTENCE_4
 );
-sentence!(SENTENCE_4
+static SENTENCE_4: DialogueItem = sentence!(
     DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"
     next: CHOICE_1
 );
@@ -125,22 +125,22 @@ static CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
     ]
 };
 
-sentence!(CHOICE_1_SENTENCE_1
+static CHOICE_1_SENTENCE_1: DialogueItem = sentence!(
     PLAYER_ACTOR: "Dobra, co powinienem wiedziec o tym miejscu?"
     next: CHOICE_1_SENTENCE_2
 );
 
-sentence!(CHOICE_1_SENTENCE_2
+static CHOICE_1_SENTENCE_2: DialogueItem = sentence!(
     DIEGO_ACTOR: "Nazywamy je kolonia. Wiesz juz, ze wydobywamy rude dla krola."
     next: CHOICE_1_SENTENCE_3
 );
 
-sentence!(CHOICE_1_SENTENCE_3
+static CHOICE_1_SENTENCE_3: DialogueItem = sentence!(
     DIEGO_ACTOR: "Coz, w kazdym razie tak robia ludzie ze Starego Obozu."
     next: CHOICE_1_SENTENCE_4
 );
 
-sentence!(CHOICE_1_SENTENCE_4
+static CHOICE_1_SENTENCE_4: DialogueItem = sentence!(
     DIEGO_ACTOR: "Wewnatrz Bariery powstaly trzy obozy. Najwiekszy i najstarszy jest tak zwany Stary Oboz."
     next: CHOICE_1
 );

@@ -22,18 +22,18 @@ pub struct PlayerChoice {
 
 #[macro_export]
 macro_rules! sentence {
-    ($ident:ident $actor:ident: $message:literal finishes dialogue) => {
-        static $ident: $crate::dialogue::DialogueItem = $crate::dialogue::DialogueItem::Sentence($crate::dialogue::Sentence {
+    ($actor:ident: $message:literal finishes dialogue) => {
+        $crate::dialogue::DialogueItem::Sentence($crate::dialogue::Sentence {
             actor: $actor,
             message: $message,
             next_item: None,
-        });
+        })
     };
-    ($ident:ident $actor:ident: $message:literal next: $next:ident) => {
-        static $ident: $crate::dialogue::DialogueItem = $crate::dialogue::DialogueItem::Sentence($crate::dialogue::Sentence {
+    ($actor:ident: $message:literal next: $next:ident) => {
+        $crate::dialogue::DialogueItem::Sentence($crate::dialogue::Sentence {
             actor: $actor,
             message: $message,
             next_item: Some(&$next),
-        });
+        })
     };
 }
