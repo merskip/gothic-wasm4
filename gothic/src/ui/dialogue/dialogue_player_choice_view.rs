@@ -1,4 +1,5 @@
 use alloc::string::ToString;
+use alloc::vec::Vec;
 
 use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
 use wasm4::gamepad::GamepadButton;
@@ -12,14 +13,21 @@ use crate::ui::text::{Text, TextWrapping};
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct DialoguePlayerChoiceView {
-    choices: &'static [PlayerChoice],
+    choices: Vec<&'static PlayerChoice>,
     selected_index: usize,
     finished: bool,
 }
 
 impl DialoguePlayerChoiceView {
-    pub fn new(choices: &'static [PlayerChoice]) -> Self {
-        Self { choices, selected_index: 0, finished: false }
+    pub fn new(choices: &'static [&'static PlayerChoice]) -> Self {
+        Self {
+            choices: choices.into_iter()
+                .cloned()
+                .filter(|choice| choice.enabled)
+                .collect(),
+            selected_index: 0,
+            finished: false,
+        }
     }
 }
 

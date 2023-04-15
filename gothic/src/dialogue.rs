@@ -8,9 +8,9 @@ pub struct Dialogue {
 pub enum DialogueItem {
     Sentence(Sentence),
     PlayerChoice {
-        choices: &'static [PlayerChoice],
+        choices: &'static [&'static PlayerChoice],
     },
-    Script(Script)
+    Script(Script),
 }
 
 pub struct Sentence {
@@ -21,13 +21,14 @@ pub struct Sentence {
 
 pub struct PlayerChoice {
     pub choice: &'static str,
+    pub enabled: bool,
     pub next_item: Option<&'static DialogueItem>,
 }
 
 pub struct Script {
-    pub update: fn(context: &mut UpdateContext) -> bool,
-    pub render: fn(context: &mut RenderContext),
-    pub next_item: Option<&'static DialogueItem>
+    pub update: fn(&mut UpdateContext) -> bool,
+    pub render: fn(&mut RenderContext),
+    pub next_item: Option<&'static DialogueItem>,
 }
 
 #[macro_export]

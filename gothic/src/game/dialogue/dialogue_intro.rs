@@ -1,9 +1,6 @@
-use core::mem::MaybeUninit;
-
 use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
 use wasm4::color::Color;
 use wasm4::framebuffer::Palette;
-use wasm4::println;
 
 use crate::dialogue::{Dialogue, DialogueItem, Script};
 use crate::game::dialogue::*;

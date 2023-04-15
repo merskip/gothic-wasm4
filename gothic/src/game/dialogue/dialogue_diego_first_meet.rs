@@ -101,46 +101,123 @@ static SENTENCE_3: DialogueItem = sentence!(
 );
 static SENTENCE_4: DialogueItem = sentence!(
     DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"
-    next: CHOICE_1
+    next: PLAYER_CHOICE
 );
 
-static CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
+static PLAYER_CHOICE: DialogueItem = DialogueItem::PlayerChoice {
     choices: &[
-        PlayerChoice {
-            choice: "Dobra, co powinienem wiedziec o tym miejscu?",
-            next_item: Some(&CHOICE_1_SENTENCE_1),
-        },
-        PlayerChoice {
+        unsafe { &about_area::CHOICE_A },
+        unsafe { &about_area::CHOICE_B },
+        unsafe { &about_area::CHOICE_C },
+        &PlayerChoice {
             choice: "Dlaczego mi pomogles?",
+            enabled: true,
             next_item: None,  // TODO
         },
-        PlayerChoice {
+        &PlayerChoice {
             choice: "Mam list do przywodcy Magow Ognia",
+            enabled: true,
             next_item: None,  // TODO
         },
-        PlayerChoice {
+        &PlayerChoice {
             choice: "KONIEC",
+            enabled: true,
             next_item: None, // finishes dialogue
         }
     ]
 };
 
-static CHOICE_1_SENTENCE_1: DialogueItem = sentence!(
-    PLAYER_ACTOR: "Dobra, co powinienem wiedziec o tym miejscu?"
-    next: CHOICE_1_SENTENCE_2
-);
+mod about_area {
+    use crate::dialogue::{DialogueItem, PlayerChoice, Script};
+    use crate::game::dialogue::{DIEGO_ACTOR, PLAYER_ACTOR};
+    use crate::sentence;
 
-static CHOICE_1_SENTENCE_2: DialogueItem = sentence!(
-    DIEGO_ACTOR: "Nazywamy je kolonia. Wiesz juz, ze wydobywamy rude dla krola."
-    next: CHOICE_1_SENTENCE_3
-);
+    use super::PLAYER_CHOICE;
 
-static CHOICE_1_SENTENCE_3: DialogueItem = sentence!(
-    DIEGO_ACTOR: "Coz, w kazdym razie tak robia ludzie ze Starego Obozu."
-    next: CHOICE_1_SENTENCE_4
-);
+    pub static mut CHOICE_A: PlayerChoice = PlayerChoice {
+        choice: "Dobra, co powinienem wiedziec o tym miejscu?",
+        enabled: true,
+        next_item: Some(&CHOICE_A_SENTENCE_1),
+    };
+    static CHOICE_A_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Dobra, co powinienem wiedziec o tym miejscu?"
+        next: CHOICE_A_SENTENCE_2
+    );
+    static CHOICE_A_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Nazywamy je kolonia. Wiesz juz, ze wydobywamy rude dla krola."
+        next: CHOICE_A_SENTENCE_3
+    );
+    static CHOICE_A_SENTENCE_3: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Coz, w kazdym razie tak robia ludzie ze Starego Obozu."
+        next: CHOICE_A_SENTENCE_4
+    );
+    static CHOICE_A_SENTENCE_4: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Wewnatrz Bariery powstaly trzy obozy. Najwiekszy i najstarszy jest tak zwany Stary Oboz."
+        next: ENABLE_CHOICE_B
+    );
 
-static CHOICE_1_SENTENCE_4: DialogueItem = sentence!(
-    DIEGO_ACTOR: "Wewnatrz Bariery powstaly trzy obozy. Najwiekszy i najstarszy jest tak zwany Stary Oboz."
-    next: CHOICE_1
-);
+    static ENABLE_CHOICE_B: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_A.enabled = false;
+            CHOICE_B.enabled = true;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+
+    pub static mut CHOICE_B: PlayerChoice = PlayerChoice {
+        choice: "Jak dostane sie do Starego Obozu?",
+        enabled: false,
+        next_item: Some(&CHOICE_B_SENTENCE_1),
+    };
+    static CHOICE_B_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Jak dostane sie do Starego Obozu?"
+        next: CHOICE_B_SENTENCE_2
+    );
+    static CHOICE_B_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Podazaj ta sciezka. Stary Oboz to najblizsze, mniej więcej bezpieczne miejsce jakie spotkasz po drodze."
+        next: CHOICE_B_SENTENCE_3
+    );
+    static CHOICE_B_SENTENCE_3: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Pomiedzy obozami kreci sie wiele groznych zwierzat. Radzilbym ci postarac sie o jakas bron."
+        next: ENABLE_CHOICE_C
+    );
+
+    static ENABLE_CHOICE_C: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_B.enabled = false;
+            CHOICE_C.enabled = true;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+
+    pub static mut CHOICE_C: PlayerChoice = PlayerChoice {
+        choice: "Gdzie moge znalezc orez?",
+        enabled: false,
+        next_item: Some(&CHOICE_C_SENTENCE_1),
+    };
+    static CHOICE_C_SENTENCE_1: DialogueItem = sentence!(
+        PLAYER_ACTOR: "Gdzie moge znalezc orez?"
+        next:  CHOICE_C_SENTENCE_2
+    );
+    static CHOICE_C_SENTENCE_2: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Rozejrzyj sie troche w poblizu Opuszczonej Kopalni. Na pewno znajdziesz tam cos przydatnego."
+        next: CHOICE_C_SENTENCE_3
+    );
+    static CHOICE_C_SENTENCE_3: DialogueItem = sentence!(
+        DIEGO_ACTOR: "Kopalnie nie trudno znalezc. Lezy pare metrow w dol kanionu."
+        next: COMPLETE
+    );
+
+    static COMPLETE: DialogueItem = DialogueItem::Script(Script {
+        update: |_context| unsafe {
+            CHOICE_C.enabled = false;
+            true
+        },
+        render: |_context| {},
+        next_item: Some(&PLAYER_CHOICE),
+    });
+}
