@@ -3,6 +3,7 @@ use alloc::boxed::Box;
 use crate::dialogue::{Dialogue, DialogueItem};
 use crate::renderable::{Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_player_choice_view::DialoguePlayerChoiceView;
+use crate::ui::dialogue::dialogue_script_view::DialogueScriptView;
 use crate::ui::dialogue::dialogue_sentence_view::DialogueSentenceView;
 use crate::updatable::{Updatable, UpdateContext};
 
@@ -45,6 +46,8 @@ impl DialogueOverlay {
                 Box::new(DialogueSentenceView::new(sentence)),
             DialogueItem::PlayerChoice { choices } =>
                 Box::new(DialoguePlayerChoiceView::new(choices)),
+            DialogueItem::Script(script) =>
+                Box::new(DialogueScriptView::new(script)),
         }
     }
 

@@ -1,3 +1,6 @@
+use crate::renderable::RenderContext;
+use crate::updatable::UpdateContext;
+
 pub struct Dialogue {
     pub start_item: &'static DialogueItem,
 }
@@ -7,6 +10,7 @@ pub enum DialogueItem {
     PlayerChoice {
         choices: &'static [PlayerChoice],
     },
+    Script(Script)
 }
 
 pub struct Sentence {
@@ -18,6 +22,12 @@ pub struct Sentence {
 pub struct PlayerChoice {
     pub choice: &'static str,
     pub next_item: Option<&'static DialogueItem>,
+}
+
+pub struct Script {
+    pub update: fn(context: &mut UpdateContext) -> bool,
+    pub render: fn(context: &mut RenderContext),
+    pub next_item: Option<&'static DialogueItem>
 }
 
 #[macro_export]

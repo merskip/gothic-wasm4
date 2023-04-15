@@ -1,4 +1,7 @@
-use crate::dialogue::{Dialogue, DialogueItem};
+use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
+use wasm4::println;
+
+use crate::dialogue::{Dialogue, DialogueItem, Script};
 use crate::game::dialogue::*;
 use crate::sentence;
 
@@ -66,9 +69,26 @@ static SENTENCE_10: DialogueItem = sentence!(
 // <plusk>
 static SENTENCE_11: DialogueItem = sentence!(
     BULLIT_ACTOR: "Witamy w kolonii!"
-    next: SENTENCE_12
+    next: SCRIPT_HIT_SOUND
 );
-// <jeb>
+static SCRIPT_HIT_SOUND: DialogueItem = DialogueItem::Script(Script {
+    update: |_context| {
+        Audio::shared().tone(
+            Frequency::linear(380, 220),
+            ADSRDuration::new(
+                Duration::from_frames(0),
+                Duration::from_frames(0),
+                Duration::from_frames(14),
+                Duration::from_frames(10),
+            ),
+            Volume::constant(100),
+            Flags::new(Channel::Noise, DutyCycle::OneHalf, Pan::default()),
+        );
+        true
+    },
+    render: |_context| {},
+    next_item: Some(&SENTENCE_12),
+});
 static SENTENCE_12: DialogueItem = sentence!(
     DIEGO_ACTOR: "Dosc tego! Zostawcie go! A teraz precz!"
     next: SENTENCE_13
