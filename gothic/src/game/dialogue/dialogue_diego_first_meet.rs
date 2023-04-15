@@ -1,4 +1,4 @@
-use crate::dialogue::Dialogue;
+use crate::dialogue::{Dialogue, DialogueItem, PlayerChoice};
 use crate::game::dialogue::*;
 use crate::sentence;
 
@@ -13,12 +13,12 @@ A) Bezimienny:
 1. Dobra, co powinienem wiedzieć o tym miejscu?
 1a. Jak dostanę się do Starego Obozu?
 1b. Gdzie mogę znaleźć oręż?
-Dlaczego mi pomogłeś?
+2. Dlaczego mi pomogłeś?
 2a. A gdzie jest ten Bullit?
-Mam list do przywódcy Magów Ognia
-4a. Kim jest Gomez?
-4b. Założmy, że chciałbym dołączyć do jego ludzi. Co powinienem zrobić?
-5. KONIEC
+3. Mam list do przywódcy Magów Ognia
+3a. Kim jest Gomez?
+3b. Założmy, że chciałbym dołączyć do jego ludzi. Co powinienem zrobić?
+4. KONIEC
 
 A.1
 Bezimienny: Dobra, co powinienem wiedzieć o tym miejscu?
@@ -101,5 +101,26 @@ sentence!(SENTENCE_3
 );
 sentence!(SENTENCE_4
     DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"
-    finishes dialogue
+    next: PLAYER_CHOICE_1
 );
+
+const PLAYER_CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
+    choices: &[
+        PlayerChoice {
+            choice: "Dobra, co powinienem wiedzieć o tym miejscu?",
+            next_item: None, // TODO
+        },
+        PlayerChoice {
+            choice: "Dlaczego mi pomogłeś?",
+            next_item: None,  // TODO
+        },
+        PlayerChoice {
+            choice: "Mam list do przywódcy Magów Ognia",
+            next_item: None,  // TODO
+        },
+        PlayerChoice {
+            choice: "KONIEC",
+            next_item: None, // finishes dialogue
+        }
+    ]
+};
