@@ -107,15 +107,15 @@ sentence!(SENTENCE_4
 const PLAYER_CHOICE_1: DialogueItem = DialogueItem::PlayerChoice {
     choices: &[
         PlayerChoice {
-            choice: "Dobra, co powinienem wiedzieć o tym miejscu?",
+            choice: "Dobra, co powinienem wiedziec o tym miejscu?",
             next_item: None, // TODO
         },
         PlayerChoice {
-            choice: "Dlaczego mi pomogłeś?",
+            choice: "Dlaczego mi pomogles?",
             next_item: None,  // TODO
         },
         PlayerChoice {
-            choice: "Mam list do przywódcy Magów Ognia",
+            choice: "Mam list do przywodcy Magow Ognia",
             next_item: None,  // TODO
         },
         PlayerChoice {

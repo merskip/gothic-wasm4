@@ -1,9 +1,10 @@
 use alloc::boxed::Box;
 
 use wasm4::gamepad::GamepadButton::ButtonX;
-use crate::dialogue::{Dialogue, DialogueItem};
 
+use crate::dialogue::{Dialogue, DialogueItem};
 use crate::renderable::{Renderable, RenderContext};
+use crate::ui::dialogue::dialogue_player_choice_view::DialoguePlayerChoiceView;
 use crate::ui::dialogue::dialogue_sentence_view::DialogueSentenceView;
 use crate::updatable::{Updatable, UpdateContext};
 
@@ -39,10 +40,12 @@ impl DialogueOverlay {
     }
 
     fn get_item_view(item: &'static DialogueItem) -> Box<dyn DialogueItemView> {
-        Box::new(match item {
-            DialogueItem::Sentence(sentence) => DialogueSentenceView::new(sentence),
-            DialogueItem::PlayerChoice { .. } => todo!("Not implemented yet"),
-        })
+        match item {
+            DialogueItem::Sentence(sentence) =>
+                Box::new(DialogueSentenceView::new(sentence)),
+            DialogueItem::PlayerChoice { choices } =>
+                Box::new(DialoguePlayerChoiceView::new(choices)),
+        }
     }
 
     pub fn finished(&self) -> bool {

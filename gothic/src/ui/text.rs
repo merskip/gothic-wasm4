@@ -35,8 +35,9 @@ impl Text {
         }
     }
 
-    pub fn content_size(&self) -> Size<u32> {
-        let lines_widths = self.text.lines().map(|line| line.len());
+    pub fn content_size(&self, size: Size<u32>) -> Size<u32> {
+        let text = self.get_text_with_wrapping(size.width);
+        let lines_widths = text.lines().map(|line| line.len());
         let max_width = lines_widths.clone().max().unwrap_or(0) as u32;
         let lines_count = lines_widths.count() as u32;
         let char_size = get_char_size();
@@ -63,30 +64,30 @@ impl Renderable for Text {
 
 impl Text {
     fn render_aligned_start(&self, context: &mut RenderContext) {
-        let text = self.get_text_with_wrapping(context.frame.size.width as usize);
+        let text = self.get_text_with_wrapping(context.frame.size.width);
         context.framebuffer.text(&*text, context.frame.origin);
     }
 
     fn render_aligned_center(&self, context: &mut RenderContext) {
         // TODO: Make works correctly with multilines
-        let content_size = self.content_size();
+        let content_size = self.content_size(context.frame.size);
         let x = (context.frame.size.width - content_size.width) / 2;
-        let text = self.get_text_with_wrapping(context.frame.size.width as usize);
+        let text = self.get_text_with_wrapping(context.frame.size.width);
         context.framebuffer.text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 
     fn render_aligned_end(&self, context: &mut RenderContext) {
         // TODO: Make works correctly with multilines
-        let content_size = self.content_size();
+        let content_size = self.content_size(context.frame.size);
         let x = context.frame.size.width - content_size.width;
-        let text = self.get_text_with_wrapping(context.frame.size.width as usize);
+        let text = self.get_text_with_wrapping(context.frame.size.width);
         context.framebuffer.text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 }
 
 impl Text {
-    fn get_text_with_wrapping(&self, max_width: usize) -> String {
-        let max_chars_per_line = max_width / get_char_size().width as usize;
+    fn get_text_with_wrapping(&self, max_width: u32) -> String {
+        let max_chars_per_line = max_width / get_char_size().width;
         match self.wrapping {
             TextWrapping::None => return self.text.to_string(),
             TextWrapping::Character => Self::wrapping_text_by_character(&self.text, max_chars_per_line),
@@ -94,20 +95,20 @@ impl Text {
         }.join("\n")
     }
 
-    fn wrapping_text_by_character(text: &str, max_length: usize) -> Vec<String> {
+    fn wrapping_text_by_character(text: &str, max_length: u32) -> Vec<String> {
         text.chars()
             .collect::<Vec<char>>()
-            .chunks(max_length)
+            .chunks(max_length as usize)
             .map(|chunk| chunk.iter().collect())
             .collect::<Vec<String>>()
     }
 
-    fn wrapping_text_by_words(text: &str, max_length: usize) -> Vec<String> {
+    fn wrapping_text_by_words(text: &str, max_length: u32) -> Vec<String> {
         let mut lines = Vec::new();
         let mut current_line = String::new();
 
         for word in text.split_whitespace() {
-            if current_line.len() + word.len() + 1 > max_length {
+            if current_line.len() + word.len() + 1 > max_length as usize {
                 lines.push(current_line.trim().to_string());
                 current_line = String::new();
             }
