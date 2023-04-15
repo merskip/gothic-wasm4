@@ -9,32 +9,36 @@ use crate::updatable::{Updatable, UpdateContext};
 
 pub struct DialogueOverlay {
     dialogue: &'static Dialogue,
-    item_view: Box<dyn Renderable>,
-    current_item_index: usize,
+    item: &'static DialogueItem,
+    item_view: Box<dyn DialogueItemView>,
     finished: bool,
+}
+
+pub trait DialogueItemView: Renderable {
+    fn next_item(&self) -> Option<&'static DialogueItem>;
 }
 
 impl DialogueOverlay {
     pub fn new(dialogue: &'static Dialogue) -> Self {
+        let item = dialogue.start_item;
         Self {
             dialogue,
-            item_view: Self::get_item_view(dialogue, 0),
-            current_item_index: 0,
+            item,
+            item_view: Self::get_item_view(item),
             finished: false,
         }
     }
 
-    fn show_next_sentence(&mut self) {
-        if self.current_item_index + 1 < self.dialogue.items.len() {
-            self.current_item_index += 1;
-            self.item_view = Self::get_item_view(self.dialogue, self.current_item_index);
+    fn next_dialogue_item(&mut self) {
+        if let Some(next_item) = self.item_view.next_item() {
+            self.item = next_item;
+            self.item_view = Self::get_item_view(next_item);
         } else {
             self.finished = true;
         }
     }
 
-    fn get_item_view(dialogue: &'static Dialogue, index: usize) -> Box<dyn Renderable> {
-        let item = &dialogue.items[index];
+    fn get_item_view(item: &'static DialogueItem) -> Box<dyn DialogueItemView> {
         Box::new(match item {
             DialogueItem::Sentence(sentence) => DialogueSentenceView::new(sentence),
             DialogueItem::PlayerChoice { .. } => todo!("Not implemented yet"),
@@ -55,7 +59,7 @@ impl Updatable for DialogueOverlay {
         self.item_view.update(context);
 
         if context.inputs.gamepad1.is_released(ButtonX) {
-            self.show_next_sentence();
+            self.next_dialogue_item();
         }
     }
 }

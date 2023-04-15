@@ -1,5 +1,5 @@
 pub struct Dialogue {
-    pub items: &'static [DialogueItem],
+    pub start_item: &'static DialogueItem,
 }
 
 pub enum DialogueItem {
@@ -12,11 +12,12 @@ pub enum DialogueItem {
 pub struct Sentence {
     pub actor: Option<&'static str>,
     pub message: &'static str,
+    pub next_item: Option<&'static DialogueItem>,
 }
 
 pub struct PlayerChoice {
     pub choice: &'static str,
-    pub next_item: &'static DialogueItem,
+    pub next_item: Option<&'static DialogueItem>,
 }
 
 #[macro_export]

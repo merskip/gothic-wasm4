@@ -6,7 +6,8 @@ use wasm4::geometry::Point;
 use wasm4::get_char_size;
 
 use crate::renderable::{Renderable, RenderContext};
-use crate::ui::dialogue::dialogue::Sentence;
+use crate::ui::dialogue::dialogue::{DialogueItem, Sentence};
+use crate::ui::dialogue::dialogue_overlay::DialogueItemView;
 use crate::ui::text::{Text, TextWrapping};
 use crate::updatable::{Updatable, UpdateContext};
 
@@ -20,6 +21,12 @@ impl DialogueSentenceView {
         let mut message_text = Text::new(sentence.message.to_string());
         message_text.wrapping = TextWrapping::Words;
         Self { sentence, message_text }
+    }
+}
+
+impl DialogueItemView for DialogueSentenceView {
+    fn next_item(&self) -> Option<&'static DialogueItem> {
+        self.sentence.next_item
     }
 }
 

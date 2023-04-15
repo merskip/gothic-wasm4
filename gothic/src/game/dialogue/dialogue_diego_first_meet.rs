@@ -85,10 +85,13 @@ $ początek rozdziału: Rozdział 1. Witamy w Kolonii!
 
 
 pub const DIALOGUE_DIEGO_FIRST_MEET: &Dialogue = &Dialogue {
-    items: &[
-        sentence!(DIEGO_ACTOR: "Nazywam sie Diego."),
-        sentence!(PLAYER_ACTOR: "Jestem..."),
-        sentence!(DIEGO_ACTOR: "Nie interesuje mnie kim jestes. Jestes tu nowy - a do mnie nalezy dbanie o nowych. Na razie to tyle..."),
-        sentence!(DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"),
-    ],
+    start_item: &DialogueItem::Sentence(Sentence {
+        actor: DIEGO_ACTOR,
+        message: "Nazywam sie Diego.",
+        next_item: None,
+    })
+        // sentence!(DIEGO_ACTOR: "Nazywam sie Diego."),
+        // sentence!(PLAYER_ACTOR: "Jestem..."),
+        // sentence!(DIEGO_ACTOR: "Nie interesuje mnie kim jestes. Jestes tu nowy - a do mnie nalezy dbanie o nowych. Na razie to tyle..."),
+        // sentence!(DIEGO_ACTOR: "Jesli chcesz jeszcze troche pozyc, sluchaj sie mnie, ale oczywiscie nie bede Ci przeszkadzal w ewentualnej probie samobojstwa. To jak bedzie?"),
 };
