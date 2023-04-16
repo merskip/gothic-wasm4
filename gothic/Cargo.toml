@@ -16,6 +16,6 @@ bench = false
 [[bin]]
 name = "windows"
 
-[dependencies]
+[target.wasm32-unknown-unknown.dependencies]
 wasm4 = { path = "../wasm4" }
 buddy-alloc = "0.4"
