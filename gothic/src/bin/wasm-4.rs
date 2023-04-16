@@ -5,6 +5,13 @@ extern crate alloc;
 
 #[cfg(not(test))]
 use core::panic::PanicInfo;
+use gothic::audio::music::Music;
+use gothic::dispatcher::Dispatcher;
+use gothic::game::main_menu::make_main_menu;
+use gothic::music_clips;
+use gothic::renderable::RenderContext;
+use gothic::ui::navigator::Navigator;
+use gothic::updatable::UpdateContext;
 
 use wasm4::application::Application;
 use wasm4::audio::Audio;
@@ -12,25 +19,6 @@ use wasm4::framebuffer::Framebuffer;
 use wasm4::geometry::{Point, Rect};
 use wasm4::inputs::Inputs;
 use wasm4::{main_application};
-
-use crate::audio::music::Music;
-use crate::dispatcher::Dispatcher;
-use crate::game::main_menu::make_main_menu;
-use crate::renderable::RenderContext;
-use crate::ui::navigator::Navigator;
-use crate::updatable::UpdateContext;
-
-mod allocator;
-
-pub mod ui;
-pub mod game;
-pub mod renderable;
-pub mod updatable;
-pub mod dispatcher;
-pub mod sprites;
-pub mod audio;
-pub mod music_clips;
-pub mod dialogue;
 
 struct GothicApplication {
     dispatcher: Dispatcher,
@@ -92,5 +80,5 @@ fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
         println!("[FATAL ERROR]");
         println!("{}", panic_info);
     }
-    core::arch::wasm32::unreachable();
+    core::arch::wasm32::unreachable()
 }
