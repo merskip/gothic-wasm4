@@ -3,83 +3,41 @@
 
 extern crate alloc;
 
-use core::any::Any;
 use core::panic::PanicInfo;
+use core::str::from_utf8_unchecked;
 
-use gothic::{GothicApplication, music_clips};
-use gothic::audio::music::Music;
-use gothic::dispatcher::Dispatcher;
-use gothic::game::main_menu::make_main_menu;
-use gothic::renderable::{Canvas, Color, Image, RenderContext};
-use gothic::ui::geometry::{Point, Size};
-use gothic::ui::navigator::Navigator;
-use gothic::updatable::UpdateContext;
-use wasm4::main_application;
+use gothic::GothicApplication;
 use wasm4::application::Application;
-use wasm4::audio::Audio;
 use wasm4::framebuffer::Framebuffer;
-use wasm4::geometry::{Point, Rect};
 use wasm4::inputs::Inputs;
-use wasm4::sprite::Sprite;
+use wasm4::main_application;
+use crate::wasm4_canvas::Wasm4Canvas;
 
-mod sprites;
+mod wasm4_canvas;
 mod allocator;
+mod sprites;
 
-main_application! { GothicApplication }
 
-struct Wasm4Canvas {
-    framebuffer: &'static Framebuffer,
+struct ApplicationWrapper {
+    application: GothicApplication,
 }
 
-impl Canvas for Wasm4Canvas {
-
-    fn get_size(&self) -> Size {
-        Size::new(self.framebuffer.get_screen_width(),
-                  self.framebuffer.get_screen_height())
+impl Application for ApplicationWrapper {
+    fn start() -> Self {
+        ApplicationWrapper { application: GothicApplication::start() }
     }
 
-    fn get_char_size(&self) -> Size {
-        Size::new(
-            get_char_width(),
-            get_char_height(),
-        )
-    }
+    fn update(&mut self, _: &Inputs) {
 
-    fn draw_line(&self, start: Point, end: Point) {
-        self.framebuffer.line(start.x, start.y, end.x, end.y);
+        // TODO::
     }
-
-    fn set_rectangle_color(&self, fill_color: Color, border: Color) {
-        // TODO
-    }
-
-    fn draw_rectangle(&self, start: Point, size: Size) {
-        self.framebuffer.rectangle(start.x, start.y, size.width, size.height);
-    }
-
-    fn set_text_color(&self, foreground: Color, background: Color) {
-        // TODO
-    }
-
-    fn draw_text(&self, text: &str, start: Point) {
-        self.framebuffer.text(text, start.x, start.y);
-    }
-
-    fn set_image_colors(&self, colors: [Color; 4]) {
-        // TODO
-    }
-
-    fn draw_image(&self, image: &dyn Image, start: Point) {
-        let sprite = (image as &dyn Any).downcast_ref::<Sprite>().unwrap();
-        // TODO
+    fn render(&self, framebuffer: &Framebuffer) {
+        let canvas = Wasm4Canvas::new(framebuffer);
+        self.application.render(&canvas);
     }
 }
 
-impl Image for Sprite {
-    fn size(&self) -> Size {
-        Size::new(self.width, self.height)
-    }
-}
+main_application! { ApplicationWrapper }
 
 #[panic_handler]
 #[cfg(not(test))]
