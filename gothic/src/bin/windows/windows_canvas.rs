@@ -1,7 +1,33 @@
+use windows::Win32::Foundation::*;
+use windows::Win32::Graphics::Gdi::*;
+
 use gothic::renderable::{Canvas, Color, Image};
 use gothic::ui::geometry::{Point, Size};
 
-pub struct WindowsCanvas;
+pub struct WindowsCanvas {
+    window: HWND,
+    paint: PAINTSTRUCT,
+    pen_solid: HPEN,
+}
+
+impl WindowsCanvas {
+    pub unsafe fn new(window: HWND) -> Self {
+        let mut paint = PAINTSTRUCT::default();
+        BeginPaint(window, &mut paint);
+
+        let pen_solid = CreatePen(PS_SOLID, 1, COLORREF(0xff0000));
+
+        Self { window, paint, pen_solid }
+    }
+}
+
+impl Drop for WindowsCanvas {
+    fn drop(&mut self) {
+        unsafe {
+            EndPaint(self.window, &mut self.paint);
+        }
+    }
+}
 
 impl Canvas for WindowsCanvas {
     fn get_size(&self) -> Size {
@@ -13,7 +39,11 @@ impl Canvas for WindowsCanvas {
     }
 
     fn draw_line(&self, start: Point, end: Point) {
-        // todo!()
+        unsafe {
+            SelectObject(self.paint.hdc, self.pen_solid);
+            MoveToEx(self.paint.hdc, start.x, start.y, None);
+            LineTo(self.paint.hdc, end.x, end.y);
+        }
     }
 
     fn set_rectangle_color(&self, fill_color: Color, border: Color) {
@@ -29,7 +59,10 @@ impl Canvas for WindowsCanvas {
     }
 
     fn draw_text(&self, text: &str, start: Point) {
-        // todo!()
+        unsafe {
+            SelectObject(self.paint.hdc, self.pen_solid);
+            TextOutA(self.paint.hdc, start.x, start.y, text.as_ref());
+        }
     }
 
     fn set_image_colors(&self, colors: [Color; 4]) {
