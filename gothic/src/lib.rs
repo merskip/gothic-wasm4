@@ -2,74 +2,67 @@
 
 extern crate alloc;
 
-use wasm4::application::Application;
-use wasm4::audio::Audio;
-use wasm4::framebuffer::Framebuffer;
-use wasm4::geometry::{Point, Rect};
-use wasm4::inputs::Inputs;
-use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;
-use crate::renderable::RenderContext;
+use crate::renderable::{Canvas, RenderContext};
+use crate::ui::geometry::{Point, Rect};
 use crate::ui::navigator::Navigator;
-use crate::updatable::UpdateContext;
-
-mod allocator;
+use crate::updatable::{Controls, UpdateContext};
 
 pub mod ui;
 pub mod game;
 pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
-pub mod sprites;
-pub mod audio;
-pub mod music_clips;
+// pub mod audio;
+// pub mod music_clips;
 pub mod dialogue;
+pub mod images;
 
 pub struct GothicApplication {
     dispatcher: Dispatcher,
     navigator: Navigator,
-    music: Music,
+    // music: Music,
 }
 
-impl Application for GothicApplication {
-    fn start() -> Self {
+impl GothicApplication {
+    pub fn start() -> Self {
         let mut navigator = Navigator::new();
         navigator.push_view(make_main_menu());
 
-        let mut music = Music::new(Audio::shared());
-        music.play_clip(&music_clips::MAIN_THEME);
+        // let mut music = Music::new(THEME);Audio::shared());
+        //         // music.play_clip(&music_clips::MAIN_
 
         Self {
             dispatcher: Dispatcher::new(),
             navigator,
-            music,
+            // music,
         }
     }
 
-    fn update(&mut self, inputs: &Inputs) {
+    pub fn update(&mut self, controls: &dyn Controls) {
         let mut context = UpdateContext::new(
             &mut self.dispatcher,
             &mut self.navigator,
-            inputs,
-            &mut self.music,
+            controls,
+            // &mut self.music,
         );
 
         if let Some(mut top_view) = context.navigator.top_view_mut() {
             top_view.update(&mut context);
             context.navigator.push_view_box(top_view);
         }
-        context.music.update();
+        // context.music.update();
         context.dispatcher.execute(&mut context);
     }
 
-    fn render(&self, framebuffer: &Framebuffer) {
+    pub fn render(&self, canvas: &dyn Canvas) {
         let frame = Rect::new(
             Point::new(0, 0),
-            framebuffer.get_size(),
+            canvas.get_size(),
         );
         if let Some(top_view) = self.navigator.top_view() {
-            let mut context = RenderContext::new(framebuffer, frame);
+            let mut context = RenderContext::new(canvas, frame);
             top_view.render(&mut context);
         }
     }

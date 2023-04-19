@@ -1,6 +1,6 @@
 [alias]
-cart-build = "build --profile cartridge-release --bin wasm-4 --target wasm32-unknown-unknown"
-cart-run = "run --profile cartridge-debug --bin wasm-4 --target wasm32-unknown-unknown"
+cart-build = "build --profile cartridge-release --bin wasm4 --target wasm32-unknown-unknown"
+cart-run = "run --profile cartridge-debug --bin wasm4 --target wasm32-unknown-unknown"
 
 [profile.cartridge-release]
 inherits = "release"

@@ -1,18 +1,17 @@
-use wasm4::framebuffer::PaletteIndex;
-use wasm4::geometry::Point;
 use crate::dialogue::Dialogue;
 use crate::game::dialogue::dialogue_diego_first_meet::DIALOGUE_DIEGO_FIRST_MEET;
 use crate::game::dialogue::dialogue_intro::DIALOGUE_INTRO;
 
 use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
-use crate::renderable::{Renderable, RenderContext};
-use crate::sprites::PLAYER_SPRITE;
+use crate::images::Images;
+use crate::renderable::{Color, Image, Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
+use crate::ui::geometry::{Point, Vector};
 use crate::updatable::{Updatable, UpdateContext};
 
 pub fn make_game_scene() -> GameScene {
-    let player = Player::new(Point::new(100.0, 100.0));
+    let player = Player::new(Vector::new(100.0, 100.0));
     let game_world = GameWorld::new(player);
     GameScene::new(game_world)
 }
@@ -51,28 +50,24 @@ impl Updatable for GameScene {
 
 impl Renderable for GameScene {
     fn render(&self, context: &mut RenderContext) {
-        context.framebuffer.set_draw_colors([
-            PaletteIndex::Palette2,
-            PaletteIndex::Transparent,
-            PaletteIndex::Transparent,
-            PaletteIndex::Transparent,
-        ]);
         self.render_player(context);
     }
 }
 
 impl GameScene {
     fn render_player(&self, context: &mut RenderContext) {
-        context.framebuffer.set_draw_colors([
-            PaletteIndex::Palette2,
-            PaletteIndex::Palette3,
-            PaletteIndex::Palette4,
-            PaletteIndex::Transparent,
+        let player_image = Images::Player;
+        let position = context.frame.origin + Point::new(
+            (self.game_world.player.position.x - (player_image.size().width as f32) / 2.0) as i32,
+            (self.game_world.player.position.y - (player_image.size().height as f32) / 2.0) as i32,
+        );
+        context.canvas.set_image_colors([
+            Color::Primary,
+            Color::Secondary,
+            Color::Tertiary,
+            Color::Transparent,
         ]);
-        context.framebuffer.sprite(PLAYER_SPRITE, context.frame.origin + Point::new(
-            (self.game_world.player.position.x - PLAYER_SPRITE.size().width as f32 / 2.0) as i32,
-            (self.game_world.player.position.y - PLAYER_SPRITE.size().height as f32 / 2.0) as i32,
-        ));
+        context.canvas.draw_image(&player_image, position);
 
         if let Some(dialogue_overlay) = &self.dialogue_overlay {
             dialogue_overlay.render(context);

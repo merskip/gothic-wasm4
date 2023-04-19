@@ -1,12 +1,12 @@
-use wasm4::framebuffer::{DrawColorIndex, Framebuffer};
-use wasm4::framebuffer::PaletteIndex::{Palette2, Palette3, Palette4, Transparent};
-use wasm4::geometry::{Point, Rect};
 use crate::game::game_scene::make_game_scene;
+use crate::images::Images;
+use crate::renderable::{Canvas, Image};
+use crate::renderable::Color::{Secondary, Transparent};
 
-use crate::sprites::{CROSSBONES_SPRITE, KING__RHOBAR_2_SPRITE, ORC_SPRITE};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::cinematic::cinematic_screen::CinematicScreen;
+use crate::ui::geometry::Rect;
 
 pub fn make_cinematic_intro() -> CinematicPlayer {
     CinematicPlayer::new(
@@ -132,60 +132,64 @@ pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     ]
 );
 
-fn draw_nothing(_framebuffer: &Framebuffer, _frame: Rect) {}
+fn draw_nothing(_canvas: &dyn Canvas, _frame: Rect) {}
 
-fn draw_king_rhobar_2_scene(framebuffer: &Framebuffer, frame: Rect) {
-    framebuffer.set_draw_color(DrawColorIndex::Index1, Transparent);
-    framebuffer.set_draw_color(DrawColorIndex::Index2, Palette3);
-    framebuffer.sprite(
-        KING__RHOBAR_2_SPRITE,
-        frame.centered(KING__RHOBAR_2_SPRITE.size()).origin,
+fn draw_king_rhobar_2_scene(canvas: &dyn Canvas, frame: Rect) {
+    canvas.set_image_colors([
+        Transparent,
+        Secondary,
+        Transparent,
+        Transparent,
+    ]);
+    canvas.draw_image(
+        &Images::KingRhobar2,
+        frame.centered(Images::KingRhobar2.size()).origin,
     );
 }
 
-fn draw_orc_scene(framebuffer: &Framebuffer, frame: Rect) {
-    framebuffer.set_draw_colors([
-        Palette2,
-        Palette3,
-        Transparent,
-        Palette4,
-    ]);
-    let orc_positions = [
-        Point::new(10, 10),
-        Point::new(20, 20),
-        Point::new(10, 30),
-        Point::new(30, 30),
-        Point::new(20, 40),
-        Point::new(40, 40),
-        Point::new(10, 50),
-        Point::new(30, 50),
-        Point::new(20, 60),
-        Point::new(10, 70),
-    ];
-    for origin in orc_positions {
-        framebuffer.sprite(
-            ORC_SPRITE,
-            frame.origin + origin,
-        );
-    }
-
-    framebuffer.set_draw_colors([
-        Transparent,
-        Palette3,
-        Transparent,
-        Transparent,
-    ]);
-    let crossbones_positions = [
-        Point::new(80, 10),
-        Point::new(100, 40),
-        Point::new(140, 30),
-        Point::new(90, 70),
-        Point::new(120, 100),
-    ];
-    for origin in crossbones_positions {
-        framebuffer.sprite(
-            CROSSBONES_SPRITE,
-            frame.origin + origin,
-        );
-    }
+fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
+    // framebuffer.set_draw_colors([
+    //     Palette2,
+    //     Palette3,
+    //     Transparent,
+    //     Palette4,
+    // ]);
+    // let orc_positions = [
+    //     Point::new(10, 10),
+    //     Point::new(20, 20),
+    //     Point::new(10, 30),
+    //     Point::new(30, 30),
+    //     Point::new(20, 40),
+    //     Point::new(40, 40),
+    //     Point::new(10, 50),
+    //     Point::new(30, 50),
+    //     Point::new(20, 60),
+    //     Point::new(10, 70),
+    // ];
+    // for origin in orc_positions {
+    //     framebuffer.sprite(
+    //         ORC_SPRITE,
+    //         frame.origin + origin,
+    //     );
+    // }
+    //
+    // framebuffer.set_draw_colors([
+    //     Transparent,
+    //     Palette3,
+    //     Transparent,
+    //     Transparent,
+    // ]);
+    // let crossbones_positions = [
+    //     Point::new(80, 10),
+    //     Point::new(100, 40),
+    //     Point::new(140, 30),
+    //     Point::new(90, 70),
+    //     Point::new(120, 100),
+    // ];
+    // for origin in crossbones_positions {
+    //     framebuffer.sprite(
+    //         CROSSBONES_SPRITE,
+    //         frame.origin + origin,
+    //     );
+    // }
 }

@@ -1,7 +1,3 @@
-use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
-use wasm4::color::Color;
-use wasm4::framebuffer::Palette;
-
 use crate::dialogue::{Dialogue, DialogueItem, Script};
 use crate::game::dialogue::*;
 use crate::sentence;
@@ -70,44 +66,44 @@ static SENTENCE_10: DialogueItem = sentence!(
 // <plusk>
 static SENTENCE_11: DialogueItem = sentence!(
     BULLIT_ACTOR: "Witamy w kolonii!"
-    next: SCRIPT_HIT_SOUND
+    next: SENTENCE_12
 );
 
-static mut PASSED_FRAMES: usize = 0;
-static mut PALETTE: Option<Palette> = None;
-static SCRIPT_HIT_SOUND: DialogueItem = DialogueItem::Script(Script {
-    update: |_context| unsafe {
-        if PASSED_FRAMES == 0 {
-            Audio::shared().tone(
-                Frequency::linear(380, 220),
-                ADSRDuration::new(
-                    Duration::from_frames(0),
-                    Duration::from_frames(0),
-                    Duration::from_frames(14),
-                    Duration::from_frames(10),
-                ),
-                Volume::constant(100),
-                Flags::new(Channel::Noise, DutyCycle::OneHalf, Pan::default()),
-            );
-        }
-        PASSED_FRAMES += 1;
-        PASSED_FRAMES > 90 // 1.5 sek
-    },
-    render: |context| unsafe {
-        if PALETTE.is_none() {
-            PALETTE = Some(context.framebuffer.get_palette());
-            context.framebuffer.set_palette([
-                Color::BLACK,
-                Color::BLACK,
-                Color::BLACK,
-                Color::BLACK,
-            ]);
-        } else if PASSED_FRAMES == 90 {
-            context.framebuffer.set_palette(PALETTE.unwrap());
-        }
-    },
-    next_item: Some(&SENTENCE_12),
-});
+// static mut PASSED_FRAMES: usize = 0;
+// static mut PALETTE: Option<Palette> = None;
+// static SCRIPT_HIT_SOUND: DialogueItem = DialogueItem::Script(Script {
+//     update: |_context| unsafe {
+//         if PASSED_FRAMES == 0 {
+//             Audio::shared().tone(
+//                 Frequency::linear(380, 220),
+//                 ADSRDuration::new(
+//                     Duration::from_frames(0),
+//                     Duration::from_frames(0),
+//                     Duration::from_frames(14),
+//                     Duration::from_frames(10),
+//                 ),
+//                 Volume::constant(100),
+//                 Flags::new(Channel::Noise, DutyCycle::OneHalf, Pan::default()),
+//             );
+//         }
+//         PASSED_FRAMES += 1;
+//         PASSED_FRAMES > 90 // 1.5 sek
+//     },
+//     render: |context| unsafe {
+//         if PALETTE.is_none() {
+//             PALETTE = Some(context.canvas.get_palette());
+//             context.canvas.set_palette([
+//                 Color::BLACK,
+//                 Color::BLACK,
+//                 Color::BLACK,
+//                 Color::BLACK,
+//             ]);
+//         } else if PASSED_FRAMES == 90 {
+//             context.canvas.set_palette(PALETTE.unwrap());
+//         }
+//     },
+//     next_item: Some(&SENTENCE_12),
+// });
 static SENTENCE_12: DialogueItem = sentence!(
     DIEGO_ACTOR: "Dosc tego! Zostawcie go! A teraz precz!"
     next: SENTENCE_13

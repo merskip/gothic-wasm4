@@ -1,14 +1,11 @@
 use alloc::string::ToString;
 use alloc::vec::Vec;
 
-use wasm4::framebuffer::{DrawColorIndex, PaletteIndex};
-use wasm4::gamepad::GamepadButton;
-use wasm4::gamepad::GamepadButton::ButtonX;
-use wasm4::geometry::Point;
-
 use crate::dialogue::{DialogueItem, PlayerChoice};
 use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::Color::{Primary, Secondary, Transparent};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;
+use crate::ui::geometry::Point;
 use crate::ui::text::{Text, TextWrapping};
 use crate::updatable::{Updatable, UpdateContext};
 
@@ -34,15 +31,15 @@ impl DialoguePlayerChoiceView {
 impl Updatable for DialoguePlayerChoiceView {
     fn update(&mut self, context: &mut UpdateContext) {
         let mut selected_index = self.selected_index as isize;
-        if context.inputs.gamepad1.is_released(GamepadButton::DPadUp) {
+        if context.controls.arrow_top().is_just_released() {
             selected_index -= 1;
         }
-        if context.inputs.gamepad1.is_released(GamepadButton::DPadDown) {
+        if context.controls.arrow_down().is_just_released() {
             selected_index += 1;
         }
         self.selected_index = selected_index.clamp(0, (self.choices.len() - 1) as isize) as usize;
 
-        if context.inputs.gamepad1.is_released(ButtonX) {
+        if context.controls.button_x().is_just_released() {
             self.finished = true;
         }
     }
@@ -65,18 +62,16 @@ impl Renderable for DialoguePlayerChoiceView {
         for (index, choice) in self.choices.iter().enumerate() {
             let is_selected = self.selected_index == index;
             if is_selected {
-                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
-                context.framebuffer.set_draw_color(DrawColorIndex::Index2, PaletteIndex::Transparent);
+                context.canvas.set_text_color(Secondary, Transparent);
             } else {
-                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
-                context.framebuffer.set_draw_color(DrawColorIndex::Index2, PaletteIndex::Transparent);
+                context.canvas.set_text_color(Primary, Transparent);
             }
 
             let mut text = Text::new(choice.choice.to_string());
             text.wrapping = TextWrapping::Words;
 
             text.render(&mut context.with_frame(context.frame + Point::new(0, y as i32)));
-            y += text.content_size(context.frame.size).height;
+            y += text.content_size(context.frame.size, context.canvas).height;
         }
     }
 }

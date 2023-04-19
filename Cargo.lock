@@ -13,6 +13,7 @@ name = "gothic"
 version = "0.1.0"
 dependencies = [
  "buddy-alloc",
+ "libm",
  "wasm4",
 ]
 

@@ -9,12 +9,15 @@ edition = "2021"
 name = "gothic"
 
 [[bin]]
-name = "wasm-4"
+name = "wasm4"
 test = false
 bench = false
 
 [[bin]]
 name = "windows"
+
+[dependencies]
+libm = "0.2"
 
 [target.wasm32-unknown-unknown.dependencies]
 wasm4 = { path = "../wasm4" }

@@ -1,7 +1,7 @@
 use std::process::Command;
 
 fn main() {
-    png2src("src/sprites.rs", &[
+    png2src("src/bin/wasm4/sprites.rs", &[
         "resources/Player.png",
         "resources/King Rhobar 2.png",
         "resources/Orc.png",

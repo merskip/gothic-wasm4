@@ -5,7 +5,8 @@ use wasm4::sprite::Sprite;
 
 /// {{name}}
 pub const {{rustName}}_SPRITE: &Sprite = &Sprite::new(
-    Size::new({{width}}, {{height}}),
+    {{width}},
+    {{height}},
     {{flagsHumanReadable}},
     &[{{bytes}}],
 );

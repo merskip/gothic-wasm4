@@ -3,11 +3,8 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::cell::Cell;
 
-use wasm4::framebuffer::{DrawColorIndex, Framebuffer, PaletteIndex};
-use wasm4::gamepad::GamepadButton::{ButtonX, ButtonY, DPadDown, DPadUp};
-use wasm4::geometry::{Point, Rect, Size};
-
-use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::{Canvas, Renderable, RenderContext};
+use crate::ui::geometry::{Point, Rect, Size};
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
 use crate::updatable::{Updatable, UpdateContext};
@@ -46,15 +43,15 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
 impl<Item> Updatable for SimpleMenu<Item> where Item: ToString + Clone + 'static {
     fn update(&mut self, context: &mut UpdateContext) {
         let mut selected_index = self.selected_index as isize;
-        if context.inputs.gamepad1.is_released(DPadUp) {
+        if context.controls.arrow_top().is_just_released() {
             selected_index -= 1;
-        } else if context.inputs.gamepad1.is_released(DPadDown) {
+        } else if context.controls.arrow_down().is_just_released() {
             selected_index += 1;
         }
         selected_index = selected_index.clamp(0, self.texts.len() as isize - 1);
         self.selected_index = selected_index as usize;
 
-        if context.inputs.gamepad1.is_released(ButtonX) {
+        if context.controls.button_x().is_just_released() {
             let selection_handler = self.selection_handler.clone();
             let selected_item = self.items[selected_index as usize].clone();
             context.dispatcher.dispatch(move |context| {
@@ -62,7 +59,7 @@ impl<Item> Updatable for SimpleMenu<Item> where Item: ToString + Clone + 'static
             });
         }
 
-        if context.inputs.gamepad1.is_released(ButtonY) {
+        if context.controls.button_y().is_just_released() {
             context.dispatcher.dispatch(move |context| {
                 context.navigator.pop_top_view();
             });
@@ -80,18 +77,18 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
     fn render_menu_items(&self, context: &mut RenderContext) {
         let mut y = 8;
         for (index, item) in self.texts.iter().enumerate() {
-            let item_size = item.content_size(context.frame.size);
+            let item_size = item.content_size(context.frame.size, context.canvas);
             let item_frame = Rect::new(
                 Point::new(context.frame.origin.x, context.frame.origin.y + y),
                 Size::new(context.frame.size.width, item_size.height),
             );
             let is_selected = index == self.selected_index;
             if is_selected {
-                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
+                // context.canvas.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
                 let line_y = self.animate_item_indicator_y(y);
-                self.render_selected_item_indicator(context.framebuffer, context.frame, line_y - 2, item_size.height + 3);
+                self.render_selected_item_indicator(context.canvas, context.frame, line_y - 2, item_size.height + 3);
             } else {
-                context.framebuffer.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
+                // context.canvas.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
             }
             item.render(&mut context.with_frame(item_frame));
 
@@ -99,9 +96,15 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
         }
     }
 
-    fn render_selected_item_indicator(&self, framebuffer: &Framebuffer, frame: Rect, y: i32, item_height: u32) {
-        framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y), frame.size.width);
-        framebuffer.line_horizontal(Point::new(frame.origin.x, frame.origin.y + y + item_height as i32), frame.size.width);
+    fn render_selected_item_indicator(&self, canvas: &dyn Canvas, frame: Rect, y: i32, item_height: u32) {
+        canvas.draw_line(
+            Point::new(frame.origin.x, frame.origin.y + y),
+            Point::new(frame.origin.x + frame.size.width as i32, frame.origin.y + y),
+        );
+        canvas.draw_line(
+            Point::new(frame.origin.x, frame.origin.y + y + item_height as i32),
+            Point::new(frame.origin.x + frame.size.width as i32, frame.origin.y + y + item_height as i32),
+        );
     }
 
     fn animate_item_indicator_y(&self, item_y: i32) -> i32 {
