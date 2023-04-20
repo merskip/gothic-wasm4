@@ -48,19 +48,29 @@ pub struct TextMetrics {
 pub trait Canvas {
     fn get_size(&self) -> Size;
 
+    // Line
+
+    fn set_line_color(&self, color: Color);
+
+    fn draw_line(&self, start: Point, end: Point);
+
+    // Rectangle
+
+    fn set_rectangle_color(&self, fill_color: Color, outline_color: Color);
+
+    fn draw_rectangle(&self, start: Point, size: Size);
+
+    // Text
+
     fn get_text_metrics(&self) -> TextMetrics;
 
     fn get_text_size(&self, text: &str) -> Size;
 
-    fn draw_line(&self, start: Point, end: Point);
-
-    fn set_rectangle_color(&self, fill_color: Color, border: Color);
-
-    fn draw_rectangle(&self, start: Point, size: Size);
-
     fn set_text_color(&self, foreground: Color, background: Color);
 
     fn draw_text(&self, text: &str, start: Point);
+
+    // Image
 
     fn set_image_colors(&self, colors: [Color; 4]);
 

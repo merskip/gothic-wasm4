@@ -3,7 +3,7 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::cell::Cell;
 
-use crate::renderable::{Canvas, Renderable, RenderContext};
+use crate::renderable::{Canvas, Color, Renderable, RenderContext};
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::ui::text::Text;
 use crate::ui::text::TextAlignment::Center;
@@ -84,12 +84,14 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
             );
             let is_selected = index == self.selected_index;
             if is_selected {
-                // context.canvas.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette3);
+                context.canvas.set_line_color(Color::Secondary);
                 let line_y = self.animate_item_indicator_y(y);
                 self.render_selected_item_indicator(context.canvas, context.frame, line_y - 2, item_size.height + 3);
-            } else {
-                // context.canvas.set_draw_color(DrawColorIndex::Index1, PaletteIndex::Palette2);
             }
+            context.canvas.set_text_color(
+                if is_selected { Color::Secondary } else { Color::Primary },
+                Color::Transparent,
+            );
             item.render(&mut context.with_frame(item_frame));
 
             y += item_size.height as i32 + 6;
