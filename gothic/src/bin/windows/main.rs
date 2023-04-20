@@ -45,7 +45,7 @@ fn main() {
         CreateWindowExA(
             WINDOW_EX_STYLE::default(),
             window_class,
-            s!("My Window"),
+            s!("Gothic"),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
@@ -65,16 +65,9 @@ fn main() {
             DispatchMessageA(&message);
         }
     }
-
-    // let controls = WindowsControls::new();
-    // application.update(&controls);
-    //
-    // let mut canvas = WindowsCanvas;
-    // application.render(&mut canvas);
 }
 
 extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
-    println!("wndproc: message={:?}, wparam={:?}, lparam={:?}", message, wparam, lparam);
     unsafe {
         match message {
             WM_CREATE => {
