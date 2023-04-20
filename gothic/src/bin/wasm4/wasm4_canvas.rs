@@ -1,5 +1,5 @@
 use core::any::Any;
-use gothic::renderable::{Canvas, Color, Image};
+use gothic::renderable::{Canvas, Color, Image, TextMetrics};
 use gothic::ui::geometry::{Point, Size};
 use wasm4::framebuffer::Framebuffer;
 use wasm4::sprite::Sprite;
@@ -21,12 +21,25 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
                   self.framebuffer.get_screen_height())
     }
 
-    fn get_char_size(&self) -> Size {
+    fn get_text_metrics(&self) -> TextMetrics {
+        TextMetrics {
+            line_height: get_char_height(),
+            average_character_width: get_char_width(),
+            maximum_character_width: get_char_width(),
+        }
+    }
+
+    fn get_text_size(&self, text: &str) -> Size {
+        let lines_widths = text.lines().map(|line| line.len());
+        let max_width = lines_widths.clone().max().unwrap_or(0) as u32;
+        let lines_count = lines_widths.count() as u32;
+        let text_metrics = self.get_text_metrics();
         Size::new(
-            get_char_width(),
-            get_char_height(),
+            max_width * text_metrics.maximum_character_width, // All system character are monospace
+            lines_count * text_metrics.line_height,
         )
     }
+
 
     fn draw_line(&self, start: Point, end: Point) {
         self.framebuffer.line(start.x, start.y, end.x, end.y);

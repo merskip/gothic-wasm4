@@ -1,6 +1,5 @@
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
-use windows::core::CanInto;
 
 use crate::renderable::{Canvas, Renderable, RenderContext};
 use crate::ui::geometry::{Point, Size};
