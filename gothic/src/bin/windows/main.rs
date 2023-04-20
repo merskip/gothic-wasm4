@@ -1,11 +1,13 @@
 use std::mem::MaybeUninit;
 use std::os::raw::c_void;
+
 use windows::core::PCSTR;
 use windows::s;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 use windows::Win32::UI::WindowsAndMessaging::*;
+
 use gothic::dispatcher::Dispatcher;
 use gothic::GothicApplication;
 use gothic::images::Images;
@@ -13,6 +15,7 @@ use gothic::renderable::{Canvas, Image};
 use gothic::ui::geometry::Size;
 use gothic::ui::navigator::Navigator;
 use gothic::updatable::{Button, Controls, UpdateContext};
+
 use crate::windows_canvas::WindowsCanvas;
 use crate::windows_controls::{WindowsButton, WindowsControls};
 
@@ -20,9 +23,9 @@ mod windows_controls;
 mod windows_canvas;
 
 static mut APPLICATION: MaybeUninit<GothicApplication> = MaybeUninit::<GothicApplication>::uninit();
+static mut CONTROLS: MaybeUninit<WindowsControls> = MaybeUninit::<WindowsControls>::uninit();
 
 fn main() {
-
     let instance = unsafe { GetModuleHandleA(PCSTR::null()).unwrap() };
 
     let window_class = s!("window");
@@ -73,12 +76,20 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
             WM_CREATE => {
                 let application = GothicApplication::start();
                 APPLICATION.write(application);
+                CONTROLS.write(WindowsControls::new());
+
                 LRESULT(0)
             }
             WM_PAINT => {
+                let application = APPLICATION.assume_init_mut();
+
+                let controls = CONTROLS.assume_init_mut();
+                application.update(controls);
+
                 let canvas = WindowsCanvas::new(window);
-                let application = APPLICATION.assume_init_ref();
                 application.render(&canvas);
+
+                controls.late_update();
                 LRESULT(0)
             }
             WM_DESTROY => {
