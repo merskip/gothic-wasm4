@@ -4,7 +4,6 @@
 extern crate alloc;
 
 use core::panic::PanicInfo;
-use core::str::from_utf8_unchecked;
 
 use gothic::GothicApplication;
 use wasm4::application::Application;
@@ -12,8 +11,10 @@ use wasm4::framebuffer::Framebuffer;
 use wasm4::inputs::Inputs;
 use wasm4::main_application;
 use crate::wasm4_canvas::Wasm4Canvas;
+use crate::wasm4_controls::Wasm4Controls;
 
 mod wasm4_canvas;
+mod wasm4_controls;
 mod allocator;
 mod sprites;
 
@@ -27,9 +28,9 @@ impl Application for ApplicationWrapper {
         ApplicationWrapper { application: GothicApplication::start() }
     }
 
-    fn update(&mut self, _: &Inputs) {
-
-        // TODO::
+    fn update(&mut self, inputs: &Inputs) {
+        let controls = Wasm4Controls::new(inputs);
+        self.application.update(&controls);
     }
     fn render(&self, framebuffer: &Framebuffer) {
         let canvas = Wasm4Canvas::new(framebuffer);
