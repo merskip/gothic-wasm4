@@ -39,6 +39,32 @@ impl Canvas for WindowsCanvas {
         Size::new(rect.right as u32, rect.bottom as u32)
     }
 
+    // Line
+
+    fn set_line_color(&self, color: Color) {
+        // todo!()
+    }
+
+    fn draw_line(&self, start: Point, end: Point) {
+        unsafe {
+            SelectObject(self.paint.hdc, self.pen_solid);
+            MoveToEx(self.paint.hdc, start.x, start.y, None);
+            LineTo(self.paint.hdc, end.x, end.y);
+        }
+    }
+
+    // Rectangle
+
+    fn set_rectangle_color(&self, fill_color: Color, outline_color: Color) {
+        // todo!()
+    }
+
+    fn draw_rectangle(&self, start: Point, size: Size) {
+        // todo!()
+    }
+
+    // Text
+
     fn get_text_metrics(&self) -> TextMetrics {
         let mut text_metric = TEXTMETRICA::default();
         unsafe {
@@ -59,22 +85,6 @@ impl Canvas for WindowsCanvas {
         Size::new(size.cx as u32, size.cy as u32)
     }
 
-    fn draw_line(&self, start: Point, end: Point) {
-        unsafe {
-            SelectObject(self.paint.hdc, self.pen_solid);
-            MoveToEx(self.paint.hdc, start.x, start.y, None);
-            LineTo(self.paint.hdc, end.x, end.y);
-        }
-    }
-
-    fn set_rectangle_color(&self, fill_color: Color, border: Color) {
-        // todo!()
-    }
-
-    fn draw_rectangle(&self, start: Point, size: Size) {
-        // todo!()
-    }
-
     fn set_text_color(&self, foreground: Color, background: Color) {
         // todo!()
     }
@@ -85,6 +95,8 @@ impl Canvas for WindowsCanvas {
             TextOutA(self.paint.hdc, start.x, start.y, text.as_ref());
         }
     }
+
+    // Image
 
     fn set_image_colors(&self, colors: [Color; 4]) {
         // todo!()

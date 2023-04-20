@@ -1,3 +1,4 @@
+use wasm4::geometry::Size;
 use wasm4::sprite::Flags::*;
 use wasm4::sprite::Sprite;
 
