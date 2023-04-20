@@ -1,7 +1,7 @@
 use std::mem::MaybeUninit;
 use std::os::raw::c_void;
 
-use windows::core::PCSTR;
+use windows::core::{CanInto, PCSTR};
 use windows::s;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
@@ -38,7 +38,7 @@ fn main() {
         hInstance: instance,
         hIcon: Default::default(),
         hCursor: Default::default(),
-        hbrBackground: Default::default(),
+        hbrBackground: HBRUSH(unsafe { GetStockObject(WHITE_BRUSH).0 }),
         lpszMenuName: PCSTR::null(),
         lpszClassName: window_class,
     };
@@ -80,16 +80,23 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
 
                 LRESULT(0)
             }
-            WM_PAINT => {
+            WM_KEYDOWN | WM_KEYUP => {
                 let application = APPLICATION.assume_init_mut();
 
                 let controls = CONTROLS.assume_init_mut();
                 application.update(controls);
 
+                controls.late_update();
+
+                InvalidateRect(window, None, true);
+                LRESULT(0)
+            }
+            WM_PAINT => {
+                let application = APPLICATION.assume_init_ref();
+
                 let canvas = WindowsCanvas::new(window);
                 application.render(&canvas);
 
-                controls.late_update();
                 LRESULT(0)
             }
             WM_DESTROY => {
