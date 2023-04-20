@@ -1,5 +1,6 @@
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
+use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect};
 
 use gothic::renderable::{Canvas, Color, Image};
 use gothic::ui::geometry::{Point, Size};
@@ -31,7 +32,9 @@ impl Drop for WindowsCanvas {
 
 impl Canvas for WindowsCanvas {
     fn get_size(&self) -> Size {
-        Size::new(160, 160)
+        let mut rect = RECT::default();
+        unsafe { GetClientRect(self.window, &mut rect) };
+        Size::new(rect.right as u32, rect.bottom as u32)
     }
 
     fn get_char_size(&self) -> Size {
