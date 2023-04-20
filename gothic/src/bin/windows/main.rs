@@ -44,7 +44,7 @@ fn main() {
     };
     unsafe { RegisterClassA(&wc) };
 
-    unsafe {
+    let window = unsafe {
         CreateWindowExA(
             WINDOW_EX_STYLE::default(),
             window_class,
@@ -57,6 +57,15 @@ fn main() {
             HWND::default(),
             HMENU::default(),
             instance,
+            None,
+        )
+    };
+
+    unsafe {
+        SetTimer(
+            window,
+            1,
+            16,
             None,
         );
     }
@@ -80,7 +89,7 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
 
                 LRESULT(0)
             }
-            WM_KEYDOWN | WM_KEYUP => {
+            WM_TIMER => {
                 let application = APPLICATION.assume_init_mut();
 
                 let controls = CONTROLS.assume_init_mut();
