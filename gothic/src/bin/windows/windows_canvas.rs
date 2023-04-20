@@ -2,7 +2,7 @@ use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect};
 
-use gothic::renderable::{Canvas, Color, Image};
+use gothic::renderable::{Canvas, Color, Image, TextMetrics};
 use gothic::ui::geometry::{Point, Size};
 
 pub struct WindowsCanvas {
@@ -33,12 +33,30 @@ impl Drop for WindowsCanvas {
 impl Canvas for WindowsCanvas {
     fn get_size(&self) -> Size {
         let mut rect = RECT::default();
-        unsafe { GetClientRect(self.window, &mut rect) };
+        unsafe {
+            GetClientRect(self.window, &mut rect)
+        };
         Size::new(rect.right as u32, rect.bottom as u32)
     }
 
-    fn get_char_size(&self) -> Size {
-        Size::new(8, 8)
+    fn get_text_metrics(&self) -> TextMetrics {
+        let mut text_metric = TEXTMETRICA::default();
+        unsafe {
+            GetTextMetricsA(self.paint.hdc, &mut text_metric);
+        }
+        TextMetrics {
+            line_height: text_metric.tmHeight as u32,
+            average_character_width: text_metric.tmAveCharWidth as u32,
+            maximum_character_width: text_metric.tmMaxCharWidth as u32,
+        }
+    }
+
+    fn get_text_size(&self, text: &str) -> Size {
+        let mut size = SIZE::default();
+        unsafe {
+            GetTextExtentPointA(self.paint.hdc, text.as_ref(), &mut size);
+        }
+        Size::new(size.cx as u32, size.cy as u32)
     }
 
     fn draw_line(&self, start: Point, end: Point) {

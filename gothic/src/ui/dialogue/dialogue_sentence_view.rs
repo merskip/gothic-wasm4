@@ -50,7 +50,7 @@ impl Renderable for DialogueSentenceView {
         }
 
         context.canvas.set_text_color(Secondary, Background);
-        let mut message_frame = context.with_frame(context.frame + Point::new(0, context.canvas.get_char_size().height as i32));
+        let mut message_frame = context.with_frame(context.frame + Point::new(0, context.canvas.get_text_metrics().line_height as i32));
         self.message_text.render(&mut message_frame);
     }
 }

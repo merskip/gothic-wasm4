@@ -1,4 +1,5 @@
 use crate::ui::geometry::{Point, Rect, Size};
+use crate::ui::text::Text;
 use crate::updatable::Updatable;
 
 pub trait Renderable: Updatable {
@@ -38,10 +39,18 @@ pub enum Color {
     Tertiary,
 }
 
+pub struct TextMetrics {
+    pub line_height: u32,
+    pub average_character_width: u32,
+    pub maximum_character_width: u32,
+}
+
 pub trait Canvas {
     fn get_size(&self) -> Size;
 
-    fn get_char_size(&self) -> Size;
+    fn get_text_metrics(&self) -> TextMetrics;
+
+    fn get_text_size(&self, text: &str) -> Size;
 
     fn draw_line(&self, start: Point, end: Point);
 

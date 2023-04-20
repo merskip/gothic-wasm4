@@ -55,9 +55,10 @@ impl Updatable for CinematicScreenView {
 
 impl Renderable for CinematicScreenView {
     fn render(&self, context: &mut RenderContext) {
+        let text_size = context.canvas.get_text_size(self.current_text);
         let panel_size = Size::new(
             context.frame.size.width,
-            context.canvas.get_char_size().height * Self::TEXT_LINES_COUNT as u32 + 4,
+            text_size.width + 4,
         );
         let panel_frame = Rect::new(
             Point::new(context.frame.origin.x, context.frame.origin.y + context.frame.size.height as i32 - panel_size.height as i32),
@@ -77,10 +78,7 @@ impl Renderable for CinematicScreenView {
         context.canvas.draw_text(self.current_text, panel_frame.origin + Point::new(2, 2));
 
         let hint_text = format!("{} kontynuuj", "x");
-        let hint_size = Size::new(
-            hint_text.len() as u32 * context.canvas.get_char_size().width,
-            context.canvas.get_char_size().height,
-        );
+        let hint_size = context.canvas.get_text_size(hint_text.as_str());
         let hint_origin = panel_frame.origin + Point::new((context.frame.size.width - hint_size.width) as i32, -(hint_size.height as i32));
         context.canvas.draw_text(hint_text.as_str(), hint_origin);
     }

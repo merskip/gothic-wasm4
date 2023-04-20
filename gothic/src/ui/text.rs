@@ -1,5 +1,6 @@
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use windows::core::CanInto;
 
 use crate::renderable::{Canvas, Renderable, RenderContext};
 use crate::ui::geometry::{Point, Size};
@@ -34,15 +35,8 @@ impl Text {
     }
 
     pub fn content_size(&self, size: Size, canvas: &dyn Canvas) -> Size {
-        let text = self.get_text_with_wrapping(size.width, canvas.get_char_size());
-        let lines_widths = text.lines().map(|line| line.len());
-        let max_width = lines_widths.clone().max().unwrap_or(0) as u32;
-        let lines_count = lines_widths.count() as u32;
-        let char_size = canvas.get_char_size();
-        Size::new(
-            max_width * char_size.width, // All system character are monospace
-            lines_count * char_size.height,
-        )
+        let text = self.get_text_with_wrapping(size.width, canvas);
+        canvas.get_text_size(text.as_str())
     }
 }
 
@@ -62,7 +56,7 @@ impl Renderable for Text {
 
 impl Text {
     fn render_aligned_start(&self, context: &mut RenderContext) {
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas.get_size());
+        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
         context.canvas.draw_text(&*text, context.frame.origin);
     }
 
@@ -70,7 +64,7 @@ impl Text {
         // TODO: Make works correctly with multilines
         let content_size = self.content_size(context.frame.size, context.canvas);
         let x = (context.frame.size.width - content_size.width) / 2;
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas.get_size());
+        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
         context.canvas.draw_text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 
@@ -78,14 +72,14 @@ impl Text {
         // TODO: Make works correctly with multilines
         let content_size = self.content_size(context.frame.size, context.canvas);
         let x = context.frame.size.width - content_size.width;
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas.get_size());
+        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
         context.canvas.draw_text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
     }
 }
 
 impl Text {
-    fn get_text_with_wrapping(&self, max_width: u32, char_size: Size) -> String {
-        let max_chars_per_line = max_width / char_size.width;
+    fn get_text_with_wrapping(&self, max_width: u32, canvas: &dyn Canvas) -> String {
+        let max_chars_per_line = max_width / canvas.get_text_metrics().maximum_character_width;
         match self.wrapping {
             TextWrapping::None => return self.text.to_string(),
             TextWrapping::Character => Self::wrapping_text_by_character(&self.text, max_chars_per_line),
