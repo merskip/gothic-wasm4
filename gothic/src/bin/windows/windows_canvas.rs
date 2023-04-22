@@ -1,4 +1,5 @@
 use std::char::decode_utf16;
+use std::cmp::max;
 use std::ffi::c_void;
 use std::mem::{size_of, size_of_val};
 use std::path::Path;
@@ -88,11 +89,16 @@ impl Canvas for WindowsCanvas {
     }
 
     fn get_text_size(&self, text: &str) -> Size {
-        let mut size = SIZE::default();
+        let mut size = Size::new(0, 0);
         unsafe {
-            GetTextExtentPointA(self.paint.hdc, text.as_ref(), &mut size);
+            for line in text.lines() {
+                let mut line_size = SIZE::default();
+                GetTextExtentPointA(self.paint.hdc, line.as_ref(), &mut line_size);
+                size.width = max(size.width, line_size.cx as u32);
+                size.height += line_size.cy as u32;
+            }
         }
-        Size::new(size.cx as u32, size.cy as u32)
+        size
     }
 
     fn set_text_color(&self, foreground: Color, background: Color) {
@@ -102,7 +108,15 @@ impl Canvas for WindowsCanvas {
     fn draw_text(&self, text: &str, start: Point) {
         unsafe {
             SelectObject(self.paint.hdc, self.pen_solid);
-            TextOutA(self.paint.hdc, start.x, start.y, text.as_ref());
+
+            let mut y = start.y;
+            for line in text.lines() {
+                TextOutA(self.paint.hdc, start.x, y, line.as_ref());
+                let line_size = self.get_text_size(line);
+                y += line_size.height as i32;
+            }
+            // TextOutA(self.paint.hdc, start.x, start.y, text.as_ref());
+            // DrawTextA(self.paint.hdc, )
         }
     }
 
