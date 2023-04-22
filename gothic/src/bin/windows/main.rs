@@ -18,9 +18,12 @@ use gothic::updatable::{Button, Controls, UpdateContext};
 
 use crate::windows_canvas::WindowsCanvas;
 use crate::windows_controls::{WindowsButton, WindowsControls};
+use crate::windows_image_provider::WindowsImageProvider;
 
 mod windows_controls;
 mod windows_canvas;
+mod windows_image_provider;
+mod windows_images;
 
 static mut APPLICATION: MaybeUninit<GothicApplication> = MaybeUninit::<GothicApplication>::uninit();
 static mut CONTROLS: MaybeUninit<WindowsControls> = MaybeUninit::<WindowsControls>::uninit();
@@ -83,7 +86,7 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
     unsafe {
         match message {
             WM_CREATE => {
-                let application = GothicApplication::start();
+                let application = GothicApplication::start(&WindowsImageProvider);
                 APPLICATION.write(application);
                 CONTROLS.write(WindowsControls::new());
 
