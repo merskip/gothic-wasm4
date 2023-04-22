@@ -115,8 +115,6 @@ impl Canvas for WindowsCanvas {
                 let line_size = self.get_text_size(line);
                 y += line_size.height as i32;
             }
-            // TextOutA(self.paint.hdc, start.x, start.y, text.as_ref());
-            // DrawTextA(self.paint.hdc, )
         }
     }
 
