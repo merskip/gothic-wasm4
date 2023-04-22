@@ -58,7 +58,7 @@ impl Renderable for CinematicScreenView {
         let text_size = context.canvas.get_text_size(self.current_text);
         let panel_size = Size::new(
             context.frame.size.width,
-            text_size.width + 4,
+            text_size.height + 4,
         );
         let panel_frame = Rect::new(
             Point::new(context.frame.origin.x, context.frame.origin.y + context.frame.size.height as i32 - panel_size.height as i32),

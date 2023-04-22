@@ -105,8 +105,9 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
             }
             WM_PAINT => {
                 let application = APPLICATION.assume_init_ref();
+                let instance = unsafe { GetModuleHandleA(PCSTR::null()).unwrap() };
 
-                let canvas = WindowsCanvas::new(window);
+                let canvas = WindowsCanvas::new(instance, window);
                 application.render(&canvas);
 
                 LRESULT(0)

@@ -1,24 +1,34 @@
+use std::char::decode_utf16;
+use std::ffi::c_void;
+use std::mem::{size_of, size_of_val};
+use std::path::Path;
+
+use windows::core::PCSTR;
+use windows::s;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
-use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect};
+use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect, IMAGE_BITMAP, LoadImageA, LR_LOADFROMFILE};
 
 use gothic::renderable::{Canvas, Color, Image, TextMetrics};
 use gothic::ui::geometry::{Point, Size};
 
+use crate::windows_image_provider::WindowsImage;
+
 pub struct WindowsCanvas {
+    instance: HMODULE,
     window: HWND,
     paint: PAINTSTRUCT,
     pen_solid: HPEN,
 }
 
 impl WindowsCanvas {
-    pub unsafe fn new(window: HWND) -> Self {
+    pub unsafe fn new(instance: HMODULE, window: HWND) -> Self {
         let mut paint = PAINTSTRUCT::default();
         BeginPaint(window, &mut paint);
 
         let pen_solid = CreatePen(PS_SOLID, 1, COLORREF(0xff0000));
 
-        Self { window, paint, pen_solid }
+        Self { instance, window, paint, pen_solid }
     }
 }
 
@@ -103,6 +113,21 @@ impl Canvas for WindowsCanvas {
     }
 
     fn draw_image(&self, image: &dyn Image, start: Point) {
-        // todo!()
+        let windows_image = image.as_any()
+            .downcast_ref::<WindowsImage>()
+            .unwrap();
+
+        unsafe {
+            let path = PCSTR::from_raw(r"King Rhobar 2.bmp".as_ptr());
+            let bitmap_handler = LoadImageA(self.instance, path, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE).unwrap();
+
+            let mut bitmap = BITMAP::default();
+            GetObjectA(HBITMAP(bitmap_handler.0), size_of::<BITMAP>() as i32, Some(&mut bitmap as *mut _ as _));
+
+            let hdc_mem = CreateCompatibleDC(GetDC(self.window));
+            SelectObject(hdc_mem, HBITMAP(bitmap_handler.0));
+
+            BitBlt(self.paint.hdc, start.x, start.y, bitmap.bmWidth, bitmap.bmHeight, hdc_mem, 0, 0, SRCCOPY);
+        };
     }
 }

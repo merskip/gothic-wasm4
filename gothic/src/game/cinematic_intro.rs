@@ -143,7 +143,7 @@ fn draw_king_rhobar_2_scene(canvas: &dyn Canvas, frame: Rect) {
         Transparent,
     ]);
     let king_image = get_shared_image(KingRhobar2);
-    canvas.draw_image(king_image, frame.origin);
+    canvas.draw_image(king_image, frame.centered(king_image.size()).origin);
 }
 
 fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
