@@ -3,6 +3,7 @@ use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect};
 
 use gothic::renderable::{Canvas, Color, Image, TextMetrics};
+use gothic::sprites::RawImage;
 use gothic::ui::geometry::{Point, Size};
 
 pub struct WindowsCanvas {

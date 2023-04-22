@@ -1,13 +1,13 @@
-use wasm4::geometry::Size;
 use wasm4::sprite::Flags::*;
 use wasm4::sprite::Sprite;
+// *THIS FILE IS GENERATED, DON'T CHANGE IT*
 {{#sprites}}
 
 /// {{name}}
-pub const {{rustName}}_SPRITE: &Sprite = &Sprite::new(
-    {{width}},
-    {{height}},
-    {{flagsHumanReadable}},
-    &[{{bytes}}],
-);
+pub const {{rustName}}_SPRITE: &Sprite = &Sprite {
+    width: {{width}},
+    height: {{height}},
+    flags: {{flagsHumanReadable}},
+    bytes: &[{{bytes}}],
+};
 {{/sprites}}

@@ -1,5 +1,6 @@
+use core::any::Any;
+use crate::image_asset::ImageAsset;
 use crate::ui::geometry::{Point, Rect, Size};
-use crate::ui::text::Text;
 use crate::updatable::Updatable;
 
 pub trait Renderable: Updatable {
@@ -27,7 +28,11 @@ impl<'a> RenderContext<'a> {
 pub trait Image {
     fn size(&self) -> Size;
 
-    fn draw_in(&self, canvas: &dyn Canvas);
+    fn as_any(&self) -> &dyn Any;
+}
+
+pub trait ImageProvider {
+    fn get_image(&self, asset: ImageAsset) -> &dyn Image;
 }
 
 #[derive(Copy, Clone, Debug)]

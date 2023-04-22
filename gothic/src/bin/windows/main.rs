@@ -10,7 +10,7 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 
 use gothic::dispatcher::Dispatcher;
 use gothic::GothicApplication;
-use gothic::images::Images;
+use gothic::image_asset::ImageAsset;
 use gothic::renderable::{Canvas, Image};
 use gothic::ui::geometry::Size;
 use gothic::ui::navigator::Navigator;

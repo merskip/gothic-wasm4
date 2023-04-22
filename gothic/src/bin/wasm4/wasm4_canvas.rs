@@ -3,6 +3,8 @@ use gothic::ui::geometry::{Point, Size};
 use wasm4::{get_char_height, get_char_width};
 use wasm4::framebuffer::{Framebuffer, PaletteIndex};
 
+use crate::SpriteImage;
+
 pub struct Wasm4Canvas<'a> {
     framebuffer: &'a Framebuffer,
 }
@@ -95,8 +97,10 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
     }
 
     fn draw_image(&self, image: &dyn Image, start: Point) {
-        // let sprite = (image as &dyn Any).downcast_ref::<Sprite>().unwrap();
-        // TODO
+        let sprite_image = image.as_any()
+            .downcast_ref::<SpriteImage>()
+            .unwrap();
+        self.framebuffer.sprite(sprite_image.0, start.x, start.y);
     }
 }
 

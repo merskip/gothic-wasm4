@@ -19,6 +19,9 @@ name = "windows"
 [dependencies]
 libm = "0.2"
 
+[build-dependencies]
+codegen = "0.2.0"
+
 [target.wasm32-unknown-unknown.dependencies]
 wasm4 = { path = "../wasm4" }
 buddy-alloc = "0.4"

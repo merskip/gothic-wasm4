@@ -1,11 +1,11 @@
 use crate::dialogue::Dialogue;
 use crate::game::dialogue::dialogue_diego_first_meet::DIALOGUE_DIEGO_FIRST_MEET;
 use crate::game::dialogue::dialogue_intro::DIALOGUE_INTRO;
-
 use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
-use crate::images::Images;
-use crate::renderable::{Color, Image, Renderable, RenderContext};
+use crate::get_shared_image;
+use crate::image_asset::ImageAsset;
+use crate::renderable::{Color, Image, ImageProvider, Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
 use crate::ui::geometry::{Point, Vector};
 use crate::updatable::{Updatable, UpdateContext};
@@ -18,7 +18,7 @@ pub fn make_game_scene() -> GameScene {
 
 pub struct GameScene {
     game_world: GameWorld,
-    dialogue_overlay: Option<DialogueOverlay>
+    dialogue_overlay: Option<DialogueOverlay>,
 }
 
 impl GameScene {
@@ -56,7 +56,7 @@ impl Renderable for GameScene {
 
 impl GameScene {
     fn render_player(&self, context: &mut RenderContext) {
-        let player_image = Images::Player;
+        let player_image = get_shared_image(ImageAsset::Player);
         let position = context.frame.origin + Point::new(
             (self.game_world.player.position.x - (player_image.size().width as f32) / 2.0) as i32,
             (self.game_world.player.position.y - (player_image.size().height as f32) / 2.0) as i32,
@@ -67,7 +67,7 @@ impl GameScene {
             Color::Tertiary,
             Color::Transparent,
         ]);
-        context.canvas.draw_image(&player_image, position);
+        context.canvas.draw_image(player_image, position);
 
         if let Some(dialogue_overlay) = &self.dialogue_overlay {
             dialogue_overlay.render(context);
