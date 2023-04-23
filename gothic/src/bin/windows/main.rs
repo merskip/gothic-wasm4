@@ -27,6 +27,7 @@ mod windows_controls;
 mod windows_canvas;
 mod windows_image_provider;
 mod windows_images;
+mod fps_counter;
 
 static mut APPLICATION: MaybeUninit<GothicApplication> = MaybeUninit::<GothicApplication>::uninit();
 static mut CONTROLS: MaybeUninit<WindowsControls> = MaybeUninit::<WindowsControls>::uninit();

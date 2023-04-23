@@ -1,5 +1,5 @@
 use windows::{s, w};
-use windows::core::{ComInterface, Interface, Result};
+use windows::core::{ComInterface, Interface, PCSTR, PWSTR, Result};
 use windows::Foundation::Numerics::Matrix3x2;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Direct2D::*;
@@ -9,6 +9,7 @@ use windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT_UNKNOWN;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 use windows::Win32::UI::WindowsAndMessaging::*;
+use crate::fps_counter::FPSCounter;
 
 pub struct ApplicationWindow {
     window_handle: HWND,
@@ -17,6 +18,7 @@ pub struct ApplicationWindow {
     target: Option<ID2D1HwndRenderTarget>,
     brush: Option<ID2D1SolidColorBrush>,
     text_format: Option<IDWriteTextFormat>,
+    fps_counter: FPSCounter,
 }
 
 impl ApplicationWindow {
@@ -30,6 +32,7 @@ impl ApplicationWindow {
             target: None,
             brush: None,
             text_format: None,
+            fps_counter: FPSCounter::new(),
         })
     }
 
@@ -174,7 +177,9 @@ impl ApplicationWindow {
         unsafe {
             target.BeginDraw();
         };
-        self.draw(&target)?;
+
+        let fps = self.fps_counter.tick();
+        self.draw(&target, fps)?;
 
         unsafe {
             target.EndDraw(None, None)?;
@@ -183,7 +188,7 @@ impl ApplicationWindow {
         Ok(())
     }
 
-    fn draw(&self, target: &ID2D1HwndRenderTarget) -> Result<()> {
+    fn draw(&self, target: &ID2D1HwndRenderTarget, fps: u32) -> Result<()> {
         unsafe {
             target.SetTransform(&Matrix3x2::identity());
             target.Clear(Some(&D2D1_COLOR_F {
@@ -207,14 +212,16 @@ impl ApplicationWindow {
                 None,
             );
 
+            let text = format!("fps: {}\0", fps);
+
             target.DrawText(
-                w!("Hello world!").as_wide(),
+                 PWSTR(text.encode_utf16().collect::<Vec<u16>>().as_mut_ptr()).as_wide(),
                 self.text_format.as_ref().unwrap(),
                 &D2D_RECT_F {
                     left: 0.0,
                     top: 0.0,
                     right: 100.0,
-                    bottom: 100.0,
+                    bottom: 0.0,
                 },
                 brush,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
@@ -284,9 +291,6 @@ fn create_text_format() -> Result<IDWriteTextFormat> {
             16.0,
             w!("en"),
         )?;
-
-        format.SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER)?;
-        format.SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER)?;
         Ok(format)
     }
 }
