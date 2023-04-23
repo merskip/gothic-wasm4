@@ -1,13 +1,14 @@
 use windows::core::{ComInterface, Interface, Result};
 use windows::Foundation::Numerics::Matrix3x2;
+use windows::Foundation::Rect;
 use windows::s;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Direct2D::*;
-use windows::Win32::Graphics::Direct2D::Common::{D2D1_ALPHA_MODE_IGNORE, D2D1_COLOR_F, D2D1_PIXEL_FORMAT, D2D_RECT_F, D2D_SIZE_U};
+use windows::Win32::Graphics::Direct2D::Common::{D2D1_ALPHA_MODE_IGNORE, D2D1_ALPHA_MODE_UNKNOWN, D2D1_COLOR_F, D2D1_PIXEL_FORMAT, D2D_RECT_F, D2D_SIZE_U};
 use windows::Win32::Graphics::Direct3D::*;
 use windows::Win32::Graphics::Direct3D11::*;
 use windows::Win32::Graphics::Dxgi::*;
-use windows::Win32::Graphics::Dxgi::Common::{DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_SAMPLE_DESC};
+use windows::Win32::Graphics::Dxgi::Common::{DXGI_FORMAT, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN, DXGI_SAMPLE_DESC};
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 use windows::Win32::UI::WindowsAndMessaging::*;
@@ -15,25 +16,20 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 pub struct ApplicationWindow {
     window_handle: HWND,
     factory: ID2D1Factory1,
-    dx_factory: IDXGIFactory2,
     visible: bool,
-    target: Option<ID2D1DeviceContext>,
-    swapchain: Option<IDXGISwapChain1>,
+    target: Option<ID2D1HwndRenderTarget>,
     brush: Option<ID2D1SolidColorBrush>,
 }
 
 impl ApplicationWindow {
     pub fn new() -> Result<Self> {
         let factory = create_factory()?;
-        let dx_factory = unsafe { CreateDXGIFactory1()? };
 
         Ok(Self {
             window_handle: HWND(0),
             factory,
-            dx_factory,
             visible: false,
             target: None,
-            swapchain: None,
             brush: None,
         })
     }
@@ -158,16 +154,10 @@ impl ApplicationWindow {
 
     fn render(&mut self) -> Result<()> {
         if self.target.is_none() {
-            let device = create_device()?;
-            let target = create_render_target(&self.factory, &device)?;
-            let swapchain = create_swapchain(&device, self.window_handle)?;
-            create_swapchain_bitmap(&swapchain, &target)?;
-
+            let target = create_render_target(&self.factory, self.window_handle)?;
             self.brush = create_brush(&target).ok();
             self.target = Some(target);
-            self.swapchain = Some(swapchain);
         }
-
 
         let target = self.target.as_ref().unwrap();
         unsafe {
@@ -179,22 +169,10 @@ impl ApplicationWindow {
             target.EndDraw(None, None)?;
         }
 
-        if let Err(error) = self.present(1, 0) {
-            if error.code() == DXGI_STATUS_OCCLUDED {
-                // self.occlusion = unsafe {
-                //     self.dxfactory
-                //         .RegisterOcclusionStatusWindow(self.handle, WM_USER)?
-                // };
-                self.visible = false;
-            } else {
-                // self.release_device();
-            }
-        }
-
         Ok(())
     }
 
-    fn draw(&self, target: &ID2D1DeviceContext) -> Result<()> {
+    fn draw(&self, target: &ID2D1HwndRenderTarget) -> Result<()> {
         unsafe {
             target.Clear(Some(&D2D1_COLOR_F {
                 r: 1.0,
@@ -213,15 +191,11 @@ impl ApplicationWindow {
                     bottom: 200.0,
                 },
                 brush,
-                1.0,
+                2.0,
                 None,
             );
         }
         Ok(())
-    }
-
-    fn present(&self, sync: u32, flags: u32) -> Result<()> {
-        unsafe { self.swapchain.as_ref().unwrap().Present(sync, flags).ok() }
     }
 }
 
@@ -235,61 +209,47 @@ fn create_factory() -> Result<ID2D1Factory1> {
     unsafe { D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, Some(&options)) }
 }
 
-fn create_device_with_type(drive_type: D3D_DRIVER_TYPE) -> Result<ID3D11Device> {
-    let mut flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-
-    if cfg!(debug_assertions) {
-        flags |= D3D11_CREATE_DEVICE_DEBUG;
-    }
-
-    let mut device = None;
-
-    unsafe {
-        D3D11CreateDevice(
-            None,
-            drive_type,
-            None,
-            flags,
-            None,
-            D3D11_SDK_VERSION,
-            Some(&mut device),
-            None,
-            None,
-        )
-            .map(|()| device.unwrap())
-    }
-}
-
-fn create_device() -> Result<ID3D11Device> {
-    let mut result = create_device_with_type(D3D_DRIVER_TYPE_HARDWARE);
-
-    if let Err(err) = &result {
-        if err.code() == DXGI_ERROR_UNSUPPORTED {
-            result = create_device_with_type(D3D_DRIVER_TYPE_WARP);
-        }
-    }
-
-    result
-}
-
 fn create_render_target(
     factory: &ID2D1Factory1,
-    device: &ID3D11Device,
-) -> Result<ID2D1DeviceContext> {
+    window_handle: HWND,
+) -> Result<ID2D1HwndRenderTarget> {
     unsafe {
-        let d2device = factory.CreateDevice(&device.cast::<IDXGIDevice>()?)?;
-        let target = d2device.CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE)?;
-        target.SetUnitMode(D2D1_UNIT_MODE_DIPS);
+        let mut rect = RECT::default();
+        GetClientRect(window_handle, &mut rect);
 
-        Ok(target)
+        let mut dpi_x = 0.0;
+        let mut dpi_y = 0.0;
+        factory.GetDesktopDpi(&mut dpi_x, &mut dpi_y);
+
+        factory.CreateHwndRenderTarget(
+            &D2D1_RENDER_TARGET_PROPERTIES {
+                r#type: D2D1_RENDER_TARGET_TYPE_DEFAULT,
+                pixelFormat: D2D1_PIXEL_FORMAT {
+                    format: DXGI_FORMAT_UNKNOWN,
+                    alphaMode: D2D1_ALPHA_MODE_UNKNOWN,
+                },
+                dpiX: dpi_x,
+                dpiY: dpi_y,
+                usage: D2D1_RENDER_TARGET_USAGE_NONE,
+                minLevel: D2D1_FEATURE_LEVEL_DEFAULT,
+            },
+            &D2D1_HWND_RENDER_TARGET_PROPERTIES {
+                hwnd: window_handle,
+                pixelSize: D2D_SIZE_U {
+                    width: (rect.right - rect.left) as u32,
+                    height: (rect.bottom - rect.top) as u32,
+                },
+                presentOptions: D2D1_PRESENT_OPTIONS_NONE,
+            }
+        )
     }
 }
 
-fn create_brush(target: &ID2D1DeviceContext) -> Result<ID2D1SolidColorBrush> {
+fn create_brush(target: &ID2D1HwndRenderTarget) -> Result<ID2D1SolidColorBrush> {
     let color = D2D1_COLOR_F {
-        r: 0.92,
-        g: 0.38,
-        b: 0.208,
+        r: 1.0,
+        g: 0.0,
+        b: 0.0,
         a: 1.0,
     };
 
@@ -309,49 +269,4 @@ fn create_style(factory: &ID2D1Factory1) -> Result<ID2D1StrokeStyle> {
     };
 
     unsafe { factory.CreateStrokeStyle(&props, None) }
-}
-
-fn create_swapchain(device: &ID3D11Device, window: HWND) -> Result<IDXGISwapChain1> {
-    let factory = get_dxgi_factory(device)?;
-
-    let props = DXGI_SWAP_CHAIN_DESC1 {
-        Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-        SampleDesc: DXGI_SAMPLE_DESC {
-            Count: 1,
-            Quality: 0,
-        },
-        BufferUsage: DXGI_USAGE_RENDER_TARGET_OUTPUT,
-        BufferCount: 2,
-        SwapEffect: DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
-        ..Default::default()
-    };
-
-    unsafe { factory.CreateSwapChainForHwnd(device, window, &props, None, None) }
-}
-
-fn create_swapchain_bitmap(swapchain: &IDXGISwapChain1, target: &ID2D1DeviceContext) -> Result<()> {
-    let surface: IDXGISurface = unsafe { swapchain.GetBuffer(0)? };
-
-    let props = D2D1_BITMAP_PROPERTIES1 {
-        pixelFormat: D2D1_PIXEL_FORMAT {
-            format: DXGI_FORMAT_B8G8R8A8_UNORM,
-            alphaMode: D2D1_ALPHA_MODE_IGNORE,
-        },
-        dpiX: 96.0,
-        dpiY: 96.0,
-        bitmapOptions: D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-        ..Default::default()
-    };
-
-    unsafe {
-        let bitmap = target.CreateBitmapFromDxgiSurface(&surface, Some(&props))?;
-        target.SetTarget(&bitmap);
-    };
-
-    Ok(())
-}
-
-fn get_dxgi_factory(device: &ID3D11Device) -> Result<IDXGIFactory2> {
-    let dxdevice = device.cast::<IDXGIDevice>()?;
-    unsafe { dxdevice.GetAdapter()?.GetParent() }
 }
