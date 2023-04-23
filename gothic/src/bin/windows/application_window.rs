@@ -43,7 +43,7 @@ impl ApplicationWindow {
 
             let wc = WNDCLASSA {
                 hInstance: instance,
-                hCursor: LoadCursorW(None, IDC_ARROW)?,
+                hCursor: LoadCursorW(None, IDI_APPLICATION)?,
                 lpszClassName: window_class,
                 style: CS_HREDRAW | CS_VREDRAW,
                 lpfnWndProc: Some(Self::wndproc),
@@ -143,6 +143,17 @@ impl ApplicationWindow {
                     self.render().unwrap();
                     LRESULT(0)
                 }
+                WM_SIZE => {
+                    if let Some(target) = &self.target {
+                        let width = low_word(lparam);
+                        let height = high_word(lparam);
+                        target.Resize(&D2D_SIZE_U {
+                            width: width as u32,
+                            height: height as u32
+                        }).unwrap();
+                    }
+                    LRESULT(0)
+                }
                 WM_DESTROY => {
                     PostQuitMessage(0);
                     LRESULT(0)
@@ -174,6 +185,7 @@ impl ApplicationWindow {
 
     fn draw(&self, target: &ID2D1HwndRenderTarget) -> Result<()> {
         unsafe {
+            target.SetTransform(&Matrix3x2::identity());
             target.Clear(Some(&D2D1_COLOR_F {
                 r: 1.0,
                 g: 1.0,
@@ -240,7 +252,7 @@ fn create_render_target(
                     height: (rect.bottom - rect.top) as u32,
                 },
                 presentOptions: D2D1_PRESENT_OPTIONS_NONE,
-            }
+            },
         )
     }
 }
@@ -269,4 +281,12 @@ fn create_style(factory: &ID2D1Factory1) -> Result<ID2D1StrokeStyle> {
     };
 
     unsafe { factory.CreateStrokeStyle(&props, None) }
+}
+
+fn low_word(lparam: LPARAM) -> u16 {
+    (lparam.0 & 0xffff) as u16
+}
+
+fn high_word(lparam: LPARAM) -> u16 {
+    ((lparam.0 >> 16) & 0xffff) as u16
 }
