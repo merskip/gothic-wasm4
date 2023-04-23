@@ -1,14 +1,11 @@
+use windows::{s, w};
 use windows::core::{ComInterface, Interface, Result};
 use windows::Foundation::Numerics::Matrix3x2;
-use windows::Foundation::Rect;
-use windows::s;
 use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Direct2D::*;
 use windows::Win32::Graphics::Direct2D::Common::{D2D1_ALPHA_MODE_IGNORE, D2D1_ALPHA_MODE_UNKNOWN, D2D1_COLOR_F, D2D1_PIXEL_FORMAT, D2D_RECT_F, D2D_SIZE_U};
-use windows::Win32::Graphics::Direct3D::*;
-use windows::Win32::Graphics::Direct3D11::*;
-use windows::Win32::Graphics::Dxgi::*;
-use windows::Win32::Graphics::Dxgi::Common::{DXGI_FORMAT, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN, DXGI_SAMPLE_DESC};
+use windows::Win32::Graphics::DirectWrite::{DWRITE_FACTORY_TYPE_SHARED, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_MEASURING_MODE_NATURAL, DWRITE_PARAGRAPH_ALIGNMENT_CENTER, DWRITE_TEXT_ALIGNMENT_CENTER, DWriteCreateFactory, IDWriteFactory2, IDWriteTextFormat};
+use windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT_UNKNOWN;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 use windows::Win32::UI::WindowsAndMessaging::*;
@@ -19,6 +16,7 @@ pub struct ApplicationWindow {
     visible: bool,
     target: Option<ID2D1HwndRenderTarget>,
     brush: Option<ID2D1SolidColorBrush>,
+    text_format: Option<IDWriteTextFormat>,
 }
 
 impl ApplicationWindow {
@@ -31,6 +29,7 @@ impl ApplicationWindow {
             visible: false,
             target: None,
             brush: None,
+            text_format: None,
         })
     }
 
@@ -149,7 +148,7 @@ impl ApplicationWindow {
                         let height = high_word(lparam);
                         target.Resize(&D2D_SIZE_U {
                             width: width as u32,
-                            height: height as u32
+                            height: height as u32,
                         }).unwrap();
                     }
                     LRESULT(0)
@@ -168,6 +167,7 @@ impl ApplicationWindow {
             let target = create_render_target(&self.factory, self.window_handle)?;
             self.brush = create_brush(&target).ok();
             self.target = Some(target);
+            self.text_format = Some(create_text_format()?);
         }
 
         let target = self.target.as_ref().unwrap();
@@ -205,6 +205,20 @@ impl ApplicationWindow {
                 brush,
                 2.0,
                 None,
+            );
+
+            target.DrawText(
+                w!("Hello world!").as_wide(),
+                self.text_format.as_ref().unwrap(),
+                &D2D_RECT_F {
+                    left: 0.0,
+                    top: 0.0,
+                    right: 100.0,
+                    bottom: 100.0,
+                },
+                brush,
+                D2D1_DRAW_TEXT_OPTIONS_NONE,
+                DWRITE_MEASURING_MODE_NATURAL,
             );
         }
         Ok(())
@@ -254,6 +268,26 @@ fn create_render_target(
                 presentOptions: D2D1_PRESENT_OPTIONS_NONE,
             },
         )
+    }
+}
+
+fn create_text_format() -> Result<IDWriteTextFormat> {
+    unsafe {
+        let factory: IDWriteFactory2 = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)?;
+
+        let format = factory.CreateTextFormat(
+            w!("Segoe UI"),
+            None,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            16.0,
+            w!("en"),
+        )?;
+
+        format.SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER)?;
+        format.SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER)?;
+        Ok(format)
     }
 }
 
