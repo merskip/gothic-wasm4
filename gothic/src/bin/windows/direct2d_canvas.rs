@@ -107,10 +107,16 @@ impl Canvas for Direct2DCanvas {
     }
 
     fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
-        let text_layout = create_text_layout(&self.write_factory, text, &self.text_format).unwrap();
+        let text_layout = create_text_layout(
+            &self.write_factory,
+            text,
+            &self.text_format,
+            container_size.width as f32,
+            container_size.height as f32,
+        ).unwrap();
         let mut metrics = DWRITE_TEXT_METRICS::default();
         unsafe { text_layout.GetMetrics(&mut metrics).unwrap() };
-        Size::new(metrics.widthIncludingTrailingWhitespace as u32, metrics.height as u32)
+        Size::new(metrics.width as u32, metrics.height as u32)
     }
 
     fn set_text_color(&self, foreground: Color, background: Color) {
@@ -125,8 +131,8 @@ impl Canvas for Direct2DCanvas {
                 &D2D_RECT_F {
                     left: start.x as f32,
                     top: start.y as f32,
-                    right: start.x as f32 + 200.0,
-                    bottom: start.y as f32 + 200.0,
+                    right: start.x as f32 + size.width as f32,
+                    bottom: start.y as f32 + size.height as f32,
                 },
                 &self.brush,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
@@ -213,14 +219,14 @@ fn create_text_format(write_factory: &IDWriteFactory) -> Result<IDWriteTextForma
     }
 }
 
-fn create_text_layout(write_factory: &IDWriteFactory, text: &str, text_format: &IDWriteTextFormat) -> Result<IDWriteTextLayout> {
+fn create_text_layout(write_factory: &IDWriteFactory, text: &str, text_format: &IDWriteTextFormat, max_width: f32, max_height: f32) -> Result<IDWriteTextLayout> {
     unsafe {
-        let text_wide = PWSTR(text.encode_utf16().collect::<Vec<u16>>().as_mut_ptr());
+        let chars = text.encode_utf16().collect::<Vec<u16>>();
         write_factory.CreateTextLayout(
-            text_wide.as_wide(),
+            chars.as_slice(),
             text_format,
-            f32::MAX,
-            f32::MAX,
+            max_width,
+            max_height,
         )
     }
 }
