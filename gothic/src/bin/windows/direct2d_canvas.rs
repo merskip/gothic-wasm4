@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use windows::core::{PWSTR, Result};
 use windows::Foundation::Numerics::Matrix3x2;
 use windows::w;
@@ -17,17 +19,28 @@ pub struct Direct2DCanvas {
     factory: ID2D1Factory1,
     write_factory: IDWriteFactory,
     target: ID2D1HwndRenderTarget,
-    brush: ID2D1SolidColorBrush,
     stroke_style: ID2D1StrokeStyle,
     text_format: IDWriteTextFormat,
+    palette: Palette,
+    draw_indexes: RefCell<DrawIndexes>,
 }
+
+type Palette = [D2D1_COLOR_F; 4];
+type DrawIndexes = [Color; 4];
+
+const TRANSPARENT_COLOR: D2D1_COLOR_F = D2D1_COLOR_F {
+    r: 0.0,
+    g: 0.0,
+    b: 0.0,
+    a: 0.0,
+};
 
 impl Direct2DCanvas {
     pub fn new(window_handle: HWND) -> Result<Self> {
         let factory = create_factory()?;
         let write_factory = create_write_factory()?;
         let target = create_render_target(&factory, window_handle)?;
-        let brush = create_brush(&target)?;
+
         let stroke_style = create_stroke_style(&factory)?;
         let text_format = create_text_format(&write_factory)?;
 
@@ -36,7 +49,18 @@ impl Direct2DCanvas {
             factory,
             write_factory,
             target,
-            brush,
+            palette: [
+                create_d2d1_color(0xe0f8cf_ff),
+                create_d2d1_color(0x86c06c_ff),
+                create_d2d1_color(0x306850_ff),
+                create_d2d1_color(0x071821_ff),
+            ],
+            draw_indexes: RefCell::new([
+                Color::Background,
+                Color::Primary,
+                Color::Secondary,
+                Color::Tertiary,
+            ]),
             stroke_style,
             text_format,
         })
@@ -54,7 +78,7 @@ impl Direct2DCanvas {
     pub fn begin_draw(&self) -> Result<()> {
         unsafe {
             self.target.BeginDraw();
-            self.target.Clear(None);
+            self.target.Clear(Some(&self.get_color(0)));
         }
         Ok(())
     }
@@ -75,11 +99,14 @@ impl Canvas for Direct2DCanvas {
     // Line
 
     fn set_line_color(&self, color: Color) {
-        // todo!()
+        let mut draw_indexes = self.draw_indexes.borrow_mut();
+        draw_indexes[1] = color;
     }
 
     fn draw_line(&self, start: Point, end: Point) {
         unsafe {
+            let brush = create_brush(&self.target, self.get_color(1)).unwrap();
+
             self.target.DrawLine(
                 D2D_POINT_2F {
                     x: start.x as f32,
@@ -89,7 +116,7 @@ impl Canvas for Direct2DCanvas {
                     x: end.x as f32,
                     y: end.y as f32,
                 },
-                &self.brush,
+                &brush,
                 2.0,
                 &self.stroke_style,
             );
@@ -120,23 +147,31 @@ impl Canvas for Direct2DCanvas {
     }
 
     fn set_text_color(&self, foreground: Color, background: Color) {
-        // todo!()
+        let mut draw_indexes = self.draw_indexes.borrow_mut();
+        draw_indexes[1] = foreground;
+        draw_indexes[2] = background;
     }
 
     fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
         unsafe {
-            self.target.DrawText(
-                text.encode_utf16().collect::<Vec<u16>>().as_slice(),
+            let foreground_brush = create_brush(&self.target, self.get_color(1)).unwrap();
+
+            let text_layout = create_text_layout(
+                &self.write_factory,
+                text,
                 &self.text_format,
-                &D2D_RECT_F {
-                    left: start.x as f32,
-                    top: start.y as f32,
-                    right: start.x as f32 + size.width as f32,
-                    bottom: start.y as f32 + size.height as f32,
+                size.width as f32,
+                size.height as f32,
+            ).unwrap();
+
+            self.target.DrawTextLayout(
+                D2D_POINT_2F {
+                    x: start.x as f32,
+                    y: start.y as f32,
                 },
-                &self.brush,
+                &text_layout,
+                &foreground_brush,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
-                DWRITE_MEASURING_MODE_NATURAL,
             );
         }
     }
@@ -149,6 +184,17 @@ impl Canvas for Direct2DCanvas {
 
     fn draw_image(&self, image: &dyn Image, start: Point) {
         // todo!()
+    }
+}
+
+impl Direct2DCanvas {
+    fn get_color(&self, index: usize) -> D2D1_COLOR_F {
+        assert!(index <= 4);
+        let draw_index = self.draw_indexes.borrow()[index];
+        match draw_index {
+            Color::Transparent => TRANSPARENT_COLOR,
+            index => self.palette[index as usize],
+        }
     }
 }
 
@@ -231,14 +277,7 @@ fn create_text_layout(write_factory: &IDWriteFactory, text: &str, text_format: &
     }
 }
 
-fn create_brush(target: &ID2D1HwndRenderTarget) -> Result<ID2D1SolidColorBrush> {
-    let color = D2D1_COLOR_F {
-        r: 1.0,
-        g: 0.0,
-        b: 0.0,
-        a: 1.0,
-    };
-
+fn create_brush(target: &ID2D1HwndRenderTarget, color: D2D1_COLOR_F) -> Result<ID2D1SolidColorBrush> {
     let properties = D2D1_BRUSH_PROPERTIES {
         opacity: 1.0,
         transform: Matrix3x2::identity(),
@@ -255,4 +294,12 @@ fn create_stroke_style(factory: &ID2D1Factory1) -> Result<ID2D1StrokeStyle> {
     };
 
     unsafe { factory.CreateStrokeStyle(&props, None) }
+}
+
+fn create_d2d1_color(rgba: u32) -> D2D1_COLOR_F {
+    let red = ((rgba >> 24) & 0xFF) as f32 / 255.0;
+    let green = ((rgba >> 16) & 0xFF) as f32 / 255.0;
+    let blue = ((rgba >> 8) & 0xFF) as f32 / 255.0;
+    let alpha = (rgba & 0xFF) as f32 / 255.0;
+    D2D1_COLOR_F { r: red, g: green, b: blue, a: alpha }
 }
