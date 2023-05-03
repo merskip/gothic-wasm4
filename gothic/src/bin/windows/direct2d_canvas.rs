@@ -78,7 +78,7 @@ impl Direct2DCanvas {
     pub fn begin_draw(&self) -> Result<()> {
         unsafe {
             self.target.BeginDraw();
-            self.target.Clear(Some(&self.get_color(0)));
+            self.target.Clear(Some(&self.get_color_by_index(0)));
         }
         Ok(())
     }
@@ -105,7 +105,7 @@ impl Canvas for Direct2DCanvas {
 
     fn draw_line(&self, start: Point, end: Point) {
         unsafe {
-            let brush = create_brush(&self.target, self.get_color(1)).unwrap();
+            let brush = create_brush(&self.target, self.get_color_by_index(1)).unwrap();
 
             self.target.DrawLine(
                 D2D_POINT_2F {
@@ -154,7 +154,7 @@ impl Canvas for Direct2DCanvas {
 
     fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
         unsafe {
-            let foreground_brush = create_brush(&self.target, self.get_color(1)).unwrap();
+            let foreground_brush = create_brush(&self.target, self.get_color_by_index(1)).unwrap();
 
             let text_layout = create_text_layout(
                 &self.write_factory,
@@ -188,12 +188,15 @@ impl Canvas for Direct2DCanvas {
 }
 
 impl Direct2DCanvas {
-    fn get_color(&self, index: usize) -> D2D1_COLOR_F {
+    fn get_color_by_index(&self, index: usize) -> D2D1_COLOR_F {
         assert!(index <= 4);
         let draw_index = self.draw_indexes.borrow()[index];
         match draw_index {
             Color::Transparent => TRANSPARENT_COLOR,
-            index => self.palette[index as usize],
+            Color::Background => self.palette[0],
+            Color::Primary => self.palette[1],
+            Color::Secondary => self.palette[2],
+            Color::Tertiary => self.palette[3],
         }
     }
 }
