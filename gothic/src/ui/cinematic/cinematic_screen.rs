@@ -2,19 +2,9 @@ use alloc::format;
 
 use crate::renderable::{Canvas, Renderable, RenderContext, TextAlignment, TextWrapping};
 use crate::renderable::Color::{Secondary, Tertiary, Transparent};
+use crate::ui::cinematic::cinematic::CinematicScreen;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::updatable::{Updatable, UpdateContext};
-
-pub struct CinematicScreen {
-    text: &'static str,
-    draw_art: fn(&dyn Canvas, Rect),
-}
-
-impl CinematicScreen {
-    pub const fn new(title: &'static str, draw: fn(&dyn Canvas, Rect)) -> Self {
-        Self { text: title, draw_art: draw }
-    }
-}
 
 pub struct CinematicScreenView {
     screen: &'static CinematicScreen,

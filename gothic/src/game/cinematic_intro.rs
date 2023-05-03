@@ -4,9 +4,8 @@ use crate::image_asset::ImageAsset;
 use crate::image_asset::ImageAsset::KingRhobar2;
 use crate::renderable::{Canvas, Image};
 use crate::renderable::Color::{Secondary, Transparent};
-use crate::ui::cinematic::cinematic::Cinematic;
+use crate::ui::cinematic::cinematic::{Cinematic, CinematicScreen};
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
-use crate::ui::cinematic::cinematic_screen::CinematicScreen;
 use crate::ui::geometry::{Point, Rect};
 
 pub fn make_cinematic_intro() -> CinematicPlayer {
@@ -33,16 +32,7 @@ Aż do dziś, na skraj urwiska sprowadzono kolejnego więźnia. Nie wiedział, c
 pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     &[
         CinematicScreen::new(
-            "Krolestwo Myrthany\n\
-            zjednoczone pod\n\
-            berlem krola\n\
-            Rhobara II.\n\
-            Podczas dlugich lat\n\
-            swego panowania\n\
-            Rhobar zdolal\n\
-            pokonac wszystkich\n\
-            wrogow krolestwa\n\
-            oprocz jednego...",
+            "Krolestwo Myrthany zjednoczone pod berlem krola Rhobara II. Podczas dlugich lat swego panowania Rhobar zdolal pokonac wszystkichwrogow krolestwa oprocz jednego...",
             draw_king_rhobar_2_scene,
         ),
         CinematicScreen::new(
