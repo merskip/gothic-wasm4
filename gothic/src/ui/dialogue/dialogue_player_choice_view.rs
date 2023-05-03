@@ -71,7 +71,7 @@ impl Renderable for DialoguePlayerChoiceView {
             text.wrapping = TextWrapping::Words;
 
             text.render(&mut context.with_frame(context.frame + Point::new(0, y as i32)));
-            y += text.content_size(context.canvas, context.frame.size).height;
+            y += text.size(context.frame.size, context.canvas).height;
         }
     }
 }

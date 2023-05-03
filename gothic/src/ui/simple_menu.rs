@@ -77,7 +77,7 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
     fn render_menu_items(&self, context: &mut RenderContext) {
         let mut y = 8;
         for (index, item) in self.texts.iter().enumerate() {
-            let item_size = item.content_size(context.canvas, context.frame.size);
+            let item_size = item.size(context.frame.size, context.canvas);
             let item_frame = Rect::new(
                 Point::new(context.frame.origin.x, context.frame.origin.y + y),
                 Size::new(context.frame.size.width, item_size.height),

@@ -51,7 +51,7 @@ impl Renderable for DialogueSentenceView {
         context.canvas.set_text_color(Secondary, Primary);
         self.actor_text.render(context);
 
-        let actor_text_size = self.actor_text.content_size(context.canvas, context.frame.size);
+        let actor_text_size = self.actor_text.size(context.frame.size, context.canvas);
         let mut message_frame = context.with_frame(context.frame + Point::new(0, actor_text_size.height as i32));
         context.canvas.set_text_color(Secondary, Background);
         self.message_text.render(&mut message_frame);

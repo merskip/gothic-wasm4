@@ -72,7 +72,20 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
     }
 
     fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
-        self.framebuffer.text(text, start.x, start.y);
+        let text_size = self.get_text_size(text, size, text_wrapping);
+        match text_alignment {
+            TextAlignment::Start => {
+                self.framebuffer.text(text, start.x, start.y)
+            },
+            TextAlignment::Center => {
+                let x = (size.width - text_size.width) / 2;
+                self.framebuffer.text(text, start.x + x as i32, start.y);
+            }
+            TextAlignment::End => {
+                let x = size.width - text_size.width;
+                self.framebuffer.text(text, start.x + x as i32, start.y);
+            }
+        }
     }
 
     // Image
