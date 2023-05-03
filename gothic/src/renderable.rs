@@ -1,4 +1,5 @@
 use core::any::Any;
+
 use crate::image_asset::ImageAsset;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::updatable::Updatable;
@@ -44,9 +45,18 @@ pub enum Color {
     Tertiary,
 }
 
-pub struct TextMetrics {
-    pub line_height: u32,
-    pub maximum_character_width: u32,
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum TextAlignment {
+    Start,
+    Center,
+    End,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum TextWrapping {
+    None,
+    Character,
+    Words,
 }
 
 pub trait Canvas {
@@ -66,17 +76,27 @@ pub trait Canvas {
 
     // Text
 
-    fn get_text_metrics(&self, text: &str) -> TextMetrics;
-
-    fn get_text_size(&self, text: &str) -> Size;
+    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size;
 
     fn set_text_color(&self, foreground: Color, background: Color);
 
-    fn draw_text(&self, text: &str, start: Point);
+    fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment);
 
     // Image
 
     fn set_image_colors(&self, colors: [Color; 4]);
 
     fn draw_image(&self, image: &dyn Image, start: Point);
+}
+
+impl Default for TextAlignment {
+    fn default() -> Self {
+        TextAlignment::Start
+    }
+}
+
+impl Default for TextWrapping {
+    fn default() -> Self {
+        TextWrapping::None
+    }
 }

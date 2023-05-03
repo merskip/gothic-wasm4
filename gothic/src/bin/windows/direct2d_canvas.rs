@@ -9,7 +9,7 @@ use windows::Win32::Graphics::Dxgi::Common::*;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::UI::WindowsAndMessaging::GetClientRect;
 
-use gothic::renderable::{Canvas, Color, Image, TextMetrics};
+use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 
 pub struct Direct2DCanvas {
@@ -106,22 +106,7 @@ impl Canvas for Direct2DCanvas {
         // todo!()
     }
 
-    // Text
-
-    fn get_text_metrics(&self, text: &str) -> TextMetrics {
-        let text_layout = create_text_layout(&self.write_factory, text, &self.text_format).unwrap();
-        let mut metrics = DWRITE_TEXT_METRICS::default();
-        unsafe { text_layout.GetMetrics(&mut metrics).unwrap() };
-
-        let line_height = (metrics.height / metrics.lineCount as f32) as u32;
-        let maximum_character_width = (metrics.width / (text.len() as f32)) as u32;
-        TextMetrics {
-            line_height,
-            maximum_character_width,
-        }
-    }
-
-    fn get_text_size(&self, text: &str) -> Size {
+    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
         let text_layout = create_text_layout(&self.write_factory, text, &self.text_format).unwrap();
         let mut metrics = DWRITE_TEXT_METRICS::default();
         unsafe { text_layout.GetMetrics(&mut metrics).unwrap() };
@@ -132,7 +117,7 @@ impl Canvas for Direct2DCanvas {
         // todo!()
     }
 
-    fn draw_text(&self, text: &str, start: Point) {
+    fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
         unsafe {
             self.target.DrawText(
                 text.encode_utf16().collect::<Vec<u16>>().as_slice(),

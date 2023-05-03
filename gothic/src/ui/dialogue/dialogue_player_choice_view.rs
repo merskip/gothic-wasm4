@@ -2,11 +2,11 @@ use alloc::string::ToString;
 use alloc::vec::Vec;
 
 use crate::dialogue::{DialogueItem, PlayerChoice};
-use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::{Renderable, RenderContext, TextWrapping};
 use crate::renderable::Color::{Primary, Secondary, Transparent};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;
 use crate::ui::geometry::Point;
-use crate::ui::text::{Text, TextWrapping};
+use crate::ui::text::Text;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct DialoguePlayerChoiceView {
@@ -71,7 +71,7 @@ impl Renderable for DialoguePlayerChoiceView {
             text.wrapping = TextWrapping::Words;
 
             text.render(&mut context.with_frame(context.frame + Point::new(0, y as i32)));
-            y += text.content_size(context.frame.size, context.canvas).height;
+            y += text.content_size(context.canvas, context.frame.size).height;
         }
     }
 }

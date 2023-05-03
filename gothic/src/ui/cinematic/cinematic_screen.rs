@@ -1,6 +1,6 @@
 use alloc::format;
 
-use crate::renderable::{Canvas, Renderable, RenderContext};
+use crate::renderable::{Canvas, Renderable, RenderContext, TextAlignment, TextWrapping};
 use crate::renderable::Color::{Secondary, Tertiary, Transparent};
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::updatable::{Updatable, UpdateContext};
@@ -55,7 +55,7 @@ impl Updatable for CinematicScreenView {
 
 impl Renderable for CinematicScreenView {
     fn render(&self, context: &mut RenderContext) {
-        let text_size = context.canvas.get_text_size(self.current_text);
+        let text_size = context.canvas.get_text_size(self.current_text, context.frame.size, TextWrapping::None);
         let panel_size = Size::new(
             context.frame.size.width,
             text_size.height + 4,
@@ -75,12 +75,12 @@ impl Renderable for CinematicScreenView {
         context.canvas.draw_rectangle(panel_frame.origin, panel_size);
 
         context.canvas.set_text_color(Secondary, Transparent);
-        context.canvas.draw_text(self.current_text, panel_frame.origin + Point::new(2, 2));
+        context.canvas.draw_text(self.current_text, panel_frame.origin + Point::new(2, 2), panel_frame.size, TextWrapping::default(), TextAlignment::default());
 
         let hint_text = format!("{} kontynuuj", "x");
-        let hint_size = context.canvas.get_text_size(hint_text.as_str());
+        let hint_size = context.canvas.get_text_size(hint_text.as_str(),  panel_size,TextWrapping::None);
         let hint_origin = panel_frame.origin + Point::new((context.frame.size.width - hint_size.width) as i32, -(hint_size.height as i32));
-        context.canvas.draw_text(hint_text.as_str(), hint_origin);
+        context.canvas.draw_text(hint_text.as_str(), hint_origin, hint_size,  TextWrapping::default(), TextAlignment::default());
     }
 }
 

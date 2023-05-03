@@ -4,9 +4,9 @@ use alloc::vec::Vec;
 use core::cell::Cell;
 
 use crate::renderable::{Canvas, Color, Renderable, RenderContext};
+use crate::renderable::TextAlignment::Center;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::ui::text::Text;
-use crate::ui::text::TextAlignment::Center;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct SimpleMenu<Item> where Item: ToString + Clone {
@@ -77,7 +77,7 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
     fn render_menu_items(&self, context: &mut RenderContext) {
         let mut y = 8;
         for (index, item) in self.texts.iter().enumerate() {
-            let item_size = item.content_size(context.frame.size, context.canvas);
+            let item_size = item.content_size(context.canvas, context.frame.size);
             let item_frame = Rect::new(
                 Point::new(context.frame.origin.x, context.frame.origin.y + y),
                 Size::new(context.frame.size.width, item_size.height),

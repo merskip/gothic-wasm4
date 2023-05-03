@@ -10,7 +10,7 @@ use windows::Win32::Foundation::*;
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetWindowRect, IMAGE_BITMAP, LoadImageA, LR_LOADFROMFILE};
 
-use gothic::renderable::{Canvas, Color, Image, TextMetrics};
+use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 
 use crate::windows_image_provider::WindowsImage;
@@ -74,20 +74,7 @@ impl Canvas for WindowsCanvas {
         // todo!()
     }
 
-    // Text
-
-    fn get_text_metrics(&self, _text: &str) -> TextMetrics {
-        let mut text_metric = TEXTMETRICA::default();
-        unsafe {
-            GetTextMetricsA(self.paint.hdc, &mut text_metric);
-        }
-        TextMetrics {
-            line_height: text_metric.tmHeight as u32,
-            maximum_character_width: text_metric.tmMaxCharWidth as u32,
-        }
-    }
-
-    fn get_text_size(&self, text: &str) -> Size {
+    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
         let mut size = Size::new(0, 0);
         unsafe {
             for line in text.lines() {
@@ -104,14 +91,14 @@ impl Canvas for WindowsCanvas {
         // todo!()
     }
 
-    fn draw_text(&self, text: &str, start: Point) {
+    fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
         unsafe {
             SelectObject(self.paint.hdc, self.pen_solid);
 
             let mut y = start.y;
             for line in text.lines() {
                 TextOutA(self.paint.hdc, start.x, y, line.as_ref());
-                let line_size = self.get_text_size(line);
+                let line_size = self.get_text_size(line, size, text_wrapping);
                 y += line_size.height as i32;
             }
         }

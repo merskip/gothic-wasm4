@@ -1,7 +1,7 @@
 use alloc::format;
 use alloc::rc::Rc;
 
-use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::{Renderable, RenderContext, TextAlignment, TextWrapping};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreenView;
 use crate::updatable::{Updatable, UpdateContext};
@@ -64,7 +64,7 @@ impl Updatable for CinematicPlayer {
 
 impl Renderable for CinematicPlayer {
     fn render(&self, context: &mut RenderContext) {
-        context.canvas.draw_text(format!("{} pomin", "y").as_str(), context.frame.origin);
+        context.canvas.draw_text(format!("{} pomin", "y").as_str(), context.frame.origin, context.frame.size, TextWrapping::None, TextAlignment::Start);
         self.current_screen.render(context);
     }
 }
