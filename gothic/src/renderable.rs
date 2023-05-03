@@ -24,7 +24,7 @@ impl<'a> RenderContext<'a> {
             frame: Rect::new(origin, size),
         }
     }
-    
+
     pub fn with_frame(&self, frame: Rect) -> Self {
         Self {
             canvas: self.canvas,
@@ -43,7 +43,7 @@ pub trait ImageProvider {
     fn get_image(&self, asset: ImageAsset) -> &dyn Image;
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Color {
     Transparent,
     Background,

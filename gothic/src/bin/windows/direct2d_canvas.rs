@@ -164,6 +164,25 @@ impl Canvas for Direct2DCanvas {
                 size.height as f32,
             ).unwrap();
 
+            match text_wrapping {
+                TextWrapping::None => text_layout.SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP).unwrap(),
+                TextWrapping::Words => text_layout.SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP).unwrap(),
+            }
+            match text_alignment {
+                TextAlignment::Start => text_layout.SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING).unwrap(),
+                TextAlignment::Center => text_layout.SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER).unwrap(),
+                TextAlignment::End => text_layout.SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING).unwrap(),
+            }
+            text_layout.SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR).unwrap();
+
+            if self.draw_indexes.borrow()[1] == Color::Tertiary {
+                let text_range = DWRITE_TEXT_RANGE {
+                    startPosition: 0,
+                    length: text.len() as u32,
+                };
+                text_layout.SetFontWeight(DWRITE_FONT_WEIGHT_BOLD, text_range).unwrap();
+            }
+
             self.target.DrawTextLayout(
                 D2D_POINT_2F {
                     x: start.x as f32,
