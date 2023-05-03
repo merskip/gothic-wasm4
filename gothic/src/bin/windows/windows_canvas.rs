@@ -76,14 +76,13 @@ impl Canvas for WindowsCanvas {
 
     // Text
 
-    fn get_text_metrics(&self) -> TextMetrics {
+    fn get_text_metrics(&self, _text: &str) -> TextMetrics {
         let mut text_metric = TEXTMETRICA::default();
         unsafe {
             GetTextMetricsA(self.paint.hdc, &mut text_metric);
         }
         TextMetrics {
             line_height: text_metric.tmHeight as u32,
-            average_character_width: text_metric.tmAveCharWidth as u32,
             maximum_character_width: text_metric.tmMaxCharWidth as u32,
         }
     }

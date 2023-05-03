@@ -78,7 +78,7 @@ impl Text {
 
 impl Text {
     fn get_text_with_wrapping(&self, max_width: u32, canvas: &dyn Canvas) -> String {
-        let max_chars_per_line = max_width / canvas.get_text_metrics().maximum_character_width;
+        let max_chars_per_line = max_width / canvas.get_text_metrics(&self.text).maximum_character_width;
         match self.wrapping {
             TextWrapping::None => return self.text.to_string(),
             TextWrapping::Character => Self::wrapping_text_by_character(&self.text, max_chars_per_line),

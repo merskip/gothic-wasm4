@@ -46,7 +46,6 @@ pub enum Color {
 
 pub struct TextMetrics {
     pub line_height: u32,
-    pub average_character_width: u32,
     pub maximum_character_width: u32,
 }
 
@@ -67,7 +66,7 @@ pub trait Canvas {
 
     // Text
 
-    fn get_text_metrics(&self) -> TextMetrics;
+    fn get_text_metrics(&self, text: &str) -> TextMetrics;
 
     fn get_text_size(&self, text: &str) -> Size;
 
