@@ -86,7 +86,7 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
             if is_selected {
                 context.canvas.set_line_color(Color::Secondary);
                 let line_y = self.animate_item_indicator_y(y);
-                self.render_selected_item_indicator(context.canvas, context.frame, line_y, item_size.height + 4);
+                self.render_selected_item_indicator(context.canvas, context.frame, line_y - 2, item_size.height + 4);
             }
             context.canvas.set_text_color(
                 if is_selected { Color::Secondary } else { Color::Primary },

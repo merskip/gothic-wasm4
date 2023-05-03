@@ -1,4 +1,4 @@
-use gothic::renderable::{Canvas, Color, Image, TextMetrics};
+use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 use wasm4::{get_char_height, get_char_width};
 use wasm4::framebuffer::{Framebuffer, PaletteIndex};
@@ -51,24 +51,14 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
         self.framebuffer.rectangle(start.x, start.y, size.width, size.height);
     }
 
-    // Text
-
-    fn get_text_metrics(&self) -> TextMetrics {
-        TextMetrics {
-            line_height: get_char_height(),
-            average_character_width: get_char_width(),
-            maximum_character_width: get_char_width(),
-        }
-    }
-
-    fn get_text_size(&self, text: &str) -> Size {
+    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
         let lines_widths = text.lines().map(|line| line.len());
-        let max_width = lines_widths.clone().max().unwrap_or(0) as u32;
+        let max_line_chars = lines_widths.clone().max().unwrap_or(0) as u32;
         let lines_count = lines_widths.count() as u32;
-        let text_metrics = self.get_text_metrics();
+
         Size::new(
-            max_width * text_metrics.maximum_character_width, // All system character are monospace
-            lines_count * text_metrics.line_height,
+            max_line_chars * get_char_width(),  // All system character are monospace
+            lines_count * get_char_height(),
         )
     }
 
@@ -81,7 +71,7 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
         ]);
     }
 
-    fn draw_text(&self, text: &str, start: Point) {
+    fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
         self.framebuffer.text(text, start.x, start.y);
     }
 
