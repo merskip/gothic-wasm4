@@ -2,8 +2,8 @@ use crate::game::game_scene::make_game_scene;
 use crate::get_shared_image;
 use crate::image_asset::ImageAsset;
 use crate::image_asset::ImageAsset::KingRhobar2;
-use crate::renderable::{Canvas, Image};
-use crate::renderable::Color::{Secondary, Transparent};
+use crate::renderable::Canvas;
+use crate::renderable::Color::{Primary, Secondary, Tertiary, Transparent};
 use crate::ui::cinematic::cinematic::{Cinematic, CinematicScreen};
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::geometry::{Point, Rect};
@@ -32,92 +32,35 @@ Aż do dziś, na skraj urwiska sprowadzono kolejnego więźnia. Nie wiedział, c
 pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     &[
         CinematicScreen::new(
-            "Krolestwo Myrthany zjednoczone pod berlem krola Rhobara II. Podczas dlugich lat swego panowania Rhobar zdolal pokonac wszystkichwrogow krolestwa oprocz jednego...",
+            "Krolestwo Myrthany zjednoczone pod berlem krola Rhobara II. Podczas dlugich lat swego panowania Rhobar zdolal pokonac wszystkich wrogow krolestwa oprocz jednego...",
             draw_king_rhobar_2_scene,
         ),
         CinematicScreen::new(
-            "Wojna z Orkami\n\
-            byla niezwykle\n\
-            kosztowna,\n\
-            a cene za nia\n\
-            miala poniesc\n\
-            niewielka grupa\n\
-            skazancow.",
+            "Wojna z Orkami byla niezwykle kosztowna, a cene za nia miala poniesc niewielka grupa skazancow.",
             draw_orc_scene,
         ),
         CinematicScreen::new(
-            "Krol potrzebowal\n\
-            mieczy i tarcz\n\
-            dla swego wojska,\n\
-            totez kazdy\n\
-            przestepca,\n\
-            niezaleznie\n\
-            od wystepku,\n\
-            jaki popelnil,\n\
-            byl zmuszany\n\
-            do prac w\n\
-            kopalniach rudy\n\
-            w Khorinis.",
+            "Krol potrzebowal mieczy i tarcz dla swego wojska, totez kazdy przestepca, niezaleznie od wystepku, jaki popelnil, byl zmuszany do prac w kopalniach rudy w Khorinis.",
             draw_nothing,
         ),
         CinematicScreen::new(
-            "Aby uniemozliwic\n\
-            im ucieczke\n\
-            krol wyslal swych\n\
-            najpotezniejszych\n\
-            magow, aby ci\n\
-            otoczyli cala\n\
-            doline magiczna\n\
-            bariera,\n\
-            a ja bylem\n\
-            jednym z nich.",
+            "Aby uniemozliwic im ucieczke krol wyslal swych najpotezniejszych magow, aby ci otoczyli cala doline magiczna bariera, a ja bylem jednym z nich.",
             draw_nothing,
         ),
         CinematicScreen::new(
-            "Niespodziewanie cos\n\
-            zaklocilo delikatna\n\
-            strukture zaklecia\n\
-            i zostalismy\n\
-            uwiezieni przez\n\
-            nasze wlasne dzielo.\n\
-            Wiezniowie\n\
-            blyskawicznie\n\
-            wykorzystali\n\
-            moment konsternacji.",
+            "Niespodziewanie cos zaklocilo delikatna strukture zaklecia i zostalismy uwiezieni przez nasze wlasne dzielo. Wiezniowie blyskawicznie wykorzystali moment konsternacji.",
             draw_nothing,
         ),
         CinematicScreen::new(
-            "Khorinis wraz ze\n\
-            wszystkimi swoimi\n\
-            kopalniami\n\
-            znajdowala sie\n\
-            w rekach wiezniow.\n\
-            Krol nie mial\n\
-            wyboru,\n\
-            musial negocjowac,\n\
-            potrzebowal rudy.",
+            "Khorinis wraz ze wszystkimi swoimi kopalniami znajdowala sie w rekach wiezniow. Krol nie mial wyboru, musial negocjowac, potrzebowal rudy.",
             draw_nothing,
         ),
         CinematicScreen::new(
-            "Miesiac po miesiacu\n\
-            krol dostarczal\n\
-            wiezniom wszystkiego,\n\
-            czego potrzebowali.\n\
-            Miesiac po miesiacu\n\
-            otrzymywal od nich\n\
-            ladunek cennej rudy.",
+            "Miesiac po miesiacu krol dostarczal wiezniom wszystkiego, czego potrzebowali. Miesiac po miesiacu otrzymywal od nich ladunek cennej rudy.",
             draw_nothing,
         ),
         CinematicScreen::new(
-            "Az do dzis,\n\
-            na skraj urwiska\n\
-            sprowadzono kolejnego\n\
-            wieznia.\n\
-            Nie wiedzial,\n\
-            co go czeka,\n\
-            a to wlasnie\n\
-            on mial wszystko\n\
-            odmienic.",
+            "Az do dzis, na skraj urwiska sprowadzono kolejnego wieznia. Nie wiedzial, co go czeka, a to wlasnie on mial wszystko odmienic.",
             draw_nothing,
         ),
     ]
@@ -149,19 +92,31 @@ fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
         Point::new(20, 60),
         Point::new(10, 70),
     ];
+    canvas.set_image_colors([
+        Primary,
+        Secondary,
+        Transparent,
+        Tertiary,
+    ]);
     let orc_image = get_shared_image(ImageAsset::Orc);
     for origin in orc_positions {
         canvas.draw_image(orc_image, frame.origin + origin);
     }
 
-    let crossbones_image = get_shared_image(ImageAsset::Crossbones);
     let crossbones_positions = [
-        Point::new(80, 10),
+        Point::new(80, 20),
         Point::new(100, 40),
         Point::new(140, 30),
         Point::new(90, 70),
-        Point::new(120, 100),
+        Point::new(120, 75),
     ];
+    canvas.set_image_colors([
+        Transparent,
+        Secondary,
+        Transparent,
+        Transparent
+    ]);
+    let crossbones_image = get_shared_image(ImageAsset::Crossbones);
     for origin in crossbones_positions {
         canvas.draw_image(crossbones_image, frame.origin + origin);
     }

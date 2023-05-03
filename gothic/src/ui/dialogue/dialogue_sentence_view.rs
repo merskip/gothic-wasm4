@@ -1,5 +1,3 @@
-use alloc::borrow::ToOwned;
-use alloc::format;
 use alloc::string::ToString;
 
 use crate::dialogue::{DialogueItem, Sentence};

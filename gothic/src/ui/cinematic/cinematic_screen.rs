@@ -1,100 +1,57 @@
-use alloc::format;
+use alloc::string::ToString;
 
-use crate::renderable::{Canvas, Renderable, RenderContext, TextAlignment, TextWrapping};
-use crate::renderable::Color::{Secondary, Tertiary, Transparent};
+use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::Color::{Secondary, Transparent};
 use crate::ui::cinematic::cinematic::CinematicScreen;
 use crate::ui::geometry::{Point, Rect, Size};
+use crate::ui::text::Text;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct CinematicScreenView {
     screen: &'static CinematicScreen,
-    current_text: &'static str,
-    current_line_index: usize,
-
+    screen_text: Text,
 }
 
 impl CinematicScreenView {
-    const TEXT_LINES_COUNT: usize = 3;
+    const TEXT_PADDING: i32 = 4;
 
     pub fn new(screen: &'static CinematicScreen) -> Self {
-        let line_index = 0;
         Self {
             screen,
-            current_text: screen.text.get_lines(line_index, Self::TEXT_LINES_COUNT).unwrap_or_default(),
-            current_line_index: line_index,
+            screen_text: Text::word_wrapping(screen.text.to_string()),
         }
-    }
-
-    fn scroll_to_next_lines(&mut self) {
-        self.current_line_index += Self::TEXT_LINES_COUNT;
-        self.current_text = self.screen.text.get_lines(self.current_line_index, Self::TEXT_LINES_COUNT).unwrap_or_default();
-    }
-
-    pub fn is_finished(&self) -> bool {
-        self.current_text.is_empty()
     }
 }
 
 impl Updatable for CinematicScreenView {
-    fn update(&mut self, context: &mut UpdateContext) {
-        if context.controls.button_x().is_just_released() {
-            self.scroll_to_next_lines();
-        }
-    }
+    fn update(&mut self, _context: &mut UpdateContext) {}
 }
 
 impl Renderable for CinematicScreenView {
     fn render(&self, context: &mut RenderContext) {
-        let text_size = context.canvas.get_text_size(self.current_text, context.frame.size, TextWrapping::None);
-        let panel_size = Size::new(
-            context.frame.size.width,
-            text_size.height + 4,
+        let text_container_size = Size::new(
+            context.frame.size.width - 2 * Self::TEXT_PADDING as u32,
+            context.frame.size.height - 2 * Self::TEXT_PADDING as u32,
         );
-        let panel_frame = Rect::new(
-            Point::new(context.frame.origin.x, context.frame.origin.y + context.frame.size.height as i32 - panel_size.height as i32),
-            panel_size,
+        let text_size = self.screen_text.size(text_container_size, context.canvas);
+        let text_origin = Point::new(
+            context.frame.origin.x + Self::TEXT_PADDING as i32,
+            context.frame.origin.y + context.frame.size.height as i32 - text_size.height as i32 - Self::TEXT_PADDING,
         );
 
+        let separator_y = text_origin.y - Self::TEXT_PADDING;
+
         let art_frame = Rect::new(
-            Point::new(context.frame.origin.x, context.frame.origin.y),
-            Size::new(context.frame.size.width, context.frame.size.height - panel_size.height),
+            context.frame.origin,
+            Size::new(context.frame.size.width, context.frame.size.height - separator_y as u32),
         );
         (self.screen.draw_art)(context.canvas, art_frame);
 
-        context.canvas.set_rectangle_color(Transparent, Tertiary);
-        context.canvas.draw_rectangle(panel_frame.origin, panel_size);
+        context.canvas.set_line_color(Secondary);
+        context.canvas.draw_line(Point::new(context.frame.min_x(), separator_y),
+                                 Point::new(context.frame.max_x(), separator_y));
 
         context.canvas.set_text_color(Secondary, Transparent);
-        context.canvas.draw_text(self.current_text, panel_frame.origin + Point::new(2, 2), panel_frame.size, TextWrapping::default(), TextAlignment::default());
-
-        let hint_text = format!("{} kontynuuj", "x");
-        let hint_size = context.canvas.get_text_size(hint_text.as_str(),  panel_size,TextWrapping::None);
-        let hint_origin = panel_frame.origin + Point::new((context.frame.size.width - hint_size.width) as i32, -(hint_size.height as i32));
-        context.canvas.draw_text(hint_text.as_str(), hint_origin, hint_size,  TextWrapping::default(), TextAlignment::default());
-    }
-}
-
-trait StringLinesUtilities<'a> {
-    fn get_lines(&self, from_line: usize, count: usize) -> Option<&'a str>;
-}
-
-impl<'a> StringLinesUtilities<'a> for &'a str {
-    fn get_lines(&self, from_line: usize, count: usize) -> Option<&'a str> {
-        assert!(count > 0, "count_lines must be greater then 0");
-
-        let mut lines = self.lines();
-        let from = lines.nth(from_line)?;
-        let from_index = unsafe {
-            from.as_ptr().offset_from(self.as_ptr()) as usize
-        };
-
-        return if let Some(to) = lines.nth(count - 1) {
-            let to_index = unsafe {
-                to.as_ptr().offset_from(self.as_ptr()) as usize
-            };
-            Some(&self[from_index..to_index])
-        } else {
-            Some(&self[from_index..])
-        };
+        self.screen_text.render(&mut context.with(text_origin, text_size));
     }
 }

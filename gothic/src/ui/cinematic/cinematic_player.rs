@@ -51,8 +51,7 @@ impl Updatable for CinematicPlayer {
         if context.controls.button_y().is_just_released() {
             self.finish(context);
         }
-        else if self.current_screen.is_finished()
-            && context.controls.button_x().is_just_released() {
+        else if context.controls.button_x().is_just_released() {
             if self.is_last_screen() {
                 self.finish(context);
             } else {
@@ -64,7 +63,7 @@ impl Updatable for CinematicPlayer {
 
 impl Renderable for CinematicPlayer {
     fn render(&self, context: &mut RenderContext) {
-        context.canvas.draw_text(format!("{} pomin", "y").as_str(), context.frame.origin, context.frame.size, TextWrapping::None, TextAlignment::Start);
+        context.canvas.draw_text(format!("{} pomin  {} kontynuuj", "y", "x").as_str(), context.frame.origin, context.frame.size, TextWrapping::None, TextAlignment::Center);
         self.current_screen.render(context);
     }
 }

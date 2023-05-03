@@ -1,4 +1,4 @@
-use crate::dialogue::{Dialogue, DialogueItem, Script};
+use crate::dialogue::{Dialogue, DialogueItem};
 use crate::game::dialogue::*;
 use crate::sentence;
 

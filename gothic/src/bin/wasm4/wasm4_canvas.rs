@@ -1,3 +1,5 @@
+use alloc::vec::Vec;
+
 use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 use wasm4::{get_char_height, get_char_width};
@@ -52,7 +54,8 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
     }
 
     fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
-        let lines_widths = text.lines().map(|line| line.len());
+        let lines = Self::get_text_with_wrapping(text, container_size.width, text_wrapping);
+        let lines_widths = lines.iter().map(|line| line.len());
         let max_line_chars = lines_widths.clone().max().unwrap_or(0) as u32;
         let lines_count = lines_widths.count() as u32;
 
@@ -72,16 +75,22 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
     }
 
     fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment) {
-        let text_size = self.get_text_size(text, size, text_wrapping);
+        let lines = Self::get_text_with_wrapping(text, size.width, text_wrapping);
         match text_alignment {
             TextAlignment::Start => {
-                self.framebuffer.text(text, start.x, start.y)
-            },
+                let mut y = start.y;
+                for line in lines {
+                    self.framebuffer.text(line, start.x, y);
+                    y += get_char_height() as i32;
+                }
+            }
             TextAlignment::Center => {
+                let text_size = self.get_text_size(text, size, text_wrapping);
                 let x = (size.width - text_size.width) / 2;
                 self.framebuffer.text(text, start.x + x as i32, start.y);
             }
             TextAlignment::End => {
+                let text_size = self.get_text_size(text, size, text_wrapping);
                 let x = size.width - text_size.width;
                 self.framebuffer.text(text, start.x + x as i32, start.y);
             }
@@ -106,6 +115,49 @@ impl<'a> Canvas for Wasm4Canvas<'a> {
         self.framebuffer.sprite(sprite_image.0, start.x, start.y);
     }
 }
+
+impl Wasm4Canvas<'_> {
+    fn get_text_with_wrapping(text: &str, max_width: u32, text_wrapping: TextWrapping) -> Vec<&str> {
+        match text_wrapping {
+            TextWrapping::None => text.lines().collect(),
+            TextWrapping::Words => Self::wrap_text_by_words(text, max_width),
+        }
+    }
+
+    fn wrap_text_by_words(text: &str, max_width: u32) -> Vec<&str> {
+        let max_chars_per_line = max_width / get_char_width();
+
+        let mut lines = Vec::new();
+        let mut current_line = 0..0;
+
+        for word in text.split_whitespace() {
+            let word_start = unsafe {
+                word.as_ptr().offset_from(text.as_ptr()) as usize
+            };
+            let word_end = unsafe {
+                word.as_ptr().add(word.len()).offset_from(text.as_ptr()) as usize
+            };
+            let whitespace = unsafe {
+                text.get_unchecked(current_line.end..word_start)
+            };
+
+            if whitespace.contains('\n') || current_line.len() + whitespace.len() + word.len() > max_chars_per_line as usize {
+                lines.push(current_line);
+                current_line = word_start..word_end;
+            }
+            current_line.end = word_end;
+        }
+
+        if !current_line.is_empty() {
+            lines.push(current_line);
+        }
+
+        unsafe {
+            lines.iter().map(|line_range| text.get_unchecked(line_range.clone())).collect()
+        }
+    }
+}
+
 
 fn color_to_palette_index(color: Color) -> PaletteIndex {
     match color {

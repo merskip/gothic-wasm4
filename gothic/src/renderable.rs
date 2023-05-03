@@ -18,6 +18,13 @@ impl<'a> RenderContext<'a> {
         Self { canvas, frame }
     }
 
+    pub fn with(&self, origin: Point, size: Size) -> Self {
+        Self {
+            canvas: self.canvas,
+            frame: Rect::new(origin, size),
+        }
+    }
+    
     pub fn with_frame(&self, frame: Rect) -> Self {
         Self {
             canvas: self.canvas,
@@ -45,17 +52,16 @@ pub enum Color {
     Tertiary,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum TextAlignment {
     Start,
     Center,
     End,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum TextWrapping {
     None,
-    Character,
     Words,
 }
 

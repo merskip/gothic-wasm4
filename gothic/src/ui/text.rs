@@ -28,6 +28,15 @@ impl Text {
         }
     }
 
+    pub fn word_wrapping(text: String) -> Self {
+        Self {
+            text,
+            alignment: TextAlignment::Start,
+            wrapping: TextWrapping::Words,
+            cached_size: Cell::new(None),
+        }
+    }
+
     pub fn size(&self, container_size: Size, canvas: &dyn Canvas) -> Size {
         if let Some(cached_size) = self.cached_size.get() {
             if cached_size.container_size == container_size {

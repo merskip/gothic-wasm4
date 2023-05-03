@@ -24,6 +24,24 @@ impl Rect {
     }
 }
 
+impl Rect {
+    pub fn min_x(&self) -> i32 {
+        self.origin.x
+    }
+
+    pub fn max_x(&self) -> i32 {
+        self.origin.x + self.size.width as i32
+    }
+
+    pub fn min_y(&self) -> i32 {
+        self.origin.y
+    }
+
+    pub fn max_y(&self) -> i32 {
+        self.origin.y + self.size.height as i32
+    }
+}
+
 impl Add<Point> for Rect {
     type Output = Rect;
 
