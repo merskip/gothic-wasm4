@@ -63,15 +63,15 @@ fn generate_windows_images(output: &Path, images: &[&Path]) {
 
     let image_impl = scope.new_impl("crate::windows_image_provider::WindowsImage");
     for image_path in images {
-        let image_abs_path = fs::canonicalize(image_path).unwrap();
         let const_name = get_const_name(image_path);
         let image_size = imagesize::size(image_path).unwrap();
+        let image_abs_path = fs::canonicalize(image_path).unwrap();
 
         image_impl.associate_const(
             const_name,
             "Self",
-            format!("Self {{\n    path: r\"{}\",\n    size: gothic::ui::geometry::Size::new({}, {})\n}}",
-                    image_abs_path.to_str().unwrap(), image_size.width, image_size.height),
+            format!("Self {{\n    bytes: include_bytes!(r\"{}\"),\n    native_size: gothic::ui::geometry::Size::new({}, {}),\n    size: gothic::ui::geometry::Size::new({}, {}),\n}}",
+                    image_abs_path.to_str().unwrap(), image_size.width, image_size.height, image_size.width * 4, image_size.height * 4),
             "pub",
         );
     }

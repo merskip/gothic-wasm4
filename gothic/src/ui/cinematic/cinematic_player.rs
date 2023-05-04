@@ -1,7 +1,7 @@
 use alloc::format;
 use alloc::rc::Rc;
 
-use crate::renderable::{Renderable, RenderContext};
+use crate::renderable::{Renderable, RenderContext, TextAlignment, TextWrapping};
 use crate::ui::cinematic::cinematic::Cinematic;
 use crate::ui::cinematic::cinematic_screen::CinematicScreenView;
 use crate::updatable::{Updatable, UpdateContext};
@@ -51,8 +51,7 @@ impl Updatable for CinematicPlayer {
         if context.controls.button_y().is_just_released() {
             self.finish(context);
         }
-        else if self.current_screen.is_finished()
-            && context.controls.button_x().is_just_released() {
+        else if context.controls.button_x().is_just_released() {
             if self.is_last_screen() {
                 self.finish(context);
             } else {
@@ -64,7 +63,7 @@ impl Updatable for CinematicPlayer {
 
 impl Renderable for CinematicPlayer {
     fn render(&self, context: &mut RenderContext) {
-        context.canvas.draw_text(format!("{} pomin", "y").as_str(), context.frame.origin);
+        context.canvas.draw_text(format!("{} pomin  {} kontynuuj", "y", "x").as_str(), context.frame.origin, context.frame.size, TextWrapping::None, TextAlignment::Center);
         self.current_screen.render(context);
     }
 }

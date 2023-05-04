@@ -4,12 +4,13 @@ use alloc::vec::Vec;
 use core::cell::Cell;
 
 use crate::renderable::{Canvas, Color, Renderable, RenderContext};
+use crate::renderable::TextAlignment::Center;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::ui::text::Text;
-use crate::ui::text::TextAlignment::Center;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct SimpleMenu<Item> where Item: ToString + Clone {
+    title_text: Text,
     items: Vec<Item>,
     texts: Vec<Text>,
     selected_index: usize,
@@ -19,24 +20,20 @@ pub struct SimpleMenu<Item> where Item: ToString + Clone {
 
 impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
     pub fn new<SelectionHandler>(
+        title: &str,
         items: &[Item],
         selection_handler: SelectionHandler,
     ) -> Self where SelectionHandler: Fn(Item, &mut UpdateContext) + 'static {
         Self {
+            title_text: Text::centering(title.to_string()),
             items: items.to_vec(),
             texts: items.iter()
-                .map(|item| Self::make_menu_item(item.to_string()))
+                .map(|item| Text::centering(item.to_string()))
                 .collect(),
             selected_index: 0,
-            last_item_indicator_y: Cell::new(8.0),
+            last_item_indicator_y: Cell::new(24.0),
             selection_handler: Rc::new(selection_handler),
         }
-    }
-
-    fn make_menu_item(title: String) -> Text {
-        let mut text = Text::new(title);
-        text.alignment = Center;
-        text
     }
 }
 
@@ -69,15 +66,19 @@ impl<Item> Updatable for SimpleMenu<Item> where Item: ToString + Clone + 'static
 
 impl<Item> Renderable for SimpleMenu<Item> where Item: ToString + Clone + 'static {
     fn render(&self, context: &mut RenderContext) {
-        self.render_menu_items(context)
+        context.canvas.set_text_color(Color::Tertiary, Color::Transparent);
+        let title_size = self.title_text.size(context.frame.size, context.canvas);
+        self.title_text.render(&mut context.with(context.frame.origin + Point::new(0, 8), context.frame.size));
+
+        self.render_menu_items(context, title_size.height as i32 + 24);
     }
 }
 
 impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
-    fn render_menu_items(&self, context: &mut RenderContext) {
-        let mut y = 8;
+    fn render_menu_items(&self, context: &mut RenderContext, start_y: i32) {
+        let mut y = start_y;
         for (index, item) in self.texts.iter().enumerate() {
-            let item_size = item.content_size(context.frame.size, context.canvas);
+            let item_size = item.size(context.frame.size, context.canvas);
             let item_frame = Rect::new(
                 Point::new(context.frame.origin.x, context.frame.origin.y + y),
                 Size::new(context.frame.size.width, item_size.height),
@@ -86,7 +87,7 @@ impl<Item> SimpleMenu<Item> where Item: ToString + Clone {
             if is_selected {
                 context.canvas.set_line_color(Color::Secondary);
                 let line_y = self.animate_item_indicator_y(y);
-                self.render_selected_item_indicator(context.canvas, context.frame, line_y - 2, item_size.height + 3);
+                self.render_selected_item_indicator(context.canvas, context.frame, line_y - 2, item_size.height + 4);
             }
             context.canvas.set_text_color(
                 if is_selected { Color::Secondary } else { Color::Primary },

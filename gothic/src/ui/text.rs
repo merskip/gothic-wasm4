@@ -1,27 +1,21 @@
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
+use alloc::string::String;
+use core::cell::Cell;
 
-use crate::renderable::{Canvas, Renderable, RenderContext};
-use crate::ui::geometry::{Point, Size};
+use crate::renderable::{Canvas, Renderable, RenderContext, TextAlignment, TextWrapping};
+use crate::ui::geometry::Size;
 use crate::updatable::{Updatable, UpdateContext};
 
 pub struct Text {
     pub text: String,
     pub alignment: TextAlignment,
     pub wrapping: TextWrapping,
+    cached_size: Cell<Option<CachedSize>>,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum TextAlignment {
-    Start,
-    Center,
-    End,
-}
-
-pub enum TextWrapping {
-    None,
-    Character,
-    Words,
+#[derive(Copy, Clone)]
+struct CachedSize {
+    container_size: Size,
+    size: Size,
 }
 
 impl Text {
@@ -30,12 +24,40 @@ impl Text {
             text,
             alignment: TextAlignment::Start,
             wrapping: TextWrapping::None,
+            cached_size: Cell::new(None),
         }
     }
 
-    pub fn content_size(&self, size: Size, canvas: &dyn Canvas) -> Size {
-        let text = self.get_text_with_wrapping(size.width, canvas);
-        canvas.get_text_size(text.as_str())
+    pub fn word_wrapping(text: String) -> Self {
+        Self {
+            text,
+            alignment: TextAlignment::Start,
+            wrapping: TextWrapping::Words,
+            cached_size: Cell::new(None),
+        }
+    }
+
+    pub fn centering(text: String) -> Self {
+        Self {
+            text,
+            alignment: TextAlignment::Center,
+            wrapping: TextWrapping::None,
+            cached_size: Cell::new(None),
+        }
+    }
+
+    pub fn size(&self, container_size: Size, canvas: &dyn Canvas) -> Size {
+        if let Some(cached_size) = self.cached_size.get() {
+            if cached_size.container_size == container_size {
+                return cached_size.size
+            }
+        }
+        let size = canvas.get_text_size(self.text.as_str(), container_size, self.wrapping);
+        self.cached_size.set(Some(CachedSize {
+            container_size,
+            size,
+        }));
+        return size;
     }
 }
 
@@ -45,73 +67,12 @@ impl Updatable for Text {
 
 impl Renderable for Text {
     fn render(&self, context: &mut RenderContext) {
-        match self.alignment {
-            TextAlignment::Start => self.render_aligned_start(context),
-            TextAlignment::Center => self.render_aligned_center(context),
-            TextAlignment::End => self.render_aligned_end(context),
-        }
+        context.canvas.draw_text(
+            self.text.as_str(),
+            context.frame.origin,
+            context.frame.size,
+            self.wrapping,
+            self.alignment,
+        );
     }
 }
-
-impl Text {
-    fn render_aligned_start(&self, context: &mut RenderContext) {
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
-        context.canvas.draw_text(&*text, context.frame.origin);
-    }
-
-    fn render_aligned_center(&self, context: &mut RenderContext) {
-        // TODO: Make works correctly with multilines
-        let content_size = self.content_size(context.frame.size, context.canvas);
-        let x = (context.frame.size.width - content_size.width) / 2;
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
-        context.canvas.draw_text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
-    }
-
-    fn render_aligned_end(&self, context: &mut RenderContext) {
-        // TODO: Make works correctly with multilines
-        let content_size = self.content_size(context.frame.size, context.canvas);
-        let x = context.frame.size.width - content_size.width;
-        let text = self.get_text_with_wrapping(context.frame.size.width, context.canvas);
-        context.canvas.draw_text(&*text, Point::new(context.frame.origin.x + x as i32, context.frame.origin.y));
-    }
-}
-
-impl Text {
-    fn get_text_with_wrapping(&self, max_width: u32, canvas: &dyn Canvas) -> String {
-        let max_chars_per_line = max_width / canvas.get_text_metrics().maximum_character_width;
-        match self.wrapping {
-            TextWrapping::None => return self.text.to_string(),
-            TextWrapping::Character => Self::wrapping_text_by_character(&self.text, max_chars_per_line),
-            TextWrapping::Words => Self::wrapping_text_by_words(&self.text, max_chars_per_line),
-        }.join("\n")
-    }
-
-    fn wrapping_text_by_character(text: &str, max_length: u32) -> Vec<String> {
-        text.chars()
-            .collect::<Vec<char>>()
-            .chunks(max_length as usize)
-            .map(|chunk| chunk.iter().collect())
-            .collect::<Vec<String>>()
-    }
-
-    fn wrapping_text_by_words(text: &str, max_length: u32) -> Vec<String> {
-        let mut lines = Vec::new();
-        let mut current_line = String::new();
-
-        for word in text.split_whitespace() {
-            if current_line.len() + word.len() + 1 > max_length as usize {
-                lines.push(current_line.trim().to_string());
-                current_line = String::new();
-            }
-            current_line.push_str(word);
-            current_line.push(' ');
-        }
-
-        if !current_line.is_empty() {
-            lines.push(current_line.trim().to_string());
-        }
-
-        lines
-    }
-}
-

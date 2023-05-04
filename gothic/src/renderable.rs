@@ -1,4 +1,5 @@
 use core::any::Any;
+
 use crate::image_asset::ImageAsset;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::updatable::Updatable;
@@ -15,6 +16,13 @@ pub struct RenderContext<'a> {
 impl<'a> RenderContext<'a> {
     pub fn new(canvas: &'a dyn Canvas, frame: Rect) -> Self {
         Self { canvas, frame }
+    }
+
+    pub fn with(&self, origin: Point, size: Size) -> Self {
+        Self {
+            canvas: self.canvas,
+            frame: Rect::new(origin, size),
+        }
     }
 
     pub fn with_frame(&self, frame: Rect) -> Self {
@@ -35,7 +43,7 @@ pub trait ImageProvider {
     fn get_image(&self, asset: ImageAsset) -> &dyn Image;
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Color {
     Transparent,
     Background,
@@ -44,10 +52,17 @@ pub enum Color {
     Tertiary,
 }
 
-pub struct TextMetrics {
-    pub line_height: u32,
-    pub average_character_width: u32,
-    pub maximum_character_width: u32,
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum TextAlignment {
+    Start,
+    Center,
+    End,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum TextWrapping {
+    None,
+    Words,
 }
 
 pub trait Canvas {
@@ -67,17 +82,27 @@ pub trait Canvas {
 
     // Text
 
-    fn get_text_metrics(&self) -> TextMetrics;
-
-    fn get_text_size(&self, text: &str) -> Size;
+    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size;
 
     fn set_text_color(&self, foreground: Color, background: Color);
 
-    fn draw_text(&self, text: &str, start: Point);
+    fn draw_text(&self, text: &str, start: Point, size: Size, text_wrapping: TextWrapping, text_alignment: TextAlignment);
 
     // Image
 
     fn set_image_colors(&self, colors: [Color; 4]);
 
     fn draw_image(&self, image: &dyn Image, start: Point);
+}
+
+impl Default for TextAlignment {
+    fn default() -> Self {
+        TextAlignment::Start
+    }
+}
+
+impl Default for TextWrapping {
+    fn default() -> Self {
+        TextWrapping::None
+    }
 }

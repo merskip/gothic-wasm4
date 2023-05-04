@@ -4,7 +4,8 @@ use gothic::renderable::{Image, ImageProvider};
 use gothic::ui::geometry::Size;
 
 pub struct WindowsImage {
-    pub path: &'static str,
+    pub bytes: &'static [u8],
+    pub native_size: Size,
     pub size: Size,
 }
 

@@ -4,6 +4,7 @@ use crate::ui::simple_menu::SimpleMenu;
 
 pub fn make_main_menu() -> SimpleMenu<MainMenuItem> {
     SimpleMenu::new(
+        "Gothic",
         &[
             MainMenuItem::NewGame,
             MainMenuItem::Settings,

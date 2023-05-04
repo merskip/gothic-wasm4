@@ -5,7 +5,7 @@ use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
 use crate::get_shared_image;
 use crate::image_asset::ImageAsset;
-use crate::renderable::{Color, Image, ImageProvider, Renderable, RenderContext};
+use crate::renderable::{Color, Renderable, RenderContext};
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
 use crate::ui::geometry::{Point, Vector};
 use crate::updatable::{Updatable, UpdateContext};
