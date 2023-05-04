@@ -1,6 +1,8 @@
 use std::cell::RefCell;
+use std::ffi::c_void;
+use std::ptr::null;
 
-use windows::core::{PWSTR, Result};
+use windows::core::Result;
 use windows::Foundation::Numerics::Matrix3x2;
 use windows::w;
 use windows::Win32::Foundation::*;
@@ -8,16 +10,22 @@ use windows::Win32::Graphics::Direct2D::*;
 use windows::Win32::Graphics::Direct2D::Common::*;
 use windows::Win32::Graphics::DirectWrite::*;
 use windows::Win32::Graphics::Dxgi::Common::*;
-use windows::Win32::Graphics::Gdi::*;
+use windows::Win32::Graphics::Imaging::{CLSID_WICImagingFactory, CLSID_WICPngDecoder, GUID_WICPixelFormat32bppBGR, GUID_WICPixelFormat32bppPRGBA, GUID_WICPixelFormat32bppRGBA, IWICImagingFactory, WICBitmapDitherTypeNone, WICBitmapPaletteTypeMedianCut, WICDecodeMetadataCacheOnDemand};
+use windows::Win32::System::Com::*;
+use windows::Win32::System::Com::StructuredStorage::CreateStreamOnHGlobal;
+use windows::Win32::System::Memory::{GlobalAlloc, GMEM_FIXED};
 use windows::Win32::UI::WindowsAndMessaging::GetClientRect;
 
 use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 
+use crate::windows_image_provider::WindowsImage;
+
 pub struct Direct2DCanvas {
     window_handle: HWND,
     factory: ID2D1Factory1,
     write_factory: IDWriteFactory,
+    imaging_factory: IWICImagingFactory,
     target: ID2D1HwndRenderTarget,
     stroke_style: ID2D1StrokeStyle,
     text_format: IDWriteTextFormat,
@@ -39,6 +47,7 @@ impl Direct2DCanvas {
     pub fn new(window_handle: HWND) -> Result<Self> {
         let factory = create_factory()?;
         let write_factory = create_write_factory()?;
+        let imaging_factory = create_imaging_factory()?;
         let target = create_render_target(&factory, window_handle)?;
 
         let stroke_style = create_stroke_style(&factory)?;
@@ -48,6 +57,7 @@ impl Direct2DCanvas {
             window_handle,
             factory,
             write_factory,
+            imaging_factory,
             target,
             palette: [
                 create_d2d1_color(0xe0f8cf_ff),
@@ -202,7 +212,48 @@ impl Canvas for Direct2DCanvas {
     }
 
     fn draw_image(&self, image: &dyn Image, start: Point) {
-        // todo!()
+        let windows_image = image.as_any()
+            .downcast_ref::<WindowsImage>()
+            .unwrap();
+
+        unsafe {
+            let global_alloc = GlobalAlloc(GMEM_FIXED, windows_image.bytes.len()).unwrap();
+            let stream = CreateStreamOnHGlobal(global_alloc, false).unwrap();
+            stream.Write(windows_image.bytes.as_ptr() as *const _, windows_image.bytes.len() as u32, None).unwrap();
+
+            let decoder = self.imaging_factory.CreateDecoderFromStream(&stream, null(), WICDecodeMetadataCacheOnDemand).unwrap();
+
+            let source = decoder.GetFrame(0).unwrap();
+            let image = self.imaging_factory.CreateFormatConverter().unwrap();
+            image.Initialize(
+                &source,
+                &GUID_WICPixelFormat32bppPRGBA,
+                WICBitmapDitherTypeNone,
+                None,
+                0.0,
+                WICBitmapPaletteTypeMedianCut,
+            ).unwrap();
+
+            let bitmap = self.target.CreateBitmapFromWicBitmap(&image, None).unwrap();
+
+            self.target.DrawBitmap(
+                &bitmap,
+                Some(&D2D_RECT_F {
+                    left: start.x as f32,
+                    top: start.y as f32,
+                    right: start.x as f32 + windows_image.size.width as f32,
+                    bottom: start.y as f32 + windows_image.size.height as f32,
+                }),
+                1.0,
+                D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+                Some(&D2D_RECT_F {
+                    left: 0.0,
+                    top: 0.0,
+                    right: windows_image.native_size.width as f32,
+                    bottom: windows_image.native_size.height as f32,
+                }),
+            );
+        }
     }
 }
 
@@ -232,6 +283,10 @@ fn create_factory() -> Result<ID2D1Factory1> {
 
 fn create_write_factory() -> Result<IDWriteFactory> {
     unsafe { DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED) }
+}
+
+fn create_imaging_factory() -> Result<IWICImagingFactory> {
+    unsafe { CoCreateInstance(&CLSID_WICImagingFactory, None, CLSCTX_INPROC_SERVER) }
 }
 
 fn create_render_target(
