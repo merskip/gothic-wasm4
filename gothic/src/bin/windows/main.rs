@@ -9,6 +9,7 @@ mod windows_images;
 mod direct2d_canvas;
 mod windows_image;
 mod windows_system;
+mod windows_audio_system;
 
 fn main() -> windows::core::Result<()> {
     unsafe {

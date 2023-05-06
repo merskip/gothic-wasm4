@@ -3,8 +3,10 @@
 extern crate alloc;
 
 
+use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;
+use crate::music_clips::MAIN_THEME;
 use crate::renderable::{Canvas, RenderContext};
 use crate::platform_context::PlatformContext;
 use crate::ui::geometry::{Point, Rect};
@@ -16,8 +18,8 @@ pub mod game;
 pub mod renderable;
 pub mod updatable;
 pub mod dispatcher;
-// pub mod audio;
-// pub mod music_clips;
+pub mod audio;
+pub mod music_clips;
 pub mod dialogue;
 pub mod image_asset;
 pub mod platform_context;
@@ -26,6 +28,7 @@ pub struct GothicApplication {
     dispatcher: Dispatcher,
     navigator: Navigator,
     platform: &'static dyn PlatformContext,
+    music: Music,
 }
 
 impl GothicApplication {
@@ -33,13 +36,14 @@ impl GothicApplication {
         let mut navigator = Navigator::new();
         navigator.push_view(make_main_menu());
 
-        // let mut music = Music::new(THEME);Audio::shared());
-        //         // music.play_clip(&music_clips::MAIN_
+        let mut music = Music::new(platform.audio_system());
+        music.play_clip(&MAIN_THEME);
 
         Self {
             dispatcher: Dispatcher::new(),
             navigator,
             platform,
+            music,
         }
     }
 
@@ -55,7 +59,7 @@ impl GothicApplication {
             top_view.update(&mut context);
             context.navigator.push_view_box(top_view);
         }
-        // context.music.update();
+        self.music.update();
         context.dispatcher.execute(&mut context);
     }
 

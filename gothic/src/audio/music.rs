@@ -1,4 +1,4 @@
-use wasm4::audio::{ADSRDuration, Audio, Channel, Duration, DutyCycle, Flags, Frequency, Pan, Volume};
+use crate::audio::audio_system::AudioSystem;
 
 #[derive(Copy, Clone)]
 pub enum Bpm {
@@ -80,18 +80,25 @@ pub struct Sound {
     pub volume: u32,
 }
 
-pub struct Instrument {
-    channel: Channel,
-    duty_cycle: DutyCycle,
-    attack: u8,
-    release: u8,
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum Instrument {
+    Trumpet,
+    Trumpet2,
+    Drum,
 }
 
-impl Instrument {
-    pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: DutyCycle::ThreeQuarters, attack: 2, release: 150 };
-    pub const TRUMPET2: Self = Self { channel: Channel::Pulse2, duty_cycle: DutyCycle::OneHalf, attack: 2, release: 150 };
-    pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: DutyCycle::OneHalf, attack: 0, release: 15 };
-}
+// pub struct Instrument {
+//     channel: Channel,
+//     duty_cycle: DutyCycle,
+//     attack: u8,
+//     release: u8,
+// }
+//
+// impl Instrument {
+//     pub const TRUMPET: Self = Self { channel: Channel::Pulse1, duty_cycle: DutyCycle::ThreeQuarters, attack: 2, release: 150 };
+//     pub const TRUMPET2: Self = Self { channel: Channel::Pulse2, duty_cycle: DutyCycle::OneHalf, attack: 2, release: 150 };
+//     pub const DRUM: Self = Self { channel: Channel::Noise, duty_cycle: DutyCycle::OneHalf, attack: 0, release: 15 };
+// }
 
 pub struct ClipInstrumentData {
     pub instrument: Instrument,
@@ -106,17 +113,16 @@ pub struct ClipData {
 }
 
 pub struct Music {
-    audio: Audio,
+    audio_system: &'static dyn AudioSystem,
     current_clip: Option<&'static ClipData>,
     beat_counter: isize,
     frame_counter: isize,
 }
 
 impl Music {
-
-    pub fn new(audio: Audio) -> Self {
+    pub fn new(audio_system: &'static dyn AudioSystem) -> Self {
         Self {
-            audio,
+            audio_system,
             current_clip: None,
             beat_counter: -1,
             frame_counter: -1,
@@ -130,19 +136,25 @@ impl Music {
     pub fn stop(&mut self) {
         self.current_clip = None;
 
-        let channels = [
-            Channel::Pulse1,
-            Channel::Pulse2,
-            Channel::Triangle,
-            Channel::Noise
-        ];
-        for channel in channels {
-            self.audio.tone(
-                Frequency::constant(0),
-                ADSRDuration::constant(Duration::from_frames(0)),
-                Volume::constant(0),
-                Flags::new(channel, DutyCycle::OneEighth, Pan::default()),
-            );
+        // let channels = [
+        //     Channel::Pulse1,
+        //     Channel::Pulse2,
+        //     Channel::Triangle,
+        //     Channel::Noise
+        // ];
+        // for channel in channels {
+        //     self.audio.tone(
+        //         Frequency::constant(0),
+        //         ADSRDuration::constant(Duration::from_frames(0)),
+        //         Volume::constant(0),
+        //         Flags::new(channel, DutyCycle::OneEighth, Pan::default()),
+        //     );
+        // }
+    }
+
+    pub fn update(&mut self) {
+        if let Some(clip_data) = self.current_clip {
+            self.update_play_clip(clip_data)
         }
     }
 
@@ -161,32 +173,32 @@ impl Music {
                 .find(|&sound| beat % loop_length == sound.beat);
 
             if let Some(sound) = sound {
-                self.play_sound(clip_data.bpm, &instrument_data.instrument, sound);
+                self.play_sound(clip_data.bpm, instrument_data.instrument, sound);
             }
         }
     }
 
-    fn play_sound(&self, bpm: Bpm, instrument: &Instrument, sound: &Sound) {
-        self.audio.tone(
-            Frequency::constant((sound.octave.as_f32() * sound.note.base_frequency_factor) as u16),
-            ADSRDuration::new(
-                Duration::from_frames(instrument.attack),
-                Duration::from_frames(0),
-                Duration::from_frames(sound.note.length.for_bpm(bpm) as u8),
-                Duration::from_frames(instrument.release),
-            ),
-            Volume::constant(sound.volume as u8),
-            Flags::new(
-                instrument.channel.into(),
-                instrument.duty_cycle.into(),
-                Pan::default(),
-            ),
-        )
+    fn play_sound(&self, bpm: Bpm, instrument: Instrument, sound: &Sound) {
+        let frequency = (sound.octave.as_f32() * sound.note.base_frequency_factor) as u32;
+        let duration = sound.note.length.for_bpm(bpm);
+        let volume = (sound.volume as f32) / 100.0;
+
+        self.audio_system.tone(instrument, frequency as u32, duration, volume);
+        // self.audio.tone(
+        //     Frequency::constant((sound.octave.as_f32() * sound.note.base_frequency_factor) as u16),
+        //     ADSRDuration::new(
+        //         Duration::from_frames(instrument.attack),
+        //         Duration::from_frames(0),
+        //         Duration::from_frames(sound.note.length.for_bpm(bpm) as u8),
+        //         Duration::from_frames(instrument.release),
+        //     ),
+        //     Volume::constant(sound.volume as u8),
+        //     Flags::new(
+        //         instrument.channel.into(),
+        //         instrument.duty_cycle.into(),
+        //         Pan::default(),
+        //     ),
+        // )
     }
 
-    pub fn update(&mut self) {
-        if let Some(clip_data) = self.current_clip {
-            self.update_play_clip(clip_data)
-        }
-    }
 }

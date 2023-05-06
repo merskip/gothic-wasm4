@@ -5,7 +5,7 @@ pub static MAIN_THEME: ClipData = ClipData {
     length: 160,
     instrument_data: [
         ClipInstrumentData {
-            instrument: Instrument::TRUMPET,
+            instrument: Instrument::Trumpet,
             length: 160,
             sound_list: &[
                 Sound { beat: 0, octave: Octave::OCT_3, note: Note::c(NoteLength::DOUBLE), volume: 100 },
@@ -31,7 +31,7 @@ pub static MAIN_THEME: ClipData = ClipData {
             ],
         },
         ClipInstrumentData {
-            instrument: Instrument::TRUMPET2,
+            instrument: Instrument::Trumpet2,
             length: 160,
             sound_list: &[
                 Sound { beat: 0, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
@@ -49,7 +49,7 @@ pub static MAIN_THEME: ClipData = ClipData {
             ],
         },
         ClipInstrumentData {
-            instrument: Instrument::DRUM,
+            instrument: Instrument::Drum,
             length: 16,
             sound_list: &[
                 Sound { beat: 0, octave: Octave::OCT_3, note: Note::c(NoteLength::EIGHT), volume: 100 },
