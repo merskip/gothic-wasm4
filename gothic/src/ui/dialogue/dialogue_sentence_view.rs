@@ -1,7 +1,6 @@
 use alloc::string::ToString;
 
 use crate::dialogue::{DialogueItem, Sentence};
-
 use crate::renderable::{Renderable, RenderContext, TextWrapping};
 use crate::renderable::Color::{Background, Primary, Secondary};
 use crate::ui::dialogue::dialogue_overlay::DialogueItemView;

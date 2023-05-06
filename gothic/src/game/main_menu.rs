@@ -1,4 +1,5 @@
 use core::fmt::{Display, Formatter};
+
 use crate::game::cinematic_intro::make_cinematic_intro;
 use crate::ui::simple_menu::SimpleMenu;
 

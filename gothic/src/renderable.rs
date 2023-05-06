@@ -34,6 +34,8 @@ impl<'a> RenderContext<'a> {
 }
 
 pub trait Image {
+    fn image_asset(&self) -> ImageAsset;
+
     fn size(&self) -> Size;
 
     fn as_any(&self) -> &dyn Any;

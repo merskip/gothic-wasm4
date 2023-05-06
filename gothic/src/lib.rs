@@ -3,6 +3,7 @@
 extern crate alloc;
 
 use core::mem::MaybeUninit;
+
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;
 use crate::image_asset::ImageAsset;

@@ -22,6 +22,7 @@ libm = "0.2"
 [build-dependencies]
 codegen = "0.2.0"
 imagesize = "0.11"
+convert_case = "0.6.0"
 
 [target.wasm32-unknown-unknown.dependencies]
 wasm4 = { path = "../wasm4" }

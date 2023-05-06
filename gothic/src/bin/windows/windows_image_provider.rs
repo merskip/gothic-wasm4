@@ -1,32 +1,24 @@
-use std::any::Any;
 use gothic::image_asset::ImageAsset;
 use gothic::renderable::{Image, ImageProvider};
-use gothic::ui::geometry::Size;
 
-pub struct WindowsImage {
-    pub bytes: &'static [u8],
-    pub native_size: Size,
-    pub size: Size,
-}
+use crate::windows_image::WindowsImage;
+use crate::windows_images::*;
 
 pub struct WindowsImageProvider;
 
 impl ImageProvider for WindowsImageProvider {
     fn get_image(&self, asset: ImageAsset) -> &dyn Image {
-        match asset {
-            ImageAsset::Player => &WindowsImage::PLAYER,
-            ImageAsset::KingRhobar2 => &WindowsImage::KING_RHOBAR_2,
-            ImageAsset::Orc => &WindowsImage::ORC,
-            ImageAsset::Crossbones => &WindowsImage::CROSSBONES,
-        }
+        unsafe { self.get_mut_image(asset) }
     }
 }
-impl Image for WindowsImage {
-    fn size(&self) -> Size {
-        self.size
-    }
 
-    fn as_any(&self) -> &dyn Any {
-        self
+impl WindowsImageProvider {
+    pub unsafe fn get_mut_image(&self, asset: ImageAsset) -> &mut WindowsImage {
+        match asset {
+            ImageAsset::Player => &mut PLAYER_IMAGE,
+            ImageAsset::KingRhobar2 => &mut KING_RHOBAR_2_IMAGE,
+            ImageAsset::Orc => &mut ORC_IMAGE,
+            ImageAsset::Crossbones => &mut CROSSBONES_IMAGE,
+        }
     }
 }

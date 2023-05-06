@@ -1,11 +1,9 @@
-pub mod point;
 pub use point::*;
-
-pub mod size;
-pub use size::*;
-
-pub mod rect;
 pub use rect::*;
-
-pub mod vector;
+pub use size::*;
 pub use vector::*;
+
+pub mod point;
+pub mod size;
+pub mod rect;
+pub mod vector;

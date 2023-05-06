@@ -1,10 +1,9 @@
 use alloc::rc::Rc;
-use alloc::string::{String, ToString};
+use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::cell::Cell;
 
 use crate::renderable::{Canvas, Color, Renderable, RenderContext};
-use crate::renderable::TextAlignment::Center;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::ui::text::Text;
 use crate::updatable::{Updatable, UpdateContext};

@@ -1,4 +1,5 @@
 use core::ops::{Add, AddAssign};
+
 use libm::sqrtf;
 
 #[derive(Copy, Clone, PartialEq, Default, Debug)]

@@ -1,8 +1,6 @@
 use std::cell::RefCell;
-use std::ffi::c_void;
-use std::ptr::null;
 
-use windows::core::Result;
+use windows::core::{CanInto, Result};
 use windows::Foundation::Numerics::Matrix3x2;
 use windows::w;
 use windows::Win32::Foundation::*;
@@ -10,20 +8,16 @@ use windows::Win32::Graphics::Direct2D::*;
 use windows::Win32::Graphics::Direct2D::Common::*;
 use windows::Win32::Graphics::DirectWrite::*;
 use windows::Win32::Graphics::Dxgi::Common::*;
-use windows::Win32::Graphics::Imaging::{CLSID_WICImagingFactory, CLSID_WICPngDecoder, GUID_WICPixelFormat32bppBGR, GUID_WICPixelFormat32bppPRGBA, GUID_WICPixelFormat32bppRGBA, IWICImagingFactory, WICBitmapDitherTypeNone, WICBitmapPaletteTypeMedianCut, WICDecodeMetadataCacheOnDemand};
+use windows::Win32::Graphics::Imaging::*;
 use windows::Win32::System::Com::*;
-use windows::Win32::System::Com::StructuredStorage::CreateStreamOnHGlobal;
-use windows::Win32::System::Memory::{GlobalAlloc, GMEM_FIXED};
 use windows::Win32::UI::WindowsAndMessaging::GetClientRect;
 
 use gothic::renderable::{Canvas, Color, Image, TextAlignment, TextWrapping};
 use gothic::ui::geometry::{Point, Size};
 
-use crate::windows_image_provider::WindowsImage;
+use crate::windows_image_provider::WindowsImageProvider;
 
 pub struct Direct2DCanvas {
-    window_handle: HWND,
-    factory: ID2D1Factory1,
     write_factory: IDWriteFactory,
     imaging_factory: IWICImagingFactory,
     target: ID2D1HwndRenderTarget,
@@ -54,8 +48,6 @@ impl Direct2DCanvas {
         let text_format = create_text_format(&write_factory)?;
 
         Ok(Self {
-            window_handle,
-            factory,
             write_factory,
             imaging_factory,
             target,
@@ -135,15 +127,15 @@ impl Canvas for Direct2DCanvas {
 
     // Rectangle
 
-    fn set_rectangle_color(&self, fill_color: Color, outline_color: Color) {
+    fn set_rectangle_color(&self, _fill_color: Color, _outline_color: Color) {
         // todo!()
     }
 
-    fn draw_rectangle(&self, start: Point, size: Size) {
+    fn draw_rectangle(&self, _start: Point, _size: Size) {
         // todo!()
     }
 
-    fn get_text_size(&self, text: &str, container_size: Size, text_wrapping: TextWrapping) -> Size {
+    fn get_text_size(&self, text: &str, container_size: Size, _text_wrapping: TextWrapping) -> Size {
         let text_layout = create_text_layout(
             &self.write_factory,
             text,
@@ -207,34 +199,14 @@ impl Canvas for Direct2DCanvas {
 
     // Image
 
-    fn set_image_colors(&self, colors: [Color; 4]) {
+    fn set_image_colors(&self, _colors: [Color; 4]) {
         // todo!()
     }
 
     fn draw_image(&self, image: &dyn Image, start: Point) {
-        let windows_image = image.as_any()
-            .downcast_ref::<WindowsImage>()
-            .unwrap();
-
         unsafe {
-            let global_alloc = GlobalAlloc(GMEM_FIXED, windows_image.bytes.len()).unwrap();
-            let stream = CreateStreamOnHGlobal(global_alloc, false).unwrap();
-            stream.Write(windows_image.bytes.as_ptr() as *const _, windows_image.bytes.len() as u32, None).unwrap();
-
-            let decoder = self.imaging_factory.CreateDecoderFromStream(&stream, null(), WICDecodeMetadataCacheOnDemand).unwrap();
-
-            let source = decoder.GetFrame(0).unwrap();
-            let image = self.imaging_factory.CreateFormatConverter().unwrap();
-            image.Initialize(
-                &source,
-                &GUID_WICPixelFormat32bppPRGBA,
-                WICBitmapDitherTypeNone,
-                None,
-                0.0,
-                WICBitmapPaletteTypeMedianCut,
-            ).unwrap();
-
-            let bitmap = self.target.CreateBitmapFromWicBitmap(&image, None).unwrap();
+            let windows_image = WindowsImageProvider.get_mut_image(image.image_asset());
+            let bitmap = windows_image.bitmap(&self.imaging_factory, self.target.can_into());
 
             self.target.DrawBitmap(
                 &bitmap,

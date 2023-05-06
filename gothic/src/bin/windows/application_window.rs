@@ -10,7 +10,6 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 use gothic::GothicApplication;
 
 use crate::direct2d_canvas::Direct2DCanvas;
-use crate::fps_counter::FPSCounter;
 use crate::windows_controls::WindowsControls;
 use crate::windows_image_provider::WindowsImageProvider;
 
@@ -20,7 +19,6 @@ pub struct ApplicationWindow {
     window_handle: HWND,
     canvas: Option<Direct2DCanvas>,
     visible: bool,
-    fps_counter: FPSCounter,
 }
 
 impl ApplicationWindow {
@@ -33,7 +31,6 @@ impl ApplicationWindow {
             window_handle: HWND(0),
             canvas: None,
             visible: false,
-            fps_counter: FPSCounter::new(),
         })
     }
 

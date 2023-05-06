@@ -1,4 +1,5 @@
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_DOWN, VK_LEFT, VK_RIGHT, VK_UP, VK_X, VK_Z};
+
 use gothic::updatable::{Button, Controls};
 
 pub struct WindowsControls {

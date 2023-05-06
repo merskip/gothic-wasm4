@@ -3,52 +3,25 @@
 
 extern crate alloc;
 
-use core::any::Any;
 use core::panic::PanicInfo;
 
 use gothic::GothicApplication;
-use gothic::image_asset::ImageAsset;
-use gothic::renderable::{Image, ImageProvider};
-use gothic::ui::geometry::Size;
 use wasm4::application::Application;
 use wasm4::framebuffer::Framebuffer;
 use wasm4::inputs::Inputs;
 use wasm4::main_application;
-use wasm4::sprite::Sprite;
 
-use crate::sprites::*;
 use crate::wasm4_canvas::Wasm4Canvas;
 use crate::wasm4_controls::Wasm4Controls;
+use crate::wasm4_image_provider::Wasm4ImageProvider;
 
 mod wasm4_canvas;
 mod wasm4_controls;
 mod allocator;
 mod sprites;
-
-struct Wasm4ImageProvider;
-
-impl ImageProvider for Wasm4ImageProvider {
-    fn get_image(&self, asset: ImageAsset) -> &dyn Image {
-        match asset {
-            ImageAsset::Player => &SpriteImage(PLAYER_SPRITE),
-            ImageAsset::KingRhobar2 => &SpriteImage(KING__RHOBAR_2_SPRITE),
-            ImageAsset::Orc => &SpriteImage(ORC_SPRITE),
-            ImageAsset::Crossbones => &SpriteImage(CROSSBONES_SPRITE),
-        }
-    }
-}
-
-struct SpriteImage(&'static Sprite);
-
-impl Image for SpriteImage {
-    fn size(&self) -> Size {
-        Size::new(self.0.width, self.0.height)
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
+mod sprite_images;
+mod sprite_image;
+mod wasm4_image_provider;
 
 struct ApplicationWrapper {
     application: GothicApplication,
