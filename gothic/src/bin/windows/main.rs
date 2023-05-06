@@ -10,6 +10,8 @@ mod direct2d_canvas;
 mod windows_image;
 mod windows_platform;
 mod windows_audio_system;
+mod square_wave;
+mod noise_wave;
 
 fn main() -> windows::core::Result<()> {
     unsafe {

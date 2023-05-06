@@ -6,6 +6,9 @@ use rodio::source::SineWave;
 
 use gothic::audio::audio_system::AudioSystem;
 use gothic::audio::music::Instrument;
+use gothic::audio::music::Instrument::{Drum, Trumpet, Trumpet2};
+use crate::noise_wave::NoiseWave;
+use crate::square_wave::SquareWave;
 
 pub struct WindowsAudioSystem;
 
@@ -56,13 +59,23 @@ impl AudioSystem for WindowsAudioSystem {
             }.assume_init_ref()
         };
 
-        let sound_duration = channel.sound_duration(duration);
-        let source = SineWave::new(frequency as f32)
-            .take_duration(sound_duration)
-            .fade_in(Duration::from_millis(duration as u64 * 16));
+        if instrument == Trumpet || instrument == Trumpet2 {
+            let sound_duration = channel.sound_duration(duration);
+            let source = SquareWave::new(frequency as f32)
+                .take_duration(sound_duration)
+                .fade_in(Duration::from_millis(duration as u64 * 16));
 
-        channel.sink.stop();
-        channel.sink.append(source);
+            channel.sink.stop();
+            channel.sink.append(source);
+        } else if instrument == Drum {
+            let sound_duration = channel.sound_duration(duration);
+            let source = NoiseWave::new(frequency as f32)
+                .take_duration(sound_duration)
+                .fade_in(Duration::from_millis(duration as u64 * 16));
+
+            channel.sink.stop();
+            channel.sink.append(source);
+        }
     }
 }
 

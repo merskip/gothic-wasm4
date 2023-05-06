@@ -30,6 +30,7 @@ buddy-alloc = "0.4"
 
 [target.x86_64-pc-windows-msvc.dependencies]
 rodio = "0.17.1"
+rand = "0.8.4"
 
 [target.x86_64-pc-windows-msvc.dependencies.windows]
 version = "0.48"
