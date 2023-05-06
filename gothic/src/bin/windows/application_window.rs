@@ -10,8 +10,9 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 use gothic::GothicApplication;
 
 use crate::direct2d_canvas::Direct2DCanvas;
+use crate::windows_audio_system::WindowsAudioSystem;
 use crate::windows_controls::WindowsControls;
-use crate::windows_system::WindowsSystem;
+use crate::windows_platform::WindowsPlatform;
 
 pub struct ApplicationWindow {
     application: MaybeUninit<GothicApplication>,
@@ -166,7 +167,8 @@ impl ApplicationWindow {
     }
 
     fn handle_create(&mut self) -> Result<()> {
-        let application = GothicApplication::start(&WindowsSystem);
+        WindowsAudioSystem::initialize();
+        let application = GothicApplication::start(&WindowsPlatform);
         self.application.write(application);
 
         unsafe {

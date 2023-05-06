@@ -5,9 +5,9 @@ use gothic::renderable::ImageProvider;
 use crate::windows_audio_system::WindowsAudioSystem;
 use crate::windows_image_provider::WindowsImageProvider;
 
-pub struct WindowsSystem;
+pub struct WindowsPlatform;
 
-impl PlatformContext for WindowsSystem {
+impl PlatformContext for WindowsPlatform {
     fn image_provider(&self) -> &'static dyn ImageProvider {
         &WindowsImageProvider
     }

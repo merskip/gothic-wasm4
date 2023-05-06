@@ -3,6 +3,7 @@
 extern crate alloc;
 
 
+use alloc::boxed::Box;
 use crate::audio::music::Music;
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;

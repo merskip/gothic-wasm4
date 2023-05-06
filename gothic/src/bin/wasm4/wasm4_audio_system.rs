@@ -7,6 +7,10 @@ pub struct Wasm4AudioSystem;
 const SHARED_AUDIO: Audio = Audio::shared();
 
 impl AudioSystem for Wasm4AudioSystem {
+    fn stop_all(&self) {
+        // TODO
+    }
+
     fn tone(&self, instrument: Instrument, frequency: u32, duration: u32, volume: f32) {
         let instrument_details = InstrumentDetails::from(instrument);
         SHARED_AUDIO.tone(
