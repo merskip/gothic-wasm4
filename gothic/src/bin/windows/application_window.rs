@@ -11,7 +11,7 @@ use gothic::GothicApplication;
 
 use crate::direct2d_canvas::Direct2DCanvas;
 use crate::windows_controls::WindowsControls;
-use crate::windows_image_provider::WindowsImageProvider;
+use crate::windows_system::WindowsSystem;
 
 pub struct ApplicationWindow {
     application: MaybeUninit<GothicApplication>,
@@ -166,7 +166,7 @@ impl ApplicationWindow {
     }
 
     fn handle_create(&mut self) -> Result<()> {
-        let application = GothicApplication::start(&WindowsImageProvider);
+        let application = GothicApplication::start(&WindowsSystem);
         self.application.write(application);
 
         unsafe {

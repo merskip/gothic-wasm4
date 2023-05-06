@@ -2,12 +2,11 @@
 
 extern crate alloc;
 
-use core::mem::MaybeUninit;
 
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;
-use crate::image_asset::ImageAsset;
-use crate::renderable::{Canvas, Image, ImageProvider, RenderContext};
+use crate::renderable::{Canvas, RenderContext};
+use crate::system::{set_shared_system, System};
 use crate::ui::geometry::{Point, Rect};
 use crate::ui::navigator::Navigator;
 use crate::updatable::{Controls, UpdateContext};
@@ -21,6 +20,7 @@ pub mod dispatcher;
 // pub mod music_clips;
 pub mod dialogue;
 pub mod image_asset;
+pub mod system;
 
 pub struct GothicApplication {
     dispatcher: Dispatcher,
@@ -29,10 +29,8 @@ pub struct GothicApplication {
 }
 
 impl GothicApplication {
-    pub fn start(image_provider: &'static dyn ImageProvider) -> Self {
-        unsafe {
-            SHARED_IMAGE_PROVIDER.write(image_provider);
-        }
+    pub fn start(system: &'static dyn System) -> Self {
+        set_shared_system(system);
 
         let mut navigator = Navigator::new();
         navigator.push_view(make_main_menu());
@@ -73,11 +71,4 @@ impl GothicApplication {
             top_view.render(&mut context);
         }
     }
-}
-
-static mut SHARED_IMAGE_PROVIDER: MaybeUninit<&dyn ImageProvider> = MaybeUninit::uninit();
-
-pub fn get_shared_image(image_asset: ImageAsset) -> &'static dyn Image {
-    let shared_image_provider = unsafe { SHARED_IMAGE_PROVIDER.assume_init() };
-    shared_image_provider.get_image(image_asset)
 }

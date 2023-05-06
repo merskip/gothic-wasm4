@@ -1,9 +1,9 @@
 use crate::game::game_scene::make_game_scene;
-use crate::get_shared_image;
 use crate::image_asset::ImageAsset;
 use crate::image_asset::ImageAsset::KingRhobar2;
 use crate::renderable::Canvas;
 use crate::renderable::Color::{Primary, Secondary, Tertiary, Transparent};
+use crate::system::get_image;
 use crate::ui::cinematic::cinematic::{Cinematic, CinematicScreen};
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
 use crate::ui::geometry::{Point, Rect};
@@ -75,7 +75,7 @@ fn draw_king_rhobar_2_scene(canvas: &dyn Canvas, frame: Rect) {
         Transparent,
         Transparent,
     ]);
-    let king_image = get_shared_image(KingRhobar2);
+    let king_image = get_image(KingRhobar2);
     canvas.draw_image(king_image, frame.centered(king_image.size()).origin);
 }
 
@@ -98,7 +98,7 @@ fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
         Transparent,
         Tertiary,
     ]);
-    let orc_image = get_shared_image(ImageAsset::Orc);
+    let orc_image = get_image(ImageAsset::Orc);
     for origin in orc_positions {
         canvas.draw_image(orc_image, frame.origin + origin);
     }
@@ -116,7 +116,7 @@ fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
         Transparent,
         Transparent
     ]);
-    let crossbones_image = get_shared_image(ImageAsset::Crossbones);
+    let crossbones_image = get_image(ImageAsset::Crossbones);
     for origin in crossbones_positions {
         canvas.draw_image(crossbones_image, frame.origin + origin);
     }

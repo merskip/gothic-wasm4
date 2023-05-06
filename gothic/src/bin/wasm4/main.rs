@@ -13,7 +13,7 @@ use wasm4::main_application;
 
 use crate::wasm4_canvas::Wasm4Canvas;
 use crate::wasm4_controls::Wasm4Controls;
-use crate::wasm4_image_provider::Wasm4ImageProvider;
+use crate::wasm4_system::Wasm4System;
 
 mod wasm4_canvas;
 mod wasm4_controls;
@@ -22,6 +22,7 @@ mod sprites;
 mod sprite_images;
 mod sprite_image;
 mod wasm4_image_provider;
+mod wasm4_system;
 
 struct ApplicationWrapper {
     application: GothicApplication,
@@ -29,7 +30,9 @@ struct ApplicationWrapper {
 
 impl Application for ApplicationWrapper {
     fn start() -> Self {
-        ApplicationWrapper { application: GothicApplication::start(&Wasm4ImageProvider) }
+        ApplicationWrapper {
+            application: GothicApplication::start(&Wasm4System)
+        }
     }
 
     fn update(&mut self, inputs: &Inputs) {
