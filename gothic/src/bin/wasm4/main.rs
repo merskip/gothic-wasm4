@@ -23,6 +23,7 @@ mod sprite_images;
 mod sprite_image;
 mod wasm4_image_provider;
 mod wasm4_system;
+mod wasm4_audio_system;
 
 struct ApplicationWrapper {
     application: GothicApplication,
