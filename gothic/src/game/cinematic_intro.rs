@@ -1,12 +1,11 @@
 use crate::game::game_scene::make_game_scene;
 use crate::image_asset::ImageAsset;
 use crate::image_asset::ImageAsset::KingRhobar2;
-use crate::renderable::Canvas;
+use crate::renderable::RenderContext;
 use crate::renderable::Color::{Primary, Secondary, Tertiary, Transparent};
-use crate::system::get_image;
 use crate::ui::cinematic::cinematic::{Cinematic, CinematicScreen};
 use crate::ui::cinematic::cinematic_player::CinematicPlayer;
-use crate::ui::geometry::{Point, Rect};
+use crate::ui::geometry::Point;
 
 pub fn make_cinematic_intro() -> CinematicPlayer {
     CinematicPlayer::new(
@@ -66,20 +65,20 @@ pub static CINEMATIC_INTRO: Cinematic = Cinematic::new(
     ]
 );
 
-fn draw_nothing(_canvas: &dyn Canvas, _frame: Rect) {}
+fn draw_nothing(_context: &RenderContext) {}
 
-fn draw_king_rhobar_2_scene(canvas: &dyn Canvas, frame: Rect) {
-    canvas.set_image_colors([
+fn draw_king_rhobar_2_scene(context: &RenderContext) {
+    context.canvas.set_image_colors([
         Transparent,
         Secondary,
         Transparent,
         Transparent,
     ]);
-    let king_image = get_image(KingRhobar2);
-    canvas.draw_image(king_image, frame.centered(king_image.size()).origin);
+    let king_image = context.platform.image_provider().get_image(KingRhobar2);
+    context.canvas.draw_image(king_image, context.frame.centered(king_image.size()).origin);
 }
 
-fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
+fn draw_orc_scene(context: &RenderContext) {
     let orc_positions = [
         Point::new(10, 10),
         Point::new(20, 20),
@@ -92,15 +91,15 @@ fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
         Point::new(20, 60),
         Point::new(10, 70),
     ];
-    canvas.set_image_colors([
+    context.canvas.set_image_colors([
         Primary,
         Secondary,
         Transparent,
         Tertiary,
     ]);
-    let orc_image = get_image(ImageAsset::Orc);
+    let orc_image = context.platform.image_provider().get_image(ImageAsset::Orc);
     for origin in orc_positions {
-        canvas.draw_image(orc_image, frame.origin + origin);
+        context.canvas.draw_image(orc_image, context.frame.origin + origin);
     }
 
     let crossbones_positions = [
@@ -110,14 +109,14 @@ fn draw_orc_scene(canvas: &dyn Canvas, frame: Rect) {
         Point::new(90, 70),
         Point::new(120, 75),
     ];
-    canvas.set_image_colors([
+    context.canvas.set_image_colors([
         Transparent,
         Secondary,
         Transparent,
         Transparent
     ]);
-    let crossbones_image = get_image(ImageAsset::Crossbones);
+    let crossbones_image = context.platform.image_provider().get_image(ImageAsset::Crossbones);
     for origin in crossbones_positions {
-        canvas.draw_image(crossbones_image, frame.origin + origin);
+        context.canvas.draw_image(crossbones_image, context.frame.origin + origin);
     }
 }

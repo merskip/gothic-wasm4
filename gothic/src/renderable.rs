@@ -1,6 +1,7 @@
 use core::any::Any;
 
 use crate::image_asset::ImageAsset;
+use crate::platform_context::PlatformContext;
 use crate::ui::geometry::{Point, Rect, Size};
 use crate::updatable::Updatable;
 
@@ -11,24 +12,23 @@ pub trait Renderable: Updatable {
 pub struct RenderContext<'a> {
     pub canvas: &'a dyn Canvas,
     pub frame: Rect,
+    pub platform: &'a dyn PlatformContext,
 }
 
 impl<'a> RenderContext<'a> {
-    pub fn new(canvas: &'a dyn Canvas, frame: Rect) -> Self {
-        Self { canvas, frame }
+    pub fn new(canvas: &'a dyn Canvas, frame: Rect, platform: &'a dyn PlatformContext) -> Self {
+        Self { canvas, frame, platform }
     }
 
     pub fn with(&self, origin: Point, size: Size) -> Self {
-        Self {
-            canvas: self.canvas,
-            frame: Rect::new(origin, size),
-        }
+        self.with_frame(Rect::new(origin, size))
     }
 
     pub fn with_frame(&self, frame: Rect) -> Self {
         Self {
             canvas: self.canvas,
             frame,
+            platform: self.platform,
         }
     }
 }

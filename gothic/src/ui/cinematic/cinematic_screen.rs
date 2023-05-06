@@ -45,7 +45,7 @@ impl Renderable for CinematicScreenView {
             context.frame.origin,
             Size::new(context.frame.size.width, context.frame.size.height - separator_y as u32),
         );
-        (self.screen.draw_art)(context.canvas, art_frame);
+        (self.screen.draw_art)(&context.with_frame(art_frame));
 
         context.canvas.set_line_color(Secondary);
         context.canvas.draw_line(Point::new(context.frame.min_x(), separator_y),

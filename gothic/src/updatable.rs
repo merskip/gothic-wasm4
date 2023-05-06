@@ -1,4 +1,5 @@
 use crate::dispatcher::Dispatcher;
+use crate::platform_context::PlatformContext;
 use crate::ui::navigator::Navigator;
 
 pub trait Updatable {
@@ -9,7 +10,7 @@ pub struct UpdateContext<'a> {
     pub dispatcher: &'a Dispatcher,
     pub navigator: &'a mut Navigator,
     pub controls: &'a dyn Controls,
-    // pub music: &'a mut Music,
+    pub platform: &'a dyn PlatformContext,
 }
 
 impl<'a> UpdateContext<'a> {
@@ -17,8 +18,9 @@ impl<'a> UpdateContext<'a> {
         dispatcher: &'a Dispatcher,
         navigator: &'a mut Navigator,
         controls: &'a dyn Controls,
+        platform: &'a dyn PlatformContext,
     ) -> Self {
-        Self { dispatcher, controls, navigator }
+        Self { dispatcher, controls, navigator, platform }
     }
 }
 

@@ -5,7 +5,6 @@ use crate::game::game_world::GameWorld;
 use crate::game::player::Player;
 use crate::image_asset::ImageAsset;
 use crate::renderable::{Color, Renderable, RenderContext};
-use crate::system::get_image;
 use crate::ui::dialogue::dialogue_overlay::DialogueOverlay;
 use crate::ui::geometry::{Point, Vector};
 use crate::updatable::{Updatable, UpdateContext};
@@ -56,7 +55,7 @@ impl Renderable for GameScene {
 
 impl GameScene {
     fn render_player(&self, context: &mut RenderContext) {
-        let player_image = get_image(ImageAsset::Player);
+        let player_image = context.platform.image_provider().get_image(ImageAsset::Player);
         let position = context.frame.origin + Point::new(
             (self.game_world.player.position.x - (player_image.size().width as f32) / 2.0) as i32,
             (self.game_world.player.position.y - (player_image.size().height as f32) / 2.0) as i32,

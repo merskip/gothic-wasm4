@@ -6,7 +6,7 @@ extern crate alloc;
 use crate::dispatcher::Dispatcher;
 use crate::game::main_menu::make_main_menu;
 use crate::renderable::{Canvas, RenderContext};
-use crate::system::{set_shared_system, System};
+use crate::platform_context::PlatformContext;
 use crate::ui::geometry::{Point, Rect};
 use crate::ui::navigator::Navigator;
 use crate::updatable::{Controls, UpdateContext};
@@ -20,18 +20,16 @@ pub mod dispatcher;
 // pub mod music_clips;
 pub mod dialogue;
 pub mod image_asset;
-pub mod system;
+pub mod platform_context;
 
 pub struct GothicApplication {
     dispatcher: Dispatcher,
     navigator: Navigator,
-    // music: Music,
+    platform: &'static dyn PlatformContext,
 }
 
 impl GothicApplication {
-    pub fn start(system: &'static dyn System) -> Self {
-        set_shared_system(system);
-
+    pub fn start(platform: &'static dyn PlatformContext) -> Self {
         let mut navigator = Navigator::new();
         navigator.push_view(make_main_menu());
 
@@ -41,7 +39,7 @@ impl GothicApplication {
         Self {
             dispatcher: Dispatcher::new(),
             navigator,
-            // music,
+            platform,
         }
     }
 
@@ -50,7 +48,7 @@ impl GothicApplication {
             &mut self.dispatcher,
             &mut self.navigator,
             controls,
-            // &mut self.music,
+            self.platform,
         );
 
         if let Some(mut top_view) = context.navigator.top_view_mut() {
@@ -67,7 +65,7 @@ impl GothicApplication {
             canvas.get_size(),
         );
         if let Some(top_view) = self.navigator.top_view() {
-            let mut context = RenderContext::new(canvas, frame);
+            let mut context = RenderContext::new(canvas, frame, self.platform);
             top_view.render(&mut context);
         }
     }

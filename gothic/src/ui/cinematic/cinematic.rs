@@ -1,5 +1,4 @@
-use crate::renderable::Canvas;
-use crate::ui::geometry::Rect;
+use crate::renderable::RenderContext;
 
 pub struct Cinematic {
     pub(crate) screens: &'static [CinematicScreen],
@@ -13,11 +12,11 @@ impl Cinematic {
 
 pub struct CinematicScreen {
     pub(crate) text: &'static str,
-    pub(crate) draw_art: fn(&dyn Canvas, Rect),
+    pub(crate) draw_art: fn(context: &RenderContext),
 }
 
 impl CinematicScreen {
-    pub const fn new(title: &'static str, draw: fn(&dyn Canvas, Rect)) -> Self {
+    pub const fn new(title: &'static str, draw: fn(context: &RenderContext)) -> Self {
         Self { text: title, draw_art: draw }
     }
 }
