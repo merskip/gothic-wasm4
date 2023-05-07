@@ -7,6 +7,7 @@ use rodio::source::SineWave;
 
 use gothic::audio::audio_system::AudioSystem;
 use gothic::audio::music::Instrument;
+use crate::adsr_envelope::SourceADSREnvelope;
 
 use crate::noise_wave::NoiseWave;
 use crate::square_wave::SquareWave;
@@ -93,7 +94,12 @@ impl AudioSystem for WindowsAudioSystem {
             Instrument::Drum => {
                 let source = NoiseWave::new(frequency as f32)
                     .take_duration(sound_duration)
-                    .amplify(volume);
+                    .adsr_envelope(
+                        Duration::from_millis(1),
+                        Duration::from_millis(1),
+                        Duration::from_millis(1),
+                        Duration::from_millis(1),
+                    );
 
                 sink.stop();
                 sink.append(source);

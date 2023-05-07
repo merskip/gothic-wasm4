@@ -12,6 +12,7 @@ mod windows_platform;
 mod windows_audio_system;
 mod square_wave;
 mod noise_wave;
+mod adsr_envelope;
 
 fn main() -> windows::core::Result<()> {
     unsafe {
