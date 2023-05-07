@@ -1,9 +1,7 @@
-use std::io::stdout;
 use std::mem::MaybeUninit;
 use std::time::Duration;
 
-use rodio::{OutputStream, OutputStreamHandle, Sink, source::Source};
-use rodio::source::SineWave;
+use rodio::{OutputStream, OutputStreamHandle, Sink};
 
 use gothic::audio::audio_system::AudioSystem;
 use gothic::audio::music::Instrument;
@@ -35,18 +33,18 @@ impl WindowsAudioSystem {
         unsafe {
             CHANNEL_TRUMPET_1.write(InstrumentChannel {
                 sink: trumpet1_sink,
-                attack_duration: 2 * 16,
-                release_duration: 150 * 16,
+                attack: Duration::from_millis(2 * 16),
+                release: Duration::from_millis(150 * 16),
             });
             CHANNEL_TRUMPET_2.write(InstrumentChannel {
                 sink: trumpet2_sink,
-                attack_duration: 2 * 16,
-                release_duration: 15 * 16,
+                attack: Duration::from_millis(2 * 16),
+                release: Duration::from_millis(15 * 16),
             });
             CHANNEL_DRUM.write(InstrumentChannel {
                 sink: drum_sink,
-                attack_duration: 0 * 16,
-                release_duration: 15 * 16,
+                attack: Duration::from_millis(0 * 16),
+                release: Duration::from_millis(15 * 16),
             });
 
             STREAM.write(stream);
@@ -69,14 +67,19 @@ impl AudioSystem for WindowsAudioSystem {
             }
         };
 
-        let sound_duration = instrument_channel.sound_duration(duration);
         let sink = &instrument_channel.sink;
 
         match instrument {
             Instrument::Trumpet1 => {
                 let source = SquareWave::new(frequency as f32, 0.75)
-                    .take_duration(sound_duration)
-                    .amplify(volume);
+                    .adsr_envelope(
+                        instrument_channel.attack,
+                        Duration::from_millis(0),
+                        Duration::from_millis(duration as u64 * 16),
+                        instrument_channel.release,
+                        volume,
+                        volume
+                    );
 
                 sink.stop();
                 sink.append(source);
@@ -84,8 +87,14 @@ impl AudioSystem for WindowsAudioSystem {
 
             Instrument::Trumpet2 => {
                 let source = SquareWave::new(frequency as f32, 0.5)
-                    .take_duration(sound_duration)
-                    .amplify(volume);
+                    .adsr_envelope(
+                        instrument_channel.attack,
+                        Duration::from_millis(0),
+                        Duration::from_millis(duration as u64 * 16),
+                        instrument_channel.release,
+                        volume,
+                        volume
+                    );
 
                 sink.stop();
                 sink.append(source);
@@ -93,12 +102,13 @@ impl AudioSystem for WindowsAudioSystem {
 
             Instrument::Drum => {
                 let source = NoiseWave::new(frequency as f32)
-                    .take_duration(sound_duration)
                     .adsr_envelope(
-                        Duration::from_millis(1),
-                        Duration::from_millis(1),
-                        Duration::from_millis(1),
-                        Duration::from_millis(1),
+                        instrument_channel.attack,
+                        Duration::from_millis(0),
+                        Duration::from_millis(duration as u64 * 16),
+                        instrument_channel.release,
+                        volume,
+                        volume
                     );
 
                 sink.stop();
@@ -110,16 +120,6 @@ impl AudioSystem for WindowsAudioSystem {
 
 struct InstrumentChannel {
     pub sink: Sink,
-    pub attack_duration: u64,
-    pub release_duration: u64,
-}
-
-impl InstrumentChannel {
-    fn sound_duration(&self, sustain: u32) -> Duration {
-        Duration::from_millis(
-            (self.attack_duration * 16)
-                + (sustain as u64 * 16)
-                + (self.release_duration * 16)
-        )
-    }
+    pub attack: Duration,
+    pub release: Duration,
 }
