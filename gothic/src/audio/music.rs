@@ -82,7 +82,7 @@ pub struct Sound {
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Instrument {
-    Trumpet,
+    Trumpet1,
     Trumpet2,
     Drum,
 }
@@ -96,7 +96,7 @@ pub struct ClipInstrumentData {
 pub struct ClipData {
     pub bpm: Bpm,
     pub length: isize,
-    pub instrument_data: [ClipInstrumentData; 3],
+    pub instrument_data: &'static [ClipInstrumentData],
 }
 
 pub struct Music {
@@ -139,7 +139,7 @@ impl Music {
         }
         self.beat_counter = beat;
 
-        for instrument_data in &clip_data.instrument_data {
+        for instrument_data in clip_data.instrument_data {
             let loop_length = instrument_data.length;
             let sound = instrument_data.sound_list
                 .iter()

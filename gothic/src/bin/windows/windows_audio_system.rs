@@ -1,3 +1,4 @@
+use std::io::stdout;
 use std::mem::MaybeUninit;
 use std::time::Duration;
 
@@ -6,7 +7,7 @@ use rodio::source::SineWave;
 
 use gothic::audio::audio_system::AudioSystem;
 use gothic::audio::music::Instrument;
-use gothic::audio::music::Instrument::{Drum, Trumpet, Trumpet2};
+
 use crate::noise_wave::NoiseWave;
 use crate::square_wave::SquareWave;
 
@@ -22,19 +23,27 @@ impl WindowsAudioSystem {
     pub fn initialize() {
         let (stream, steam_handle) = OutputStream::try_default().unwrap();
 
+        let trumpet1_sink = Sink::try_new(&steam_handle).unwrap();
+        let trumpet2_sink = Sink::try_new(&steam_handle).unwrap();
+        let drum_sink = Sink::try_new(&steam_handle).unwrap();
+
+        for sink in [&trumpet1_sink, &trumpet2_sink, &drum_sink] {
+            sink.set_volume(0.2);
+        }
+
         unsafe {
             CHANNEL_TRUMPET_1.write(InstrumentChannel {
-                sink: Sink::try_new(&steam_handle).unwrap(),
+                sink: trumpet1_sink,
                 attack_duration: 2 * 16,
                 release_duration: 150 * 16,
             });
             CHANNEL_TRUMPET_2.write(InstrumentChannel {
-                sink: Sink::try_new(&steam_handle).unwrap(),
+                sink: trumpet2_sink,
                 attack_duration: 2 * 16,
                 release_duration: 15 * 16,
             });
             CHANNEL_DRUM.write(InstrumentChannel {
-                sink: Sink::try_new(&steam_handle).unwrap(),
+                sink: drum_sink,
                 attack_duration: 0 * 16,
                 release_duration: 15 * 16,
             });
@@ -50,31 +59,45 @@ impl AudioSystem for WindowsAudioSystem {
         // TODO
     }
 
-    fn tone(&self, instrument: Instrument, frequency: u32, duration: u32, _volume: f32) {
-        let channel = unsafe {
+    fn tone(&self, instrument: Instrument, frequency: u32, duration: u32, volume: f32) {
+        let instrument_channel = unsafe {
             match instrument {
-                Instrument::Trumpet => &CHANNEL_TRUMPET_1,
-                Instrument::Trumpet2 => &CHANNEL_TRUMPET_2,
-                Instrument::Drum => &CHANNEL_DRUM,
-            }.assume_init_ref()
+                Instrument::Trumpet1 => CHANNEL_TRUMPET_1.assume_init_ref(),
+                Instrument::Trumpet2 => CHANNEL_TRUMPET_2.assume_init_ref(),
+                Instrument::Drum => CHANNEL_DRUM.assume_init_ref(),
+            }
         };
 
-        if instrument == Trumpet || instrument == Trumpet2 {
-            let sound_duration = channel.sound_duration(duration);
-            let source = SquareWave::new(frequency as f32)
-                .take_duration(sound_duration)
-                .fade_in(Duration::from_millis(duration as u64 * 16));
+        let sound_duration = instrument_channel.sound_duration(duration);
+        let sink = &instrument_channel.sink;
 
-            channel.sink.stop();
-            channel.sink.append(source);
-        } else if instrument == Drum {
-            let sound_duration = channel.sound_duration(duration);
-            let source = NoiseWave::new(frequency as f32)
-                .take_duration(sound_duration)
-                .fade_in(Duration::from_millis(duration as u64 * 16));
+        match instrument {
+            Instrument::Trumpet1 => {
+                let source = SquareWave::new(frequency as f32, 0.75)
+                    .take_duration(sound_duration)
+                    .amplify(volume);
 
-            channel.sink.stop();
-            channel.sink.append(source);
+                sink.stop();
+                sink.append(source);
+            }
+
+            Instrument::Trumpet2 => {
+                let source = SquareWave::new(frequency as f32, 0.5)
+                    .take_duration(sound_duration)
+                    .amplify(volume);
+
+                sink.stop();
+                sink.append(source);
+            }
+
+            Instrument::Drum => {
+                let source = NoiseWave::new(frequency as f32)
+                    .take_duration(sound_duration)
+                    .amplify(volume);
+
+                sink.stop();
+                sink.append(source);
+            },
         }
     }
 }

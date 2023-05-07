@@ -28,9 +28,9 @@ impl Iterator for NoiseWave {
 
     #[inline]
     fn next(&mut self) -> Option<f32> {
-        let mut rng = self.rng.get_mut();
-        let random = rng.gen::<f32>() * 2.0 - 1.0;
-        Some(random)
+        // let mut rng = self.rng.get_mut();
+        // let random = rng.gen::<f32>() * 2.0 - 1.0;
+        Some(1.0)
     }
 }
 
@@ -47,7 +47,7 @@ impl Source for NoiseWave {
 
     #[inline]
     fn sample_rate(&self) -> u32 {
-        self.freq as u32 * 2
+        48000
     }
 
     #[inline]

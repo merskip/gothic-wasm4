@@ -3,9 +3,9 @@ use crate::audio::music::{Bpm, ClipData, ClipInstrumentData, Instrument, Note, N
 pub static MAIN_THEME: ClipData = ClipData {
     bpm: Bpm::Bpm164,
     length: 160,
-    instrument_data: [
+    instrument_data: &[
         ClipInstrumentData {
-            instrument: Instrument::Trumpet,
+            instrument: Instrument::Trumpet1,
             length: 160,
             sound_list: &[
                 Sound { beat: 0, octave: Octave::OCT_3, note: Note::c(NoteLength::DOUBLE), volume: 100 },
@@ -34,18 +34,18 @@ pub static MAIN_THEME: ClipData = ClipData {
             instrument: Instrument::Trumpet2,
             length: 160,
             sound_list: &[
-                Sound { beat: 0, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 16, octave: Octave::OCT_2, note: Note::g_s(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 32, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 48, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 64, octave: Octave::OCT_3, note: Note::c(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 80, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 96, octave: Octave::OCT_2, note: Note::f(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 112, octave: Octave::OCT_2, note: Note::d_s(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 128, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 143, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 30 },
-                Sound { beat: 144, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 30 },
-                Sound { beat: 159, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 30 },
+                Sound { beat: 0, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 16, octave: Octave::OCT_2, note: Note::g_s(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 32, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 48, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 64, octave: Octave::OCT_3, note: Note::c(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 80, octave: Octave::OCT_2, note: Note::a_s(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 96, octave: Octave::OCT_2, note: Note::f(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 112, octave: Octave::OCT_2, note: Note::d_s(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 128, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 143, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 75 },
+                Sound { beat: 144, octave: Octave::OCT_2, note: Note::c(NoteLength::QUAD), volume: 75 },
+                Sound { beat: 159, octave: Octave::OCT_1, note: Note::b(NoteLength::QUARTER), volume: 75 },
             ],
         },
         ClipInstrumentData {

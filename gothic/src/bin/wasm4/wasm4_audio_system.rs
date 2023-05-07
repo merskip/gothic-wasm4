@@ -65,7 +65,7 @@ impl InstrumentDetails {
 impl From<Instrument> for InstrumentDetails {
     fn from(value: Instrument) -> Self {
         match value {
-            Instrument::Trumpet => Self::TRUMPET_1,
+            Instrument::Trumpet1 => Self::TRUMPET_1,
             Instrument::Trumpet2 => Self::TRUMPET_2,
             Instrument::Drum => Self::DRUM,
         }
