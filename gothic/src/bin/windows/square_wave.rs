@@ -2,20 +2,20 @@ use std::time::Duration;
 use rodio::Source;
 
 /// An infinite source that produces a square wave.
-/// Always has a rate of 48kHz and one channel.
+/// Always has a rate of 44.1KHz and one channel.
 pub struct SquareWave {
     frequency: f32,
     fill_factor: f32,
-    simple_rate: f32,
     num_sample: usize,
 }
+
+const SAMPLE_RATE: f32 = 44_100.0;
 
 impl SquareWave {
     pub fn new(frequency: f32, fill_factor: f32) -> SquareWave {
         SquareWave {
             frequency,
             fill_factor,
-            simple_rate: 48_000.0,
             num_sample: 0,
         }
     }
@@ -28,7 +28,7 @@ impl Iterator for SquareWave {
     fn next(&mut self) -> Option<f32> {
         self.num_sample = self.num_sample.wrapping_add(1);
 
-        let value = self.frequency * self.num_sample as f32 % self.simple_rate / self.simple_rate;
+        let value = self.frequency * self.num_sample as f32 % SAMPLE_RATE / SAMPLE_RATE;
         return if value > self.fill_factor {
             Some(1.0)
         } else {
@@ -50,7 +50,7 @@ impl Source for SquareWave {
 
     #[inline]
     fn sample_rate(&self) -> u32 {
-        self.simple_rate as u32
+        SAMPLE_RATE as u32
     }
 
     #[inline]

@@ -1,24 +1,25 @@
-use std::cell::RefCell;
+use std::ops::BitAnd;
 use std::time::Duration;
-use rand::Rng;
-use rand::rngs::ThreadRng;
 
 use rodio::Source;
 
+/// Implementation from https://github.com/aduros/wasm4/blob/main/runtimes/native/src/apu.c
 pub struct NoiseWave {
-    freq: f32,
-    rng: RefCell<ThreadRng>,
+    frequency: f32,
+    phase: f32,
+    seed: u16,
+    last_random: f32,
 }
 
-unsafe impl Send for NoiseWave {
-
-}
+const SAMPLE_RATE: f32 = 44_100.0;
 
 impl NoiseWave {
     pub fn new(freq: f32) -> NoiseWave {
         NoiseWave {
-            freq,
-            rng: RefCell::new(rand::thread_rng()),
+            frequency: freq,
+            phase: 0.0,
+            seed: 0x0001,
+            last_random: 0.0,
         }
     }
 }
@@ -28,9 +29,15 @@ impl Iterator for NoiseWave {
 
     #[inline]
     fn next(&mut self) -> Option<f32> {
-        // let mut rng = self.rng.get_mut();
-        // let random = rng.gen::<f32>() * 2.0 - 1.0;
-        Some(1.0)
+        self.phase += self.frequency * self.frequency / (1_000_000.0 / SAMPLE_RATE * SAMPLE_RATE);
+        while self.phase > 0.0 {
+            self.phase -= 1.0;
+            self.seed ^= self.seed >> 7;
+            self.seed ^= self.seed << 9;
+            self.seed ^= self.seed >> 13;
+            self.last_random = (self.seed.bitand(0x1) as f32) * 2.0 - 1.0;
+        }
+        Some(self.last_random)
     }
 }
 
@@ -47,7 +54,7 @@ impl Source for NoiseWave {
 
     #[inline]
     fn sample_rate(&self) -> u32 {
-        48000
+        SAMPLE_RATE as u32
     }
 
     #[inline]
