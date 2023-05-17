@@ -2,6 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/GunwOS-rs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/GunwOS-rs/GunwOS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/wasm4" vcs="Git" />
   </component>
 </project>

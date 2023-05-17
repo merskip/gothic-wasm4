@@ -1,3 +1,6 @@
 [submodule "wasm4"]
 	path = wasm4
 	url = https://github.com/merskip/wasm4
+[submodule "GunwOS-rs"]
+	path = GunwOS-rs
+	url = https://github.com/Bronex-Production/GunwOS-rs.git

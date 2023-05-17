@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/gothic/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/wasm4/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GunwOS-rs/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GunwOS-rs/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

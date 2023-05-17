@@ -16,6 +16,9 @@ bench = false
 [[bin]]
 name = "windows"
 
+[[bin]]
+name ="gunwos"
+
 [dependencies]
 libm = "0.2"
 
@@ -52,3 +55,7 @@ features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Input_KeyboardAndMouse",
 ]
+
+[target.i386-gunwos-unknown.dependencies]
+gunwos_rs = { path = "../GunwOS-rs" }
+buddy-alloc = "0.4"
